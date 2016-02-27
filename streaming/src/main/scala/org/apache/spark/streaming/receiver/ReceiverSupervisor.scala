@@ -75,21 +75,24 @@ private[streaming] abstract class ReceiverSupervisor(
   def pushBytes(
       bytes: ByteBuffer,
       optionalMetadata: Option[Any],
-      optionalBlockId: Option[StreamBlockId]
+      optionalBlockId: Option[StreamBlockId],
+      numRecordsLimit: Option[Long]
     )
 
   /** Store a iterator of received data as a data block into Spark's memory. */
   def pushIterator(
       iterator: Iterator[_],
       optionalMetadata: Option[Any],
-      optionalBlockId: Option[StreamBlockId]
+      optionalBlockId: Option[StreamBlockId],
+      numRecordsLimit: Option[Long]
     )
 
   /** Store an ArrayBuffer of received data as a data block into Spark's memory. */
   def pushArrayBuffer(
       arrayBuffer: ArrayBuffer[_],
       optionalMetadata: Option[Any],
-      optionalBlockId: Option[StreamBlockId]
+      optionalBlockId: Option[StreamBlockId],
+      numRecordsLimit: Option[Long]
     )
 
   /**

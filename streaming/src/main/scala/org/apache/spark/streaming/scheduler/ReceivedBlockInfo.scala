@@ -25,6 +25,7 @@ import org.apache.spark.streaming.util.WriteAheadLogRecordHandle
 private[streaming] case class ReceivedBlockInfo(
     streamId: Int,
     numRecords: Option[Long],
+    numRecordsLimit: Option[Long],
     metadataOption: Option[Any],
     blockStoreResult: ReceivedBlockStoreResult
   ) {
