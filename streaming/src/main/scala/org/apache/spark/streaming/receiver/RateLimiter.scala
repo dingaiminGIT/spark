@@ -21,6 +21,8 @@ import com.google.common.util.concurrent.{RateLimiter => GuavaRateLimiter}
 
 import org.apache.spark.{Logging, SparkConf}
 
+import scala.collection.mutable.ArrayBuffer
+
 /** Provides waitToPush() method to limit the rate at which receivers consume data.
   *
   * waitToPush method will block the thread if too many messages have been pushed too quickly,
@@ -57,8 +59,10 @@ private[receiver] abstract class RateLimiter(conf: SparkConf) extends Logging {
     if (newRate > 0) {
       if (maxRateLimit > 0) {
         rateLimiter.setRate(newRate.min(maxRateLimit))
+        appendRateToHistory(newRate.min(maxRateLimit))
       } else {
         rateLimiter.setRate(newRate)
+        appendRateToHistory(newRate)
       }
     }
 
@@ -67,5 +71,36 @@ private[receiver] abstract class RateLimiter(conf: SparkConf) extends Logging {
    */
   private def getInitialRateLimit(): Long = {
     math.min(conf.getLong("spark.streaming.backpressure.initialRate", maxRateLimit), maxRateLimit)
+  }
+
+  case class RateLimitSnapshot(rate: Double, ts: Long)
+
+  val rateLimitHistory: ArrayBuffer[RateLimitSnapshot] =
+    ArrayBuffer(RateLimitSnapshot(getInitialRateLimit().toDouble, -1L))
+
+  private[streaming] def appendRateToHistory(rate: Double, ts: Long = System.currentTimeMillis()) {
+    rateLimitHistory.synchronized {
+      rateLimitHistory += RateLimitSnapshot(rate, ts)
+    }
+  }
+
+  private val blockIntervalMs = conf.getTimeAsMs("spark.streaming.blockInterval", "200ms")
+
+  private[streaming] def sumHistoryThenTrim(ts: Long = System.currentTimeMillis()): Long = {
+    var sum: Double = 0
+    rateLimitHistory.synchronized {
+      rateLimitHistory += RateLimitSnapshot(rateLimitHistory.last.rate, ts)
+      for (idx <- 0 until rateLimitHistory.length - 1) {
+        val duration = rateLimitHistory(idx + 1).ts - (if (rateLimitHistory(idx).ts < 0) {
+          rateLimitHistory.last.ts - blockIntervalMs
+        }
+        else {
+          rateLimitHistory(idx).ts
+        })
+        sum += rateLimitHistory(idx).rate * duration
+      }
+      rateLimitHistory.trimStart(rateLimitHistory.length - 1)
+    }
+    sum.toLong
   }
 }
