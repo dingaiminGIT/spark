@@ -85,6 +85,7 @@ private[streaming] class ReceivedBlockTracker(
   /** Add received block. This event will get written to the write ahead log (if enabled). */
   def addBlock(receivedBlockInfo: ReceivedBlockInfo): Boolean = {
     try {
+      logWarning(s"----------------------  addBlock(): ${receivedBlockInfo}")
       val writeResult = writeToLog(BlockAdditionEvent(receivedBlockInfo))
       if (writeResult) {
         synchronized {
