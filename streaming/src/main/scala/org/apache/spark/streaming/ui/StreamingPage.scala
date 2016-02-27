@@ -239,10 +239,9 @@ private[ui] class StreamingPage(parent: StreamingTab)
             numRecordsLimitRate
           }
         }
-        if (ret!=0 && ret<1.0)
-          {
-            println()
-          }
+        if (ret != 0 && ret < 1.0) {
+          1 + 1
+        }
         logWarning("-----bbb-------" + ret)
         ret
       })
