@@ -225,7 +225,7 @@ private[ui] class StreamingPage(parent: StreamingTab)
 
     val numRecordsLimitForAllStreams = new EventRateUIData(batches.map { batchInfo =>
       (batchInfo.batchTime.milliseconds,
-       batchInfo.numRecordsLimit.get * 1000.0 / listener.batchDuration)
+       batchInfo.numRecordsLimit * 1000.0 / listener.batchDuration)
     })
 
     val schedulingDelay = new MillisecondsStatUIData(batches.flatMap { batchInfo =>

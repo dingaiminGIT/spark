@@ -81,7 +81,8 @@ abstract class ReceiverInputDStream[T: ClassTag](_ssc: StreamingContext)
         val blockInfos = receiverTracker.getBlocksOfBatch(validTime).getOrElse(id, Seq.empty)
 
         // Register the input blocks information into InputInfoTracker
-        val inputInfo = StreamInputInfo(id, blockInfos.flatMap(_.numRecords).sum)
+        val inputInfo = StreamInputInfo(id, blockInfos.flatMap(_.numRecords).sum,
+                                        Option(blockInfos.flatMap(_.numRecordsLimit).sum))
         ssc.scheduler.inputInfoTracker.reportInfo(validTime, inputInfo)
 
         // Create the BlockRDD
