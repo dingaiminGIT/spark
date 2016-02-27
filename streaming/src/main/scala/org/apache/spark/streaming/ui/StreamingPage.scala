@@ -34,7 +34,7 @@ import org.apache.spark.ui.{UIUtils => SparkUIUtils}
  *
  * @param timelineDivId the timeline `id` used in the html `div` tag
  * @param histogramDivId the timeline `id` used in the html `div` tag
- * @param data the data for the graph
+ * @param dataSets the data sets for the graph
  * @param minX the min value of X axis
  * @param maxX the max value of X axis
  * @param minY the min value of Y axis
@@ -46,7 +46,7 @@ import org.apache.spark.ui.{UIUtils => SparkUIUtils}
 private[ui] class GraphUIData(
     timelineDivId: String,
     histogramDivId: String,
-    data: Seq[(Long, Double)],
+    dataSets: Seq[Seq[(Long, Double)]],
     minX: Long,
     maxX: Long,
     minY: Double,
@@ -57,8 +57,10 @@ private[ui] class GraphUIData(
   private var dataJavaScriptName: String = _
 
   def generateDataJs(jsCollector: JsCollector): Unit = {
-    val jsForData = data.map { case (x, y) =>
-      s"""{"x": $x, "y": $y}"""
+    val jsForData = dataSets.flatMap { data =>
+      data.map { case (x, y) =>
+        s"""{"x": $x, "y": $y}"""
+      }
     }.mkString("[", ",", "]")
     dataJavaScriptName = jsCollector.nextVariableName
     jsCollector.addPreparedStatement(s"var $dataJavaScriptName = $jsForData;")
@@ -221,6 +223,11 @@ private[ui] class StreamingPage(parent: StreamingTab)
       (batchInfo.batchTime.milliseconds, batchInfo.numRecords * 1000.0 / listener.batchDuration)
     })
 
+    val numRecordsLimitForAllStreams = new EventRateUIData(batches.map { batchInfo =>
+      (batchInfo.batchTime.milliseconds,
+       batchInfo.numRecordsLimit.get * 1000.0 / listener.batchDuration)
+    })
+
     val schedulingDelay = new MillisecondsStatUIData(batches.flatMap { batchInfo =>
       batchInfo.schedulingDelay.map(batchInfo.batchTime.milliseconds -> _)
     })
@@ -254,7 +261,7 @@ private[ui] class StreamingPage(parent: StreamingTab)
       new GraphUIData(
         "all-stream-events-timeline",
         "all-stream-events-histogram",
-        eventRateForAllStreams.data,
+        Seq(eventRateForAllStreams.data, numRecordsLimitForAllStreams.data),
         minBatchTime,
         maxBatchTime,
         minEventRate,
@@ -266,7 +273,7 @@ private[ui] class StreamingPage(parent: StreamingTab)
       new GraphUIData(
         "scheduling-delay-timeline",
         "scheduling-delay-histogram",
-        schedulingDelay.timelineData(normalizedUnit),
+        Seq(schedulingDelay.timelineData(normalizedUnit)),
         minBatchTime,
         maxBatchTime,
         minTime,
@@ -278,7 +285,7 @@ private[ui] class StreamingPage(parent: StreamingTab)
       new GraphUIData(
         "processing-time-timeline",
         "processing-time-histogram",
-        processingTime.timelineData(normalizedUnit),
+        Seq(processingTime.timelineData(normalizedUnit)),
         minBatchTime,
         maxBatchTime,
         minTime,
@@ -290,7 +297,7 @@ private[ui] class StreamingPage(parent: StreamingTab)
       new GraphUIData(
         "total-delay-timeline",
         "total-delay-histogram",
-        totalDelay.timelineData(normalizedUnit),
+        Seq(totalDelay.timelineData(normalizedUnit)),
         minBatchTime,
         maxBatchTime,
         minTime,
@@ -455,7 +462,7 @@ private[ui] class StreamingPage(parent: StreamingTab)
       new GraphUIData(
         s"stream-$streamId-events-timeline",
         s"stream-$streamId-events-histogram",
-        receivedRecords.data,
+        Seq(receivedRecords.data),
         minX,
         maxX,
         minY,

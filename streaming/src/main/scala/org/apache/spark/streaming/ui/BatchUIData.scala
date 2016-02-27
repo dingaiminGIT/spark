@@ -64,6 +64,11 @@ private[ui] case class BatchUIData(
   def numRecords: Long = streamIdToInputInfo.values.map(_.numRecords).sum
 
   /**
+   * The max number of recorder could be received under rate limit by the receivers in this batch.
+   */
+  def numRecordsLimit: Option[Long] = streamIdToInputInfo.values.map(_.numRecordsLimit).sum
+
+  /**
    * Update an output operation information of this batch.
    */
   def updateOutputOperationInfo(outputOperationInfo: OutputOperationInfo): Unit = {
