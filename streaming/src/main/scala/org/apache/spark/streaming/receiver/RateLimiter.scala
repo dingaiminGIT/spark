@@ -17,11 +17,11 @@
 
 package org.apache.spark.streaming.receiver
 
+import scala.collection.mutable.ArrayBuffer
+
 import com.google.common.util.concurrent.{RateLimiter => GuavaRateLimiter}
 
 import org.apache.spark.{Logging, SparkConf}
-
-import scala.collection.mutable.ArrayBuffer
 
 /** Provides waitToPush() method to limit the rate at which receivers consume data.
   *
