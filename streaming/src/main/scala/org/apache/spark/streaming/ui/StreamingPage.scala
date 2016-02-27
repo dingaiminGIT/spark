@@ -223,10 +223,26 @@ private[ui] class StreamingPage(parent: StreamingTab)
       (batchInfo.batchTime.milliseconds, batchInfo.numRecords * 1000.0 / listener.batchDuration)
     })
 
+    // Use the max input rate for all InputDStreams' graphs to make the Y axis ranges same.
+    // If it's not an integral number, just use its ceil integral number.
+    val maxEventRate: Long = eventRateForAllStreams.max.map(_.ceil.toLong).getOrElse(0L)
+    val minEventRate: Long = 0L
+
     val numRecordsLimitForAllStreams = new EventRateUIData(batches.map { batchInfo =>
-      (batchInfo.batchTime.milliseconds,
-       batchInfo.numRecordsLimit * 1000.0 / listener.batchDuration)
+      (batchInfo.batchTime.milliseconds, {
+        val numRecordsLimitRate = batchInfo.numRecordsLimit * 1000.0 / listener.batchDuration
+        if (numRecordsLimitRate > maxEventRate * 2) {
+          maxEventRate * 2
+        }
+        else {
+          numRecordsLimitRate
+        }
+      })
     })
+
+    val maxNumRecordsLimitRate: Long =
+      maxEventRate.max(numRecordsLimitForAllStreams.max.map(_.ceil.toLong).getOrElse(0L))
+    val maxEventRateOrNumRecordsLimitRate = maxEventRate.max(maxNumRecordsLimitRate)
 
     val schedulingDelay = new MillisecondsStatUIData(batches.flatMap { batchInfo =>
       batchInfo.schedulingDelay.map(batchInfo.batchTime.milliseconds -> _)
@@ -248,11 +264,6 @@ private[ui] class StreamingPage(parent: StreamingTab)
     val (maxTime, normalizedUnit) = UIUtils.normalizeDuration(_maxTime)
     val formattedUnit = UIUtils.shortTimeUnitString(normalizedUnit)
 
-    // Use the max input rate for all InputDStreams' graphs to make the Y axis ranges same.
-    // If it's not an integral number, just use its ceil integral number.
-    val maxEventRate = eventRateForAllStreams.max.map(_.ceil.toLong).getOrElse(0L)
-    val minEventRate = 0L
-
     val batchInterval = UIUtils.convertToTimeUnit(listener.batchDuration, normalizedUnit)
 
     val jsCollector = new JsCollector
@@ -265,7 +276,7 @@ private[ui] class StreamingPage(parent: StreamingTab)
         minBatchTime,
         maxBatchTime,
         minEventRate,
-        maxEventRate,
+        maxEventRateOrNumRecordsLimitRate,
         "events/sec")
     graphUIDataForEventRateOfAllStreams.generateDataJs(jsCollector)
 
