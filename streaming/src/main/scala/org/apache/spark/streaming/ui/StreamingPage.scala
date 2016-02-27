@@ -230,13 +230,21 @@ private[ui] class StreamingPage(parent: StreamingTab)
 
     val numRecordsLimitForAllStreams = new EventRateUIData(batches.map { batchInfo =>
       (batchInfo.batchTime.milliseconds, {
-        val numRecordsLimitRate = batchInfo.numRecordsLimit * 1000.0 / listener.batchDuration
-        if (numRecordsLimitRate > maxEventRate * 2) {
-          maxEventRate * 2
+        val ret = {
+          val numRecordsLimitRate = batchInfo.numRecordsLimit * 1000.0 / listener.batchDuration
+          if (numRecordsLimitRate > maxEventRate * 2) {
+            maxEventRate * 2
+          }
+          else {
+            numRecordsLimitRate
+          }
         }
-        else {
-          numRecordsLimitRate
-        }
+        if (ret!=0 && ret<1.0)
+          {
+            println()
+          }
+        logWarning("-----bbb-------" + ret)
+        ret
       })
     })
 

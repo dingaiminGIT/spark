@@ -102,6 +102,11 @@ private[receiver] abstract class RateLimiter(conf: SparkConf) extends Logging {
       rateLimitHistory.trimStart(rateLimitHistory.length - 1)
     }
     // TODO: Deals carely with overflow
-    (sum / 1000 + 0.999).toLong
+    val ret = (sum / 1000 + 0.999).toLong
+    if (ret <= 0)
+      {
+        1 + 1
+      }
+    ret
   }
 }
