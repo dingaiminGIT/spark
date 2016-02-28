@@ -18,6 +18,8 @@
 
 package org.apache.spark.streaming.ui
 
+import org.apache.spark.streaming.receiver.RateLimiterHelper
+
 import scala.collection.mutable
 
 import org.apache.spark.streaming.Time
@@ -59,9 +61,16 @@ private[ui] case class BatchUIData(
   def totalDelay: Option[Long] = processingEndTime.map(_ - submissionTime)
 
   /**
-   * The number of recorders received by the receivers in this batch.
+   * The number of records received by the receivers in this batch.
    */
   def numRecords: Long = streamIdToInputInfo.values.map(_.numRecords).sum
+
+  /**
+   * The max number of records could be received under rate limit by the receivers in this batch.
+   */
+  def numRecordsLimitOption: Option[Long] = RateLimiterHelper.sumRateLimits(
+    streamIdToInputInfo.values.map(_.numRecordsLimitOption).toSeq
+  )
 
   /**
    * Update an output operation information of this batch.

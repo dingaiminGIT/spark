@@ -26,6 +26,11 @@ private[ui] abstract class BatchTableBase(tableId: String, batchInterval: Long) 
   protected def columns: Seq[Node] = {
     <th>Batch Time</th>
       <th>Input Size</th>
+      <th>Input Size Limit
+        {SparkUIUtils.tooltip("The upper bound of input size of a batch;" +
+                              "defined by static rate limit or dynamic back-pressure",
+                              "top")}
+      </th>
       <th>Scheduling Delay
         {SparkUIUtils.tooltip("Time taken by Streaming scheduler to submit jobs of a batch", "top")}
       </th>
@@ -53,6 +58,7 @@ private[ui] abstract class BatchTableBase(tableId: String, batchInterval: Long) 
     val batchTime = batch.batchTime.milliseconds
     val formattedBatchTime = UIUtils.formatBatchTime(batchTime, batchInterval)
     val eventCount = batch.numRecords
+    val eventCountLimitOption = batch.numRecordsLimitOption
     val schedulingDelay = batch.schedulingDelay
     val formattedSchedulingDelay = schedulingDelay.map(SparkUIUtils.formatDuration).getOrElse("-")
     val processingTime = batch.processingDelay
@@ -66,6 +72,14 @@ private[ui] abstract class BatchTableBase(tableId: String, batchInterval: Long) 
       </a>
     </td>
       <td sorttable_customkey={eventCount.toString}>{eventCount.toString} events</td>
+      <td sorttable_customkey={eventCountLimitOption.getOrElse("-").toString}> {
+        if (eventCountLimitOption.isDefined) {
+          eventCountLimitOption.get.toString + "events"
+        }
+        else {
+          "-"
+        }
+      } </td>
       <td sorttable_customkey={schedulingDelay.getOrElse(Long.MaxValue).toString}>
         {formattedSchedulingDelay}
       </td>
