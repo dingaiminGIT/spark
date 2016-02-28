@@ -238,7 +238,7 @@ private[streaming] class BlockGenerator(
           currentBuffer = new ArrayBuffer[Any]
           val blockId = StreamBlockId(receiverId, time - blockIntervalMs)
           listener.onGenerateBlock(blockId)
-          val numRecordsLimit = sumHistoryThenTrim(time)
+          val numRecordsLimit = sumHistoryThenTrim()
           newBlock = new Block(blockId, newBlockBuffer, numRecordsLimit)
         }
       }
