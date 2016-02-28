@@ -83,7 +83,7 @@ private[ui] class GraphUIData(
   }
 
   def generateHistogramHtml(jsCollector: JsCollector): Seq[Node] = {
-    val histogramData = s"$dataJavaScriptName.map(function(d) { return d.y; })"
+    val histogramData = s"$dataJavaScriptName[0].map(function(d) { return d.y; })"
     jsCollector.addPreparedStatement(s"registerHistogram($histogramData, $minY, $maxY);")
     if (batchInterval.isDefined) {
       jsCollector.addStatement(
