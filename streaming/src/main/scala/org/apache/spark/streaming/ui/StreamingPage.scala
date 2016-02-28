@@ -422,12 +422,8 @@ private[ui] class StreamingPage(parent: StreamingTab)
         streamAndEventRatesAndLimitRateOptions.map {
           case (_, eventRate, None) =>
             eventRate
-          case (_, eventRate, limitRateOption) if limitRateOption.get < eventRate =>
-            eventRate
-          case (_, eventRate, limitRateOption) if limitRateOption.get > eventRate * 2 =>
-            eventRate * 2
           case (_, eventRate, limitRateOption) =>
-            limitRateOption.get
+            eventRate.max(StreamingPage.limitRateVisibleBoundTo(eventRate, limitRateOption.get))
         }
       }
       .reduceOption[Double](math.max)
@@ -485,10 +481,10 @@ private[ui] class StreamingPage(parent: StreamingTab)
     val receiverLastErrorTime = receiverInfo.map {
       r => if (r.lastErrorTime < 0) "-" else SparkUIUtils.formatDate(r.lastErrorTime)
     }.getOrElse(emptyCell)
-    val receivedRecords =
-      new EventRateUIData(eventRatesAndLimitRates.map(e => (e._1, e._2)))
-    val receivedRecordsLimit =
-      new EventRateUIData(eventRatesAndLimitRates.map(e => (e._1, e._3.get)))
+    val receivedRecords = new EventRateUIData(eventRatesAndLimitRates.map(e => (e._1, e._2)))
+    val receivedRecordsLimit = new EventRateUIData(
+        eventRatesAndLimitRates.map(e => (e._1, maxY.min(e._3.get)))
+      )
 
     val graphUIDataForEventRate =
       new GraphUIData(
@@ -545,6 +541,7 @@ private[ui] class StreamingPage(parent: StreamingTab)
 }
 
 private[ui] object StreamingPage {
+
   val BLACK_RIGHT_TRIANGLE_HTML = "&#9654;"
   val BLACK_DOWN_TRIANGLE_HTML = "&#9660;"
 
@@ -557,6 +554,16 @@ private[ui] object StreamingPage {
     msOption.map(SparkUIUtils.formatDurationVerbose).getOrElse(emptyCell)
   }
 
+  val VISIBLE_BOUND_MULTIPLIER = 2
+
+  def limitRateVisibleBoundTo(eventRate: Double, limitRate: Double): Double = {
+    if (limitRate > eventRate * VISIBLE_BOUND_MULTIPLIER) {
+      eventRate * VISIBLE_BOUND_MULTIPLIER
+    }
+    else {
+      limitRate
+    }
+  }
 }
 
 /**
