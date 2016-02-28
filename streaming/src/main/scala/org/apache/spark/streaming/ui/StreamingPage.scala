@@ -57,10 +57,10 @@ private[ui] class GraphUIData(
   private var dataJavaScriptName: String = _
 
   def generateDataJs(jsCollector: JsCollector): Unit = {
-    val jsForData = dataSets.flatMap { data =>
-      data.map { case (x, y) =>
+    val jsForData = dataSets.map { dataSet =>
+      dataSet.map { case (x, y) =>
         s"""{"x": $x, "y": $y}"""
-      }
+      }.mkString("[", ",", "]")
     }.mkString("[", ",", "]")
     dataJavaScriptName = jsCollector.nextVariableName
     jsCollector.addPreparedStatement(s"var $dataJavaScriptName = $jsForData;")
