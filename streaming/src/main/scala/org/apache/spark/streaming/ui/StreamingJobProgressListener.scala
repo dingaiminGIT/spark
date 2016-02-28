@@ -205,20 +205,31 @@ private[streaming] class StreamingJobProgressListener(ssc: StreamingContext)
    * Return all of the event rates for each InputDStream in each batch. The key of the return value
    * is the stream id, and the value is a sequence of batch time with its event rate.
    */
-  def receivedEventRateWithBatchTime: Map[Int, Seq[(Long, Double)]] = synchronized {
-    val _retainedBatches = retainedBatches
-    val latestBatches = _retainedBatches.map { batchUIData =>
-      (batchUIData.batchTime.milliseconds, batchUIData.streamIdToInputInfo.mapValues(_.numRecords))
-    }
-    streamIds.map { streamId =>
-      val eventRates = latestBatches.map {
-        case (batchTime, streamIdToNumRecords) =>
-          val numRecords = streamIdToNumRecords.getOrElse(streamId, 0L)
-          (batchTime, numRecords * 1000.0 / batchDuration)
+  def receivedEventRateAndLimitRateWithBatchTime: Map[Int, Seq[(Long, Double, Option[Double])]] =
+    synchronized {
+      val _retainedBatches = retainedBatches
+      val latestBatches = _retainedBatches.map { batchUIData =>
+        (batchUIData.batchTime.milliseconds,
+         batchUIData.streamIdToInputInfo.mapValues(_.numRecords),
+         batchUIData.streamIdToInputInfo.mapValues(_.numRecordsLimit))
       }
-      (streamId, eventRates)
-    }.toMap
-  }
+      streamIds.map { streamId =>
+        val evenRatesAndLimitRates = latestBatches.map {
+          case (batchTime, streamIdToNumRecords, streamIdToNumRecordsLimit) =>
+            val numRecords: Long = streamIdToNumRecords.getOrElse(streamId, 0L)
+            val numRecordsLimitOption = streamIdToNumRecordsLimit.get(streamId).getOrElse(None)
+            val eventRate: Double = numRecords * 1000.0 / batchDuration
+            val LimitRateOption = if (numRecordsLimitOption.isDefined) {
+              Some(numRecordsLimitOption.get * 1000.0 / batchDuration)
+            }
+            else {
+              None
+            }
+            (batchTime, eventRate, LimitRateOption)
+        }
+        (streamId, evenRatesAndLimitRates)
+      }.toMap
+    }
 
   def lastReceivedBatchRecords: Map[Int, Long] = synchronized {
     val lastReceivedBlockInfoOption =

@@ -417,13 +417,24 @@ private[ui] class StreamingPage(parent: StreamingTab)
       maxX: Long,
       minY: Double,
       maxY: Double): Seq[Node] = {
-    val maxYCalculated = listener.receivedEventRateWithBatchTime.values
-      .flatMap { case streamAndRates => streamAndRates.map { case (_, eventRate) => eventRate } }
+    val maxYCalculated = listener.receivedEventRateAndLimitRateWithBatchTime.values
+      .flatMap { case streamAndEventRatesAndLimitRateOptions =>
+        streamAndEventRatesAndLimitRateOptions.map {
+          case (_, eventRate, None) =>
+            eventRate
+          case (_, eventRate, limitRateOption) if limitRateOption.get < eventRate =>
+            eventRate
+          case (_, eventRate, limitRateOption) if limitRateOption.get > eventRate * 2 =>
+            eventRate * 2
+          case (_, eventRate, limitRateOption) =>
+            limitRateOption.get
+        }
+      }
       .reduceOption[Double](math.max)
       .map(_.ceil.toLong)
       .getOrElse(0L)
 
-    val content = listener.receivedEventRateWithBatchTime.toList.sortBy(_._1).map {
+    val content = listener.receivedEventRateAndLimitRateWithBatchTime.toList.sortBy(_._1).map {
       case (streamId, eventRates) =>
         generateInputDStreamRow(jsCollector, streamId, eventRates, minX, maxX, minY, maxYCalculated)
     }.foldLeft[Seq[Node]](Nil)(_ ++ _)
@@ -449,7 +460,7 @@ private[ui] class StreamingPage(parent: StreamingTab)
   private def generateInputDStreamRow(
       jsCollector: JsCollector,
       streamId: Int,
-      eventRates: Seq[(Long, Double)],
+      eventRatesAndLimitRates: Seq[(Long, Double, Option[Double])],
       minX: Long,
       maxX: Long,
       minY: Double,
@@ -474,13 +485,16 @@ private[ui] class StreamingPage(parent: StreamingTab)
     val receiverLastErrorTime = receiverInfo.map {
       r => if (r.lastErrorTime < 0) "-" else SparkUIUtils.formatDate(r.lastErrorTime)
     }.getOrElse(emptyCell)
-    val receivedRecords = new EventRateUIData(eventRates)
+    val receivedRecords =
+      new EventRateUIData(eventRatesAndLimitRates.map(e => (e._1, e._2)))
+    val receivedRecordsLimit =
+      new EventRateUIData(eventRatesAndLimitRates.map(e => (e._1, e._3.get)))
 
     val graphUIDataForEventRate =
       new GraphUIData(
         s"stream-$streamId-events-timeline",
         s"stream-$streamId-events-histogram",
-        Seq(receivedRecords.data),
+        Seq(receivedRecords.data, receivedRecordsLimit.data),
         minX,
         maxX,
         minY,
