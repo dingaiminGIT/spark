@@ -60,11 +60,12 @@ class RateLimiterSuite extends SparkFunSuite {
       rateLimiter.appendLimitToHistory(30, 1300)
       rateLimiter.appendLimitToHistory(40, 1400)
       val sum = rateLimiter.sumHistoryThenTrim(1500)
-      val expected = 100 * (1100 - (1500 - 500)) +
-        10 * (1200 - 1100) +
-        20 * (1300 - 1200) +
-        30 * (1400 - 1300) +
-        40 * (1500 - 1400)
+      val expectedInMillis = 100 * (1100 - (1500 - 500)) +
+                              10 * (1200 - 1100) +
+                              20 * (1300 - 1200) +
+                              30 * (1400 - 1300) +
+                              40 * (1500 - 1400)
+      val expected = expectedInMillis / 1000
       assert(sum == expected)
     }
 
@@ -74,7 +75,8 @@ class RateLimiterSuite extends SparkFunSuite {
 
     {
       val sum = rateLimiter.sumHistoryThenTrim(2000)
-      val expected = 40 * (2000 - 1500)
+      val expectedInMillis = 40 * (2000 - 1500)
+      val expected = expectedInMillis / 1000
       assert(sum == expected)
     }
 
@@ -85,8 +87,9 @@ class RateLimiterSuite extends SparkFunSuite {
     {
       rateLimiter.appendLimitToHistory(50, 2100)
       val sum = rateLimiter.sumHistoryThenTrim(2500)
-      val expected = 40 * (2100 - 2000) +
-        50 * (2500 - 2100)
+      val expectedInMillis = 40 * (2100 - 2000) +
+                             50 * (2500 - 2100)
+      val expected = expectedInMillis / 1000
       assert(sum == expected)
     }
 
