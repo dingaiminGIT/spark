@@ -20,11 +20,11 @@ package org.apache.spark.streaming.ui
 import java.util.concurrent.TimeUnit
 import javax.servlet.http.HttpServletRequest
 
-import org.apache.spark.Logging
-import org.apache.spark.ui.{UIUtils => SparkUIUtils, _}
-
 import scala.collection.mutable.ArrayBuffer
 import scala.xml.{Node, Unparsed}
+
+import org.apache.spark.Logging
+import org.apache.spark.ui.{UIUtils => SparkUIUtils, _}
 
 /**
  * A helper class to generate JavaScript and HTML for both timeline and histogram graphs.
