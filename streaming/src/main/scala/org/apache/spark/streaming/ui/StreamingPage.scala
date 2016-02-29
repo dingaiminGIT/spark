@@ -34,7 +34,7 @@ import org.apache.spark.ui.{UIUtils => SparkUIUtils}
  *
  * @param timelineDivId the timeline `id` used in the html `div` tag
  * @param histogramDivId the timeline `id` used in the html `div` tag
- * @param dataSets the data sets for the graph
+ * @param data the data for the graph
  * @param minX the min value of X axis
  * @param maxX the max value of X axis
  * @param minY the min value of Y axis
@@ -46,7 +46,7 @@ import org.apache.spark.ui.{UIUtils => SparkUIUtils}
 private[ui] class GraphUIData(
     timelineDivId: String,
     histogramDivId: String,
-    dataSets: Seq[Seq[(Long, Double)]],
+    data: Seq[(Long, Double)],
     minX: Long,
     maxX: Long,
     minY: Double,
@@ -57,10 +57,8 @@ private[ui] class GraphUIData(
   private var dataJavaScriptName: String = _
 
   def generateDataJs(jsCollector: JsCollector): Unit = {
-    val jsForData = dataSets.map { dataSet =>
-      dataSet.map { case (x, y) =>
-        s"""{"x": $x, "y": $y}"""
-      }.mkString("[", ",", "]")
+    val jsForData = data.map { case (x, y) =>
+      s"""{"x": $x, "y": $y}"""
     }.mkString("[", ",", "]")
     dataJavaScriptName = jsCollector.nextVariableName
     jsCollector.addPreparedStatement(s"var $dataJavaScriptName = $jsForData;")
@@ -83,7 +81,7 @@ private[ui] class GraphUIData(
   }
 
   def generateHistogramHtml(jsCollector: JsCollector): Seq[Node] = {
-    val histogramData = s"$dataJavaScriptName[0].map(function(d) { return d.y; })"
+    val histogramData = s"$dataJavaScriptName.map(function(d) { return d.y; })"
     jsCollector.addPreparedStatement(s"registerHistogram($histogramData, $minY, $maxY);")
     if (batchInterval.isDefined) {
       jsCollector.addStatement(
@@ -223,34 +221,6 @@ private[ui] class StreamingPage(parent: StreamingTab)
       (batchInfo.batchTime.milliseconds, batchInfo.numRecords * 1000.0 / listener.batchDuration)
     })
 
-    // Use the max input rate for all InputDStreams' graphs to make the Y axis ranges same.
-    // If it's not an integral number, just use its ceil integral number.
-    val maxEventRate: Long = eventRateForAllStreams.max.map(_.ceil.toLong).getOrElse(0L)
-    val minEventRate: Long = 0L
-
-    val numRecordsLimitForAllStreams = new EventRateUIData(batches.map { batchInfo =>
-      (batchInfo.batchTime.milliseconds, {
-        val ret = {
-          val numRecordsLimitRate = batchInfo.numRecordsLimit * 1000.0 / listener.batchDuration
-          if (numRecordsLimitRate > maxEventRate * 2) {
-            maxEventRate * 2
-          }
-          else {
-            numRecordsLimitRate
-          }
-        }
-        if (ret != 0 && ret < 1.0) {
-          1 + 1
-        }
-        logWarning("-----bbb-------" + ret)
-        ret
-      })
-    })
-
-    val maxNumRecordsLimitRate: Long =
-      maxEventRate.max(numRecordsLimitForAllStreams.max.map(_.ceil.toLong).getOrElse(0L))
-    val maxEventRateOrNumRecordsLimitRate = maxEventRate.max(maxNumRecordsLimitRate)
-
     val schedulingDelay = new MillisecondsStatUIData(batches.flatMap { batchInfo =>
       batchInfo.schedulingDelay.map(batchInfo.batchTime.milliseconds -> _)
     })
@@ -271,6 +241,11 @@ private[ui] class StreamingPage(parent: StreamingTab)
     val (maxTime, normalizedUnit) = UIUtils.normalizeDuration(_maxTime)
     val formattedUnit = UIUtils.shortTimeUnitString(normalizedUnit)
 
+    // Use the max input rate for all InputDStreams' graphs to make the Y axis ranges same.
+    // If it's not an integral number, just use its ceil integral number.
+    val maxEventRate = eventRateForAllStreams.max.map(_.ceil.toLong).getOrElse(0L)
+    val minEventRate = 0L
+
     val batchInterval = UIUtils.convertToTimeUnit(listener.batchDuration, normalizedUnit)
 
     val jsCollector = new JsCollector
@@ -279,11 +254,11 @@ private[ui] class StreamingPage(parent: StreamingTab)
       new GraphUIData(
         "all-stream-events-timeline",
         "all-stream-events-histogram",
-        Seq(eventRateForAllStreams.data, numRecordsLimitForAllStreams.data),
+        eventRateForAllStreams.data,
         minBatchTime,
         maxBatchTime,
         minEventRate,
-        maxEventRateOrNumRecordsLimitRate,
+        maxEventRate,
         "events/sec")
     graphUIDataForEventRateOfAllStreams.generateDataJs(jsCollector)
 
@@ -291,7 +266,7 @@ private[ui] class StreamingPage(parent: StreamingTab)
       new GraphUIData(
         "scheduling-delay-timeline",
         "scheduling-delay-histogram",
-        Seq(schedulingDelay.timelineData(normalizedUnit)),
+        schedulingDelay.timelineData(normalizedUnit),
         minBatchTime,
         maxBatchTime,
         minTime,
@@ -303,7 +278,7 @@ private[ui] class StreamingPage(parent: StreamingTab)
       new GraphUIData(
         "processing-time-timeline",
         "processing-time-histogram",
-        Seq(processingTime.timelineData(normalizedUnit)),
+        processingTime.timelineData(normalizedUnit),
         minBatchTime,
         maxBatchTime,
         minTime,
@@ -315,7 +290,7 @@ private[ui] class StreamingPage(parent: StreamingTab)
       new GraphUIData(
         "total-delay-timeline",
         "total-delay-histogram",
-        Seq(totalDelay.timelineData(normalizedUnit)),
+        totalDelay.timelineData(normalizedUnit),
         minBatchTime,
         maxBatchTime,
         minTime,
@@ -417,20 +392,13 @@ private[ui] class StreamingPage(parent: StreamingTab)
       maxX: Long,
       minY: Double,
       maxY: Double): Seq[Node] = {
-    val maxYCalculated = listener.receivedEventRateAndLimitRateWithBatchTime.values
-      .flatMap { case streamAndEventRatesAndLimitRateOptions =>
-        streamAndEventRatesAndLimitRateOptions.map {
-          case (_, eventRate, None) =>
-            eventRate
-          case (_, eventRate, limitRateOption) =>
-            eventRate.max(StreamingPage.limitRateVisibleBoundTo(eventRate, limitRateOption.get))
-        }
-      }
+    val maxYCalculated = listener.receivedEventRateWithBatchTime.values
+      .flatMap { case streamAndRates => streamAndRates.map { case (_, eventRate) => eventRate } }
       .reduceOption[Double](math.max)
       .map(_.ceil.toLong)
       .getOrElse(0L)
 
-    val content = listener.receivedEventRateAndLimitRateWithBatchTime.toList.sortBy(_._1).map {
+    val content = listener.receivedEventRateWithBatchTime.toList.sortBy(_._1).map {
       case (streamId, eventRates) =>
         generateInputDStreamRow(jsCollector, streamId, eventRates, minX, maxX, minY, maxYCalculated)
     }.foldLeft[Seq[Node]](Nil)(_ ++ _)
@@ -456,7 +424,7 @@ private[ui] class StreamingPage(parent: StreamingTab)
   private def generateInputDStreamRow(
       jsCollector: JsCollector,
       streamId: Int,
-      eventRatesAndLimitRates: Seq[(Long, Double, Option[Double])],
+      eventRates: Seq[(Long, Double)],
       minX: Long,
       maxX: Long,
       minY: Double,
@@ -481,16 +449,13 @@ private[ui] class StreamingPage(parent: StreamingTab)
     val receiverLastErrorTime = receiverInfo.map {
       r => if (r.lastErrorTime < 0) "-" else SparkUIUtils.formatDate(r.lastErrorTime)
     }.getOrElse(emptyCell)
-    val receivedRecords = new EventRateUIData(eventRatesAndLimitRates.map(e => (e._1, e._2)))
-    val receivedRecordsLimit = new EventRateUIData(
-        eventRatesAndLimitRates.map(e => (e._1, maxY.min(e._3.get)))
-      )
+    val receivedRecords = new EventRateUIData(eventRates)
 
     val graphUIDataForEventRate =
       new GraphUIData(
         s"stream-$streamId-events-timeline",
         s"stream-$streamId-events-histogram",
-        Seq(receivedRecords.data, receivedRecordsLimit.data),
+        receivedRecords.data,
         minX,
         maxX,
         minY,
@@ -541,7 +506,6 @@ private[ui] class StreamingPage(parent: StreamingTab)
 }
 
 private[ui] object StreamingPage {
-
   val BLACK_RIGHT_TRIANGLE_HTML = "&#9654;"
   val BLACK_DOWN_TRIANGLE_HTML = "&#9660;"
 
@@ -554,16 +518,6 @@ private[ui] object StreamingPage {
     msOption.map(SparkUIUtils.formatDurationVerbose).getOrElse(emptyCell)
   }
 
-  val VISIBLE_BOUND_MULTIPLIER = 2
-
-  def limitRateVisibleBoundTo(eventRate: Double, limitRate: Double): Double = {
-    if (limitRate > eventRate * VISIBLE_BOUND_MULTIPLIER) {
-      eventRate * VISIBLE_BOUND_MULTIPLIER
-    }
-    else {
-      limitRate
-    }
-  }
 }
 
 /**
