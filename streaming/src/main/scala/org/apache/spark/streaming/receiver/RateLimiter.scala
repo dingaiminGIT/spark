@@ -130,9 +130,6 @@ private[receiver] abstract class RateLimiter(conf: SparkConf) extends Logging {
 
 private[streaming] object RateLimiterHelper {
 
-  val ts = 100L
-  Array.fill[Long](5)(ts)
-
   def sumRateLimits(rateLimits: Seq[Option[Long]]): Option[Long] = {
     if (rateLimits.length == 0 || rateLimits.count(_.isEmpty) > 0) {
       None
