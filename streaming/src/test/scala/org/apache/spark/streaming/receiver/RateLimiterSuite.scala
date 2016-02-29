@@ -43,4 +43,56 @@ class RateLimiterSuite extends SparkFunSuite {
     rateLimiter.updateRate(105)
     assert(rateLimiter.getCurrentLimit === 100)
   }
+
+  test("historySumThenTrim() returns numLimit as expected") {
+    val conf = new SparkConf().set("spark.streaming.receiver.maxRate", "100")
+                              .set("spark.streaming.blockInterval", "500ms")
+    val rateLimiter = new RateLimiter(conf) {}
+
+    // Make sure that rateLimitHistory starts with a special initial snapshot
+    assert(rateLimiter.rateLimitHistory(0).limit == 100)
+    assert(rateLimiter.rateLimitHistory(0).ts == -1)
+
+    // Test if sumHistoryThenTrim() works well with the first batch which
+    // contains a special initial snapshot
+    {
+      rateLimiter.appendLimitToHistory(10, 1100)
+      rateLimiter.appendLimitToHistory(20, 1200)
+      rateLimiter.appendLimitToHistory(30, 1300)
+      rateLimiter.appendLimitToHistory(40, 1400)
+      val sum = rateLimiter.sumHistoryThenTrim(1500)
+      val expected = 100 * (1100 - (1500 - 500)) +
+        10 * (1200 - 1100) +
+        20 * (1300 - 1200) +
+        30 * (1400 - 1300) +
+        40 * (1500 - 1400)
+      assert(sum == expected)
+    }
+
+    assert(rateLimiter.rateLimitHistory.length == 1)
+    assert(rateLimiter.rateLimitHistory(0).limit == 40)
+    assert(rateLimiter.rateLimitHistory(0).ts == 1500)
+
+    {
+      val sum = rateLimiter.sumHistoryThenTrim(2000)
+      val expected = 40 * (2000 - 1500)
+      assert(sum == expected)
+    }
+
+    assert(rateLimiter.rateLimitHistory.length == 1)
+    assert(rateLimiter.rateLimitHistory(0).limit == 40)
+    assert(rateLimiter.rateLimitHistory(0).ts == 2000)
+
+    {
+      rateLimiter.appendLimitToHistory(50, 2100)
+      val sum = rateLimiter.sumHistoryThenTrim(2500)
+      val expected = 40 * (2100 - 2000) +
+        50 * (2500 - 2100)
+      assert(sum == expected)
+    }
+
+    assert(rateLimiter.rateLimitHistory.length == 1)
+    assert(rateLimiter.rateLimitHistory(0).limit == 50)
+    assert(rateLimiter.rateLimitHistory(0).ts == 2500)
+  }
 }
