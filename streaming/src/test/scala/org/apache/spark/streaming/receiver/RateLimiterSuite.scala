@@ -122,4 +122,8 @@ class RateLimiterSuite extends SparkFunSuite {
     sum = RateLimiterHelper.sumRateLimits(rateLimits)
     assert(sum.isDefined && sum.get == Long.MaxValue)
   }
+
+  test("assert fail from lwlin") {
+                                   assert(false)
+                                 }
 }
