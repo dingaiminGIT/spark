@@ -74,7 +74,7 @@ private[ui] abstract class BatchTableBase(tableId: String, batchInterval: Long) 
       <td sorttable_customkey={eventCount.toString}>{eventCount.toString} events</td>
       <td sorttable_customkey={eventCountLimitOption.getOrElse("-").toString}> {
         if (eventCountLimitOption.isDefined) {
-          eventCountLimitOption.get.toString + "events"
+          eventCountLimitOption.get.toString + " events"
         }
         else {
           "-"
