@@ -43,7 +43,7 @@ class RateLimiterSuite extends SparkFunSuite {
     assert(rateLimiter.getCurrentLimit === 100)
   }
 
-  test("historySumThenTrim() returns numLimit as expected") {
+  test("historySumThenTrim() returns expected numRecordsLimit") {
     val conf = new SparkConf().set("spark.streaming.receiver.maxRate", "100")
                               .set("spark.streaming.blockInterval", "500ms")
     val rateLimiter = new RateLimiter(conf) {}
@@ -126,7 +126,4 @@ class RateLimiterSuite extends SparkFunSuite {
     assert(sum.isDefined && sum.get == Long.MaxValue)
   }
 
-  test("assert fail from lwlin") {
-                                   assert(false)
-                                 }
 }
