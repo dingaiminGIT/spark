@@ -233,7 +233,7 @@ private[ui] class StreamingPage(parent: StreamingTab)
     val numRecordsLimitForAllStreams = new EventRateUIData(batches.map { batchInfo =>
       (batchInfo.batchTime.milliseconds, {
         val numRecordsLimitRate =
-          // TODO: tmp
+          // TODO: getOrElse(whatValue?)
           batchInfo.numRecordsLimitOption.getOrElse(0L) * 1000.0 / listener.batchDuration
         StreamingPage.limitRateVisibleBoundTo(maxEventRate, numRecordsLimitRate)
       })
@@ -430,8 +430,7 @@ private[ui] class StreamingPage(parent: StreamingTab)
       .flatMap { case streamAndEventRatesAndLimitRateOptions =>
         streamAndEventRatesAndLimitRateOptions.map {
           case (_, _, limitRate) =>
-            // TODO: tmp
-            limitRate.getOrElse(0.0)
+            limitRate.getOrElse(0.0) // TODO: getOrElse(whatValue?)
         }
       }
       .reduceOption[Double](math.max)
@@ -493,7 +492,7 @@ private[ui] class StreamingPage(parent: StreamingTab)
     }.getOrElse(emptyCell)
     val receivedRecords = new EventRateUIData(eventRatesAndLimitRates.map(e => (e._1, e._2)))
     val receivedRecordsLimit = new EventRateUIData(
-    // TODO: tmp
+        // TODO: getOrElse(whatValue?)
         eventRatesAndLimitRates.map(e => (e._1, maxY.min(e._3.getOrElse(0))))
       )
 
