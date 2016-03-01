@@ -20,8 +20,6 @@ package org.apache.spark.streaming.ui
 import java.util.concurrent.TimeUnit
 import javax.servlet.http.HttpServletRequest
 
-import org.apache.spark.streaming.receiver.RateLimiterHelper
-
 import scala.collection.mutable.ArrayBuffer
 import scala.xml.{Node, Unparsed}
 
