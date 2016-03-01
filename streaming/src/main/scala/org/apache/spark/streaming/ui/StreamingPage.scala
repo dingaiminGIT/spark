@@ -20,6 +20,8 @@ package org.apache.spark.streaming.ui
 import java.util.concurrent.TimeUnit
 import javax.servlet.http.HttpServletRequest
 
+import org.apache.spark.streaming.receiver.RateLimiterHelper
+
 import scala.collection.mutable.ArrayBuffer
 import scala.xml.{Node, Unparsed}
 
@@ -410,20 +412,35 @@ private[ui] class StreamingPage(parent: StreamingTab)
       maxX: Long,
       minY: Double,
       maxY: Double): Seq[Node] = {
-    val maxYCalculated = listener.receivedEventRateAndLimitRateWithBatchTime.values
+    val receivedEventRateAndLimitRateWithBatchTime =
+      listener.receivedEventRateAndLimitRateWithBatchTime
+
+    val maxYOfEventRate = receivedEventRateAndLimitRateWithBatchTime.values
       .flatMap { case streamAndEventRatesAndLimitRateOptions =>
         streamAndEventRatesAndLimitRateOptions.map {
-          case (_, eventRate, None) =>
+          case (_, eventRate, _) =>
             eventRate
-          case (_, eventRate, limitRateOption) =>
-            eventRate.max(StreamingPage.limitRateVisibleBoundTo(eventRate, limitRateOption.get))
         }
       }
       .reduceOption[Double](math.max)
       .map(_.ceil.toLong)
       .getOrElse(0L)
 
-    val content = listener.receivedEventRateAndLimitRateWithBatchTime.toList.sortBy(_._1).map {
+    val maxYOfLimitRate = receivedEventRateAndLimitRateWithBatchTime.values
+      .flatMap { case streamAndEventRatesAndLimitRateOptions =>
+        streamAndEventRatesAndLimitRateOptions.map {
+          case (_, _, limitRate) =>
+            // TODO: tmp
+            limitRate.getOrElse(0.0)
+        }
+      }
+      .reduceOption[Double](math.max)
+      .map(_.ceil.toLong)
+      .getOrElse(0L)
+
+    val maxYCalculated = StreamingPage.limitRateVisibleBoundTo(maxYOfEventRate, maxYOfLimitRate)
+
+    val content = receivedEventRateAndLimitRateWithBatchTime.toList.sortBy(_._1).map {
       case (streamId, eventRates) =>
         generateInputDStreamRow(jsCollector, streamId, eventRates, minX, maxX, minY, maxYCalculated)
     }.foldLeft[Seq[Node]](Nil)(_ ++ _)
