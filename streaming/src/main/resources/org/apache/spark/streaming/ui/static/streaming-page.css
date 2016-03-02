@@ -40,6 +40,11 @@
   stroke-width: 1.5px;
 }
 
+/* Currently used for the rate limit line */
+.line_2 {
+  stroke: #ffa1b0;
+}
+
 .bar rect {
   fill: #0088cc;
   shape-rendering: crispEdges;
