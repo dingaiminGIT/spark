@@ -128,3 +128,24 @@ private[receiver] abstract class RateLimiter(conf: SparkConf) extends Logging {
     (sum / 1000 + 0.999).toLong
   }
 }
+
+private[streaming] object RateLimiterHelper {
+
+  def sumRateLimits(rateLimits: Seq[Option[Long]]): Option[Long] = {
+    if (rateLimits.length == 0 || rateLimits.count(_.isEmpty) > 0) {
+      None
+    }
+    else {
+      val sum = rateLimits.map(_.get).foldLeft(0L) { (x, y) =>
+        val z = x + y
+        // deals with overflow carefully
+        if (z < 0) {
+          Long.MaxValue
+        } else {
+          z
+        }
+      }
+      Some(sum)
+    }
+  }
+}
