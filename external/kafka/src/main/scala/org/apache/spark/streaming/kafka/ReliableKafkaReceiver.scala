@@ -206,7 +206,7 @@ class ReliableKafkaReceiver[
    * will try a fixed number of times to push the block. If the push fails, the receiver is stopped.
    */
   private def storeBlockAndCommitOffset(
-      blockId: StreamBlockId, arrayBuffer: mutable.ArrayBuffer[_]): Unit = {
+      blockId: StreamBlockId, arrayBuffer: mutable.ArrayBuffer[_], numRecordsLimit: Long): Unit = {
     var count = 0
     var pushed = false
     var exception: Exception = null
@@ -289,9 +289,10 @@ class ReliableKafkaReceiver[
       rememberBlockOffsets(blockId)
     }
 
-    def onPushBlock(blockId: StreamBlockId, arrayBuffer: mutable.ArrayBuffer[_]): Unit = {
+    def onPushBlock(blockId: StreamBlockId, arrayBuffer: mutable.ArrayBuffer[_],
+                    numRecordsLimit: Long): Unit = {
       // Store block and commit the blocks offset
-      storeBlockAndCommitOffset(blockId, arrayBuffer)
+      storeBlockAndCommitOffset(blockId, arrayBuffer, numRecordsLimit)
     }
 
     def onError(message: String, throwable: Throwable): Unit = {

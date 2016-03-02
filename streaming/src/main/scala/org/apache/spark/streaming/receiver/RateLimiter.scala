@@ -91,6 +91,7 @@ private[receiver] abstract class RateLimiter(conf: SparkConf) extends Logging {
   }
 
   private val blockIntervalMs = conf.getTimeAsMs("spark.streaming.blockInterval", "200ms")
+  require(blockIntervalMs > 0, s"'spark.streaming.blockInterval' should be a positive value")
 
   /**
    * Calculate the upper bound of how many events can be received in a block interval.
