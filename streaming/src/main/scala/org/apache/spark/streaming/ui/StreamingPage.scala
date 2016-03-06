@@ -227,12 +227,10 @@ private[ui] class StreamingPage(parent: StreamingTab)
     val maxEventRate: Long = eventRateForAllStreams.max.map(_.ceil.toLong).getOrElse(0L)
     val minEventRate: Long = 0L
 
-    // TODO: what do we do if numRecordsLimitOptions are mixed with Some and None?
     val numRecordsLimitForAllStreams = new EventRateUIData(batches.map { batchInfo =>
       (batchInfo.batchTime.milliseconds, {
         val numRecordsLimitRate =
-          // TODO: getOrElse(whatValue?)
-          batchInfo.numRecordsLimitOption.getOrElse(0L) * 1000.0 / listener.batchDuration
+          batchInfo.numRecordsLimitOption.getOrElse(Long.MaxValue) * 1000.0 / listener.batchDuration
         StreamingPage.limitRateVisibleBoundTo(maxEventRate, numRecordsLimitRate)
       })
     })
@@ -428,7 +426,7 @@ private[ui] class StreamingPage(parent: StreamingTab)
       .flatMap { case streamAndEventRatesAndLimitRateOptions =>
         streamAndEventRatesAndLimitRateOptions.map {
           case (_, _, limitRate) =>
-            limitRate.getOrElse(0.0) // TODO: getOrElse(whatValue?)
+            limitRate.getOrElse(Double.MaxValue)
         }
       }
       .reduceOption[Double](math.max)
@@ -438,8 +436,8 @@ private[ui] class StreamingPage(parent: StreamingTab)
     val maxYCalculated = StreamingPage.limitRateVisibleBoundTo(maxYOfEventRate, maxYOfLimitRate)
 
     val content = receivedEventRateAndLimitRateWithBatchTime.toList.sortBy(_._1).map {
-      case (streamId, eventRates) =>
-        generateInputDStreamRow(jsCollector, streamId, eventRates, minX, maxX, minY, maxYCalculated)
+      case (streamId, eventRatesAndLimitRates) => generateInputDStreamRow(jsCollector, streamId,
+                                      eventRatesAndLimitRates, minX, maxX, minY, maxYCalculated)
     }.foldLeft[Seq[Node]](Nil)(_ ++ _)
 
     // scalastyle:off
@@ -490,7 +488,6 @@ private[ui] class StreamingPage(parent: StreamingTab)
     }.getOrElse(emptyCell)
     val receivedRecords = new EventRateUIData(eventRatesAndLimitRates.map(e => (e._1, e._2)))
     val receivedRecordsLimit = new EventRateUIData(
-        // TODO: getOrElse(whatValue?)
         eventRatesAndLimitRates.map(e => (e._1, maxY.min(e._3.getOrElse(0))))
       )
 
