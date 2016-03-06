@@ -123,9 +123,7 @@ private[receiver] abstract class RateLimiter(conf: SparkConf) extends Logging {
       rateLimitHistory.trimStart(rateLimitHistory.length - 1)
     }
 
-    // 10.0 => 10
-    // 10.1 => 11
-    (sum / 1000 + 0.999).toLong
+    (sum / 1000).ceil.toLong
   }
 }
 
