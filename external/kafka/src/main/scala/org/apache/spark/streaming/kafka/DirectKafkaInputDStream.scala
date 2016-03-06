@@ -85,6 +85,8 @@ class DirectKafkaInputDStream[
     }
   }
 
+  override protected[streaming] val underRateControl = true
+
   protected val kc = new KafkaCluster(kafkaParams)
 
   private val maxRateLimitPerPartition: Int = context.sparkContext.getConf.getInt(
