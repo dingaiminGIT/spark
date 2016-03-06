@@ -66,6 +66,7 @@ private[ui] case class BatchUIData(
 
   /**
    * The max number of records could be received under rate limit by the receivers in this batch.
+   * This should be only called when all input streams are under rate control.
    */
   def numRecordsLimitOption: Option[Long] = RateLimiterHelper.sumRateLimits(
     streamIdToInputInfo.values.map(_.numRecordsLimitOption).toSeq
