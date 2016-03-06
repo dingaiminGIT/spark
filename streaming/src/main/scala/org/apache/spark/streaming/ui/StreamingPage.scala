@@ -227,17 +227,26 @@ private[ui] class StreamingPage(parent: StreamingTab)
     val maxEventRate: Long = eventRateForAllStreams.max.map(_.ceil.toLong).getOrElse(0L)
     val minEventRate: Long = 0L
 
-    val numRecordsLimitForAllStreams = new EventRateUIData(batches.map { batchInfo =>
-      (batchInfo.batchTime.milliseconds, {
-        val numRecordsLimitRate =
-          batchInfo.numRecordsLimitOption.getOrElse(Long.MaxValue) * 1000.0 / listener.batchDuration
-        StreamingPage.limitRateVisibleBoundTo(maxEventRate, numRecordsLimitRate)
+    val numRecordsLimitForAllStreamsOption = if (listener.allStreamsUnderRateControl) {
+      val uiDate = new EventRateUIData(batches.map { batchInfo =>
+        (batchInfo.batchTime.milliseconds, {
+          val numRecordsLimitRate = batchInfo.numRecordsLimitOption
+                                    .getOrElse(Long.MaxValue) * 1000.0 / listener.batchDuration
+          StreamingPage.limitRateVisibleBoundTo(maxEventRate, numRecordsLimitRate)
+        })
       })
-    })
+      Some(uiDate)
+    } else {
+      None
+    }
 
     // Cal maxY of limit rates from all batches
-    val maxNumRecordsLimitRate: Long =
-      maxEventRate.max(numRecordsLimitForAllStreams.max.map(_.ceil.toLong).getOrElse(0L))
+    val maxNumRecordsLimitRate: Long = if (numRecordsLimitForAllStreamsOption.isDefined) {
+      numRecordsLimitForAllStreamsOption.get.max.map(_.ceil.toLong).getOrElse(0L)
+    }
+    else {
+      0L
+    }
 
     // Cal maxY from maxEventRate and maxNumRecordsLimitRate
     val maxEventRateOrNumRecordsLimitRate = maxEventRate.max(maxNumRecordsLimitRate)
@@ -270,7 +279,14 @@ private[ui] class StreamingPage(parent: StreamingTab)
       new GraphUIData(
         "all-stream-events-timeline",
         "all-stream-events-histogram",
-        Seq(eventRateForAllStreams.data, numRecordsLimitForAllStreams.data),
+        if (listener.allStreamsUnderRateControl) {
+          // All streams are under rate control, so we display the rate-limit line
+          Seq(eventRateForAllStreams.data, numRecordsLimitForAllStreamsOption.get.data)
+        }
+        else {
+          // Not all streams are under rate control, so we won't display the rate-limit line
+          Seq(eventRateForAllStreams.data)
+        },
         minBatchTime,
         maxBatchTime,
         minEventRate,
@@ -487,15 +503,26 @@ private[ui] class StreamingPage(parent: StreamingTab)
       r => if (r.lastErrorTime < 0) "-" else SparkUIUtils.formatDate(r.lastErrorTime)
     }.getOrElse(emptyCell)
     val receivedRecords = new EventRateUIData(eventRatesAndLimitRates.map(e => (e._1, e._2)))
-    val receivedRecordsLimit = new EventRateUIData(
-        eventRatesAndLimitRates.map(e => (e._1, maxY.min(e._3.getOrElse(0))))
-      )
+    val receivedRecordsLimitOption =
+      if (listener.streamUnderRateControl(streamId).getOrElse(false)) {
+        Some(new EventRateUIData(
+          eventRatesAndLimitRates.map(e => (e._1, maxY.min(e._3.getOrElse(0))))
+        ))
+      } else {
+        None
+      }
 
     val graphUIDataForEventRate =
       new GraphUIData(
         s"stream-$streamId-events-timeline",
         s"stream-$streamId-events-histogram",
-        Seq(receivedRecords.data, receivedRecordsLimit.data),
+        if (receivedRecordsLimitOption.isDefined) {
+          // This stream is under rate control, so we display the rate-limit line
+          Seq(receivedRecords.data, receivedRecordsLimitOption.get.data)
+        } else {
+          // This stream is not under rate control, so we won't display the rate-limit line
+          Seq(receivedRecords.data)
+        },
         minX,
         maxX,
         minY,
