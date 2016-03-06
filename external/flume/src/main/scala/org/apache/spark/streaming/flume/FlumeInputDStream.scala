@@ -48,6 +48,8 @@ class FlumeInputDStream[T: ClassTag](
   enableDecompression: Boolean
 ) extends ReceiverInputDStream[SparkFlumeEvent](_ssc) {
 
+  override protected[streaming] val underRateControl = true
+
   override def getReceiver(): Receiver[SparkFlumeEvent] = {
     new FlumeReceiver(host, port, storageLevel, enableDecompression)
   }
