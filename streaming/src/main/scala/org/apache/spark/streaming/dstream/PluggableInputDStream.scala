@@ -27,6 +27,8 @@ class PluggableInputDStream[T: ClassTag](
   _ssc: StreamingContext,
   receiver: Receiver[T]) extends ReceiverInputDStream[T](_ssc) {
 
+  override protected[streaming] val underRateControl = true
+
   def getReceiver(): Receiver[T] = {
     receiver
   }
