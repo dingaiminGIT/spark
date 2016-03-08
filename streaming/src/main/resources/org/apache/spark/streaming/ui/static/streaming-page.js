@@ -143,10 +143,13 @@ function drawTimeline(id, dataSets, minX, maxX, minY, maxY, unitY, batchInterval
         drawLine(svg, x, y, minX, batchInterval, maxX, batchInterval);
     }
 
-    for (var dataSetIdx = 0; dataSetIdx < dataSets.length; dataSetIdx++) {
+    for (var dataSetIdx = 0; dataSetIdx < dataSets.length; dataSetIdx ++) {
       svg.append("path")
          .datum(dataSets[dataSetIdx])
-         .attr("class", "line line_" + (dataSetIdx + 1))
+         .attr("class", dataSetIdx == 0 ? "line" : (dataSetIdx % 2 == 1 ?
+                                                    "line rate_limit_line_dashed" :
+                                                    "line rate_limit_line_solid")
+              )
          .attr("d", line);
     }
 
