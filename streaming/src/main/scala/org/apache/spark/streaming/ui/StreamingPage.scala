@@ -281,7 +281,9 @@ private[ui] class StreamingPage(parent: StreamingTab)
         "all-stream-events-histogram",
         if (listener.allStreamsUnderRateControl) {
           // All streams are under rate control, so we display the rate-limit line
-          Seq(eventRateForAllStreams.data, numRecordsLimitForAllStreamsOption.get.data)
+          Seq(eventRateForAllStreams.data) ++
+          StreamingPage.divideIntoLinesByMaxY(numRecordsLimitForAllStreamsOption.get.data,
+                                              maxEventRateOrNumRecordsLimitRate)
         }
         else {
           // Not all streams are under rate control, so we won't display the rate-limit line
@@ -518,7 +520,8 @@ private[ui] class StreamingPage(parent: StreamingTab)
         s"stream-$streamId-events-histogram",
         if (receivedRecordsLimitOption.isDefined) {
           // This stream is under rate control, so we display the rate-limit line
-          Seq(receivedRecords.data, receivedRecordsLimitOption.get.data)
+          Seq(receivedRecords.data) ++
+          StreamingPage.divideIntoLinesByMaxY(receivedRecordsLimitOption.get.data, maxY)
         } else {
           // This stream is not under rate control, so we won't display the rate-limit line
           Seq(receivedRecords.data)
@@ -593,6 +596,63 @@ private[ui] object StreamingPage {
     }
     else {
       limitRate
+    }
+  }
+
+  def divideIntoLinesByMaxY(rateLimits: Seq[(Long, Double)], maxY: Double)
+   : Seq[Seq[(Long, Double)]] = {
+    if (rateLimits.length <= 1) {
+      Seq(rateLimits)
+    }
+    else {
+      var ret: Seq[Seq[(Long, Double)]] = Seq()
+
+      val array = rateLimits.toArray
+
+      def addConsecutiveMaxYSegment(startIdx: Int): Int = {
+        var index = startIdx
+        while (index + 1 < array.length && array(index + 1)._2 == maxY) {
+          index += 1
+        }
+        ret = ret :+ array.slice(startIdx, index + 1).toSeq
+        val nextStartIdx = if (index + 1 < array.length) {
+          index
+        }
+        else {
+          array.length
+        }
+        nextStartIdx
+      }
+
+      def addNonConsecutiveMaxYSegment(startIdx: Int): Int = {
+        var index = startIdx
+        while (index < array.length - 1 &&
+               (array(index)._2 != maxY || array(index + 1)._2 != maxY)) {
+          index += 1
+        }
+        ret = ret :+ array.slice(startIdx, index + 1).toSeq
+        val nextStartIdx = if (index + 1 < array.length) {
+          index
+        }
+        else {
+          array.length
+        }
+        nextStartIdx
+      }
+
+      var consecutiveMaxY = array(0)._2 == maxY && array(1)._2 == maxY
+      var nextStartIdx = 0
+      while (nextStartIdx < array.length) {
+        if (consecutiveMaxY) {
+          nextStartIdx = addConsecutiveMaxYSegment(nextStartIdx)
+        }
+        else {
+          nextStartIdx = addNonConsecutiveMaxYSegment(nextStartIdx)
+        }
+        consecutiveMaxY = !consecutiveMaxY
+      }
+
+      ret
     }
   }
 }
