@@ -146,10 +146,12 @@ function drawTimeline(id, dataSets, minX, maxX, minY, maxY, unitY, batchInterval
     for (var dataSetIdx = 0; dataSetIdx < dataSets.length; dataSetIdx ++) {
       svg.append("path")
          .datum(dataSets[dataSetIdx])
+         // 1st line is the event rate line
+         // 2nd, 4th, 6th... lines are the *dashed* rate limit lines
+         // 3rd, 5th, 7th... lines are the *solid* rate limit lines
          .attr("class", dataSetIdx == 0 ? "line" : (dataSetIdx % 2 == 1 ?
                                                     "line rate_limit_line_dashed" :
-                                                    "line rate_limit_line_solid")
-              )
+                                                    "line rate_limit_line_solid"))
          .attr("d", line);
     }
 

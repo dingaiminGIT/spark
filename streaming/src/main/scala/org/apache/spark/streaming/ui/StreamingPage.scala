@@ -599,56 +599,43 @@ private[ui] object StreamingPage {
     }
   }
 
+  /**
+   * @return a Seq of dashed, solid, dashed, solid, dashed... lines
+   */
   def divideIntoLinesByMaxY(rateLimits: Seq[(Long, Double)], maxY: Double)
-   : Seq[Seq[(Long, Double)]] = {
+    : Seq[Seq[(Long, Double)]] = {
     if (rateLimits.length <= 1) {
       Seq(rateLimits)
     }
     else {
       var ret: Seq[Seq[(Long, Double)]] = Seq()
-
       val array = rateLimits.toArray
 
-      def addConsecutiveMaxYSegment(startIdx: Int): Int = {
-        var index = startIdx
-        while (index + 1 < array.length && array(index + 1)._2 == maxY) {
-          index += 1
-        }
-        ret = ret :+ array.slice(startIdx, index + 1).toSeq
-        val nextStartIdx = if (index + 1 < array.length) {
-          index
-        }
-        else {
-          array.length
-        }
-        nextStartIdx
-      }
-
-      def addNonConsecutiveMaxYSegment(startIdx: Int): Int = {
-        var index = startIdx
-        while (index < array.length - 1 &&
-               (array(index)._2 != maxY || array(index + 1)._2 != maxY)) {
-          index += 1
-        }
-        ret = ret :+ array.slice(startIdx, index + 1).toSeq
-        val nextStartIdx = if (index + 1 < array.length) {
-          index
-        }
-        else {
-          array.length
-        }
-        nextStartIdx
-      }
-
       var consecutiveMaxY = array(0)._2 == maxY && array(1)._2 == maxY
-      var nextStartIdx = 0
-      while (nextStartIdx < array.length) {
+      if (!consecutiveMaxY) {
+        // This ensures that the first returned line is a dashed one
+        ret = ret :+ Seq()
+      }
+      var startIdx = 0
+
+      // Each iteration adds a dashed or solid line
+      while (startIdx < array.length) {
+        var stopIdx = startIdx
         if (consecutiveMaxY) {
-          nextStartIdx = addConsecutiveMaxYSegment(nextStartIdx)
+          // Calculate the (inclusive) stopIdx for a dashed line
+          while (stopIdx + 1 < array.length && array(stopIdx + 1)._2 == maxY) {
+            stopIdx += 1
+          }
         }
         else {
-          nextStartIdx = addNonConsecutiveMaxYSegment(nextStartIdx)
+          // Calculate the (inclusive) stopIdx for a solid line
+          while (stopIdx < array.length - 1 &&
+                 (array(stopIdx)._2 != maxY || array(stopIdx + 1)._2 != maxY)) {
+            stopIdx += 1
+          }
         }
+        ret = ret :+ array.slice(startIdx, stopIdx + 1).toSeq
+        startIdx = if (stopIdx + 1 < array.length) stopIdx else array.length
         consecutiveMaxY = !consecutiveMaxY
       }
 
