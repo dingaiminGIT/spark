@@ -85,7 +85,7 @@ class DirectKafkaInputDStream[
     }
   }
 
-  override protected[streaming] val underRateControl = true
+  override protected[streaming] val underRateControl = rateController.isDefined
 
   protected val kc = new KafkaCluster(kafkaParams)
 

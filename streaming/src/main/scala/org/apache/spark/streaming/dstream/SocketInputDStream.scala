@@ -38,7 +38,7 @@ class SocketInputDStream[T: ClassTag](
     storageLevel: StorageLevel
   ) extends ReceiverInputDStream[T](_ssc) {
 
-  override protected[streaming] val underRateControl = true
+  override protected[streaming] val underRateControl = rateController.isDefined
 
   def getReceiver(): Receiver[T] = {
     new SocketReceiver(host, port, bytesToObjects, storageLevel)

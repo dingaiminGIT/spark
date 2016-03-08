@@ -45,7 +45,7 @@ class TwitterInputDStream(
     storageLevel: StorageLevel
   ) extends ReceiverInputDStream[Status](_ssc)  {
 
-  override protected[streaming] val underRateControl = true
+  override protected[streaming] val underRateControl = rateController.isDefined
 
   private def createOAuthAuthorization(): Authorization = {
     new OAuthAuthorization(new ConfigurationBuilder().build())

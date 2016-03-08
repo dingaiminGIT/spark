@@ -46,7 +46,7 @@ class MQTTInputDStream(
 
   private[streaming] override def name: String = s"MQTT stream [$id]"
 
-  override protected[streaming] val underRateControl = true
+  override protected[streaming] val underRateControl = rateController.isDefined
 
   def getReceiver(): Receiver[String] = {
     new MQTTReceiver(brokerUrl, topic, storageLevel)
