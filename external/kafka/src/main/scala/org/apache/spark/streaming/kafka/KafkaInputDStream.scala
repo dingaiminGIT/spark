@@ -57,7 +57,7 @@ class KafkaInputDStream[
 
   /* KafkaReceiver uses store(dataItem) so it's underRateControl */
   /* ReliableKafkaReceiver uses store(ArrayBuffer) so it's NOT underRateControl */
-  override protected[streaming] val underRateControl = !useReliableReceiver
+  override protected[streaming] val underRateControl = rateController.isDefined && !useReliableReceiver
 
   def getReceiver(): Receiver[(K, V)] = {
     if (!useReliableReceiver) {
