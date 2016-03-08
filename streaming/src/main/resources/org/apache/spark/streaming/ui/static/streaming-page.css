@@ -41,8 +41,14 @@
 }
 
 /* Currently used for the rate limit line */
-.line_2 {
+.rate_limit_line_solid {
   stroke: #ffa1b0;
+}
+
+/* Currently used for the rate limit line */
+.rate_limit_line_dashed {
+  stroke: #ffa1b0;
+  stroke-dasharray: 5,5
 }
 
 .bar rect {
