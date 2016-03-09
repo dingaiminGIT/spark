@@ -42,7 +42,9 @@ private[kinesis] class KinesisInputDStream[T: ClassTag](
     awsCredentialsOption: Option[SerializableAWSCredentials]
   ) extends ReceiverInputDStream[T](_ssc) {
 
-  override protected[streaming] val underRateControl = true
+
+  /* This KinesisInputDStream would be under rate control if its rateController is defined. */
+  override protected[streaming] val underRateControl = rateController.isDefined
 
   private[streaming]
   override def createBlockRDD(time: Time, blockInfos: Seq[ReceivedBlockInfo]): RDD[T] = {
