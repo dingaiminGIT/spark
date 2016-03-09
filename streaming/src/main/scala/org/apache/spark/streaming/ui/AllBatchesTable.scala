@@ -38,7 +38,7 @@ private[ui] abstract class BatchTableBase(
         else {
           Nil
         }
-      }
+      } ++
       <th>Scheduling Delay
         {SparkUIUtils.tooltip("Time taken by Streaming scheduler to submit jobs of a batch", "top")}
       </th>
@@ -92,7 +92,7 @@ private[ui] abstract class BatchTableBase(
         } else {
           Nil
         }
-      }
+      } ++
       <td sorttable_customkey={schedulingDelay.getOrElse(Long.MaxValue).toString}>
         {formattedSchedulingDelay}
       </td>
