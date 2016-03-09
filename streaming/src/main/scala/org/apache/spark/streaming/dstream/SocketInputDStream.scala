@@ -38,6 +38,7 @@ class SocketInputDStream[T: ClassTag](
     storageLevel: StorageLevel
   ) extends ReceiverInputDStream[T](_ssc) {
 
+  /* This SocketInputDStream would be under rate control if its rateController is defined. */
   override protected[streaming] val underRateControl = rateController.isDefined
 
   def getReceiver(): Receiver[T] = {
