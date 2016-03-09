@@ -168,7 +168,7 @@ function drawTimeline(id, dataSets, minX, maxX, minY, maxY, unitY, batchInterval
     // Add points to the line. However, we make it invisible at first. But when the user moves mouse
     // over a point, it will be displayed with its detail.
     svg.selectAll(".point")
-        // Only add points of the first line.
+        // Only add points of the 0th line, i.e., the event rate line
         .data(dataSets[0])
         .enter().append("circle")
             .attr("stroke", function(d) { return isFailedBatch(d.x) ? "red" : "white";}) // white and opacity = 0 make it invisible
