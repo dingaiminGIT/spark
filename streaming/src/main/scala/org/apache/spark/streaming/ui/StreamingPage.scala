@@ -561,14 +561,16 @@ private[ui] class StreamingPage(parent: StreamingTab)
 
     val activeBatchesContent = {
       <h4 id="active">Active Batches ({runningBatches.size + waitingBatches.size})</h4> ++
-        new ActiveBatchTable(runningBatches, waitingBatches, listener.batchDuration).toNodeSeq
+        new ActiveBatchTable(runningBatches, waitingBatches, listener.batchDuration,
+                             listener.allStreamsUnderRateControl).toNodeSeq
     }
 
     val completedBatchesContent = {
       <h4 id="completed">
         Completed Batches (last {completedBatches.size} out of {listener.numTotalCompletedBatches})
       </h4> ++
-        new CompletedBatchTable(completedBatches, listener.batchDuration).toNodeSeq
+        new CompletedBatchTable(completedBatches, listener.batchDuration,
+                                listener.allStreamsUnderRateControl).toNodeSeq
     }
 
     activeBatchesContent ++ completedBatchesContent
