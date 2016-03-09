@@ -1881,6 +1881,8 @@
             <recompileMode>incremental</recompileMode>
             <useZincServer>true</useZincServer>
             <args>
+              <arg>-Xmax-classfile-name</arg>
+              <arg>128</arg>
               <arg>-unchecked</arg>
               <arg>-deprecation</arg>
               <arg>-feature</arg>
