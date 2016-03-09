@@ -184,8 +184,8 @@ private[ui] class ActiveBatchTable(
   }
 }
 
-private[ui] class CompletedBatchTable
-  (batches: Seq[BatchUIData], batchInterval: Long, underRateControl: Boolean)
+private[ui] class CompletedBatchTable(
+    batches: Seq[BatchUIData], batchInterval: Long, underRateControl: Boolean)
   extends BatchTableBase("completed-batches-table", batchInterval, underRateControl) {
 
   private val firstFailureReason = getFirstFailureReason(batches)
