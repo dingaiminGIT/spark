@@ -55,7 +55,7 @@ abstract class InputDStream[T: ClassTag] (_ssc: StreamingContext)
   /** Is this InputDStream under rate control.
    *
    * A InputDStream is under rate control when:
-   * - its rateControl is defined and,
+   * - its rateController is defined and,
    * - for a ReceiverInputDStream, it stores data via store(dataItem), rather than other store()
    *   methods such as store(ByteBuffer), store(ArrayBuffer), store(Iterator).
    * See SPARK-13618 for details.
