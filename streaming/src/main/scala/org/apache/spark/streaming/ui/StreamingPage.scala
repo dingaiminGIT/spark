@@ -81,7 +81,7 @@ private[ui] class GraphUIData(
   }
 
   def generateHistogramHtml(jsCollector: JsCollector): Seq[Node] = {
-    // we generate histogram for the first data set only
+    // we only generate histogram for the 0th data-set, i.e., the event rate data-set
     val histogramData = s"$dataJavaScriptName[0].map(function(d) { return d.y; })"
     jsCollector.addPreparedStatement(s"registerHistogram($histogramData, $minY, $maxY);")
     if (batchInterval.isDefined) {
