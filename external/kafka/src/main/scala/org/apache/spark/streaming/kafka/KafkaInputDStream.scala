@@ -55,8 +55,8 @@ class KafkaInputDStream[
     storageLevel: StorageLevel
   ) extends ReceiverInputDStream[(K, V)](_ssc) with Logging {
 
-  /* KafkaReceiver uses store(dataItem) so it's underRateControl */
-  /* ReliableKafkaReceiver uses store(ArrayBuffer) so it's NOT underRateControl */
+  /* KafkaReceiver uses store(dataItem) so it may be underRateControl */
+  /* ReliableKafkaReceiver uses store(ArrayBuffer) so it is NOT underRateControl */
   override protected[streaming] val underRateControl = rateController.isDefined && !useReliableReceiver
 
   def getReceiver(): Receiver[(K, V)] = {
