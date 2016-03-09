@@ -416,7 +416,8 @@ class DirectKafkaStreamSuite
         override protected[streaming] val rateController =
           Some(new DirectKafkaRateController(id, estimator))
 
-        override protected[streaming] val underRateControl = rateController.isDefined
+        override protected[streaming] val underRateControl =
+          rateController != null && rateController.isDefined
       }
     }
 
@@ -476,7 +477,8 @@ class DirectKafkaStreamSuite
     new DirectKafkaInputDStream[String, String, StringDecoder, StringDecoder, (String, String)](
       ssc, Map[String, String](), earliestOffsets, messageHandler) {
       override protected[streaming] val rateController = mockRateController
-      override protected[streaming] val underRateControl = rateController.isDefined
+      override protected[streaming] val underRateControl =
+        rateController != null && rateController.isDefined
     }
   }
 }
