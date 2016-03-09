@@ -22,6 +22,8 @@ import scala.collection.mutable.ArrayBuffer
 import com.google.common.util.concurrent.{RateLimiter => GuavaRateLimiter}
 
 import org.apache.spark.{Logging, SparkConf}
+import org.apache.spark.util.Clock
+
 
 /** Provides waitToPush() method to limit the rate at which receivers consume data.
   *
@@ -34,7 +36,7 @@ import org.apache.spark.{Logging, SparkConf}
   *
   * @param conf spark configuration
   */
-private[receiver] abstract class RateLimiter(conf: SparkConf) extends Logging {
+private[receiver] abstract class RateLimiter(conf: SparkConf, clock: Clock) extends Logging {
 
   // treated as an upper limit
   private val maxRateLimit = conf.getLong("spark.streaming.receiver.maxRate", Long.MaxValue)
@@ -84,7 +86,7 @@ private[receiver] abstract class RateLimiter(conf: SparkConf) extends Logging {
    * @param rate the new rate
    * @param ts at which time the rate changed
    */
-  private[receiver] def appendLimitToHistory(rate: Double, ts: Long = System.currentTimeMillis()) {
+  private[receiver] def appendLimitToHistory(rate: Double, ts: Long = clock.getTimeMillis()) {
     rateLimitHistory.synchronized {
       rateLimitHistory += RateLimitSnapshot(rate, ts)
     }
@@ -100,7 +102,7 @@ private[receiver] abstract class RateLimiter(conf: SparkConf) extends Logging {
    * @param ts the ending timestamp of a block interval
    * @return the upper bound of how many events can be received in a block interval
    */
-  private[receiver]  def sumHistoryThenTrim(ts: Long = System.currentTimeMillis()): Long = {
+  private[receiver]  def sumHistoryThenTrim(ts: Long = clock.getTimeMillis()): Long = {
     var sum: Double = 0
     rateLimitHistory.synchronized {
       // first add a RateLimitSnapshot

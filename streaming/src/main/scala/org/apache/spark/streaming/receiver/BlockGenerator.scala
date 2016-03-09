@@ -78,7 +78,7 @@ private[streaming] class BlockGenerator(
     receiverId: Int,
     conf: SparkConf,
     clock: Clock = new SystemClock()
-  ) extends RateLimiter(conf) with Logging {
+  ) extends RateLimiter(conf, clock) with Logging {
 
   private case class Block(id: StreamBlockId, buffer: ArrayBuffer[Any], numRecordsLimit: Long)
 

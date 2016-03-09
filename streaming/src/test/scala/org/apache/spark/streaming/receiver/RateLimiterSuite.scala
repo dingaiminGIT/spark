@@ -18,27 +18,28 @@
 package org.apache.spark.streaming.receiver
 
 import org.apache.spark.{SparkConf, SparkFunSuite}
+import org.apache.spark.util.SystemClock
 
 /** Testsuite for testing the network receiver behavior */
 class RateLimiterSuite extends SparkFunSuite {
 
   test("rate limiter initializes even without a maxRate set") {
     val conf = new SparkConf()
-    val rateLimiter = new RateLimiter(conf){}
+    val rateLimiter = new RateLimiter(conf, new SystemClock){}
     rateLimiter.updateRate(105)
     assert(rateLimiter.getCurrentLimit == 105)
   }
 
   test("rate limiter updates when below maxRate") {
     val conf = new SparkConf().set("spark.streaming.receiver.maxRate", "110")
-    val rateLimiter = new RateLimiter(conf){}
+    val rateLimiter = new RateLimiter(conf, new SystemClock){}
     rateLimiter.updateRate(105)
     assert(rateLimiter.getCurrentLimit == 105)
   }
 
   test("rate limiter stays below maxRate despite large updates") {
     val conf = new SparkConf().set("spark.streaming.receiver.maxRate", "100")
-    val rateLimiter = new RateLimiter(conf){}
+    val rateLimiter = new RateLimiter(conf, new SystemClock){}
     rateLimiter.updateRate(105)
     assert(rateLimiter.getCurrentLimit === 100)
   }
@@ -46,7 +47,7 @@ class RateLimiterSuite extends SparkFunSuite {
   test("historySumThenTrim() returns expected numRecordsLimit") {
     val conf = new SparkConf().set("spark.streaming.receiver.maxRate", "100")
                               .set("spark.streaming.blockInterval", "500ms")
-    val rateLimiter = new RateLimiter(conf) {}
+    val rateLimiter = new RateLimiter(conf, new SystemClock){}
 
     // Make sure that rateLimitHistory starts with a special initial snapshot
     assert(rateLimiter.rateLimitHistory(0).limit == 100)
