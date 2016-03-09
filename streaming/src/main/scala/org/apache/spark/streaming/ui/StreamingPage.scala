@@ -508,7 +508,7 @@ private[ui] class StreamingPage(parent: StreamingTab)
     val receivedRecordsLimitOption =
       if (listener.streamUnderRateControl(streamId).getOrElse(false)) {
         Some(new EventRateUIData(
-          eventRatesAndLimitRates.map(e => (e._1, maxY.min(e._3.getOrElse(0))))
+          eventRatesAndLimitRates.map(e => (e._1, maxY.min(e._3.getOrElse(Double.MaxValue))))
         ))
       } else {
         None
