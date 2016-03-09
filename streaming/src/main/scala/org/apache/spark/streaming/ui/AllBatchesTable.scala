@@ -21,16 +21,24 @@ import scala.xml.Node
 
 import org.apache.spark.ui.{UIUtils => SparkUIUtils}
 
-private[ui] abstract class BatchTableBase(tableId: String, batchInterval: Long) {
-
+private[ui] abstract class BatchTableBase(
+    tableId: String,
+    batchInterval: Long,
+    underRateLimit: Boolean) {
   protected def columns: Seq[Node] = {
     <th>Batch Time</th>
-      <th>Input Size</th>
-      <th>Input Size Limit
-        {SparkUIUtils.tooltip("The upper bound of input size of a batch;" +
-                              "defined by static rate limit or dynamic back-pressure",
-                              "top")}
-      </th>
+      <th>Input Size</th> ++ {
+        if (underRateLimit) {
+          <th>Input Size Limit
+            {SparkUIUtils.tooltip("The upper bound of possible input size of a batch, determined by"
+               + " spark.streaming.receiver.maxRate and the adaptive back pressure mechanism",
+               "top")}
+          </th>
+        }
+        else {
+          Nil
+        }
+      }
       <th>Scheduling Delay
         {SparkUIUtils.tooltip("Time taken by Streaming scheduler to submit jobs of a batch", "top")}
       </th>
@@ -71,15 +79,20 @@ private[ui] abstract class BatchTableBase(tableId: String, batchInterval: Long) 
         {formattedBatchTime}
       </a>
     </td>
-      <td sorttable_customkey={eventCount.toString}>{eventCount.toString} events</td>
-      <td sorttable_customkey={eventCountLimitOption.getOrElse("-").toString}> {
-        if (eventCountLimitOption.isDefined) {
-          eventCountLimitOption.get.toString + " events"
+      <td sorttable_customkey={eventCount.toString}>{eventCount.toString} events</td> ++ {
+        if (underRateLimit) {
+          <td sorttable_customkey={eventCountLimitOption.getOrElse("-").toString}> {
+          if (eventCountLimitOption.isDefined) {
+            eventCountLimitOption.get.toString + " events"
+          }
+          else {
+            "-"
+          }}
+          </td>
+        } else {
+          Nil
         }
-        else {
-          "-"
-        }
-      } </td>
+      }
       <td sorttable_customkey={schedulingDelay.getOrElse(Long.MaxValue).toString}>
         {formattedSchedulingDelay}
       </td>
@@ -125,7 +138,9 @@ private[ui] abstract class BatchTableBase(tableId: String, batchInterval: Long) 
 private[ui] class ActiveBatchTable(
     runningBatches: Seq[BatchUIData],
     waitingBatches: Seq[BatchUIData],
-    batchInterval: Long) extends BatchTableBase("active-batches-table", batchInterval) {
+    batchInterval: Long,
+    underRateControl: Boolean)
+  extends BatchTableBase("active-batches-table", batchInterval, underRateControl) {
 
   private val firstFailureReason = getFirstFailureReason(runningBatches)
 
@@ -169,8 +184,9 @@ private[ui] class ActiveBatchTable(
   }
 }
 
-private[ui] class CompletedBatchTable(batches: Seq[BatchUIData], batchInterval: Long)
-  extends BatchTableBase("completed-batches-table", batchInterval) {
+private[ui] class CompletedBatchTable
+  (batches: Seq[BatchUIData], batchInterval: Long, underRateControl: Boolean)
+  extends BatchTableBase("completed-batches-table", batchInterval, underRateControl) {
 
   private val firstFailureReason = getFirstFailureReason(batches)
 
