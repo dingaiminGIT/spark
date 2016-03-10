@@ -43,8 +43,7 @@ private[kinesis] class KinesisInputDStream[T: ClassTag](
   ) extends ReceiverInputDStream[T](_ssc) {
 
 
-  /* This KinesisInputDStream would be under rate control if its rateController is defined. */
-  override protected[streaming] val underRateControl = rateController.isDefined
+  override protected[streaming] lazy val underRateControl = false
 
   private[streaming]
   override def createBlockRDD(time: Time, blockInfos: Seq[ReceivedBlockInfo]): RDD[T] = {
