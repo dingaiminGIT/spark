@@ -86,7 +86,7 @@ class DirectKafkaInputDStream[
   }
 
   /* This DirectKafkaInputDStream would be under rate control if its rateController is defined. */
-  override protected[streaming] val underRateControl = rateController.isDefined
+  override protected[streaming] lazy val underRateControl = rateController.isDefined
 
   protected val kc = new KafkaCluster(kafkaParams)
 

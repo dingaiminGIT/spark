@@ -60,7 +60,7 @@ abstract class InputDStream[T: ClassTag] (_ssc: StreamingContext)
    *   methods such as store(ByteBuffer), store(ArrayBuffer), store(Iterator).
    * See SPARK-13618 for details.
    */
-  protected[streaming] val underRateControl: Boolean = false
+  protected[streaming] lazy val underRateControl: Boolean = false
 
   /** A human-readable name of this InputDStream */
   private[streaming] def name: String = {
