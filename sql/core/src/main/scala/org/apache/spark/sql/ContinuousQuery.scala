@@ -35,13 +35,13 @@ trait ContinuousQuery {
   def name: String
 
   /**
-   * Returns the SQLContext associated with `this` query
+   * Returns the SQLContext associated with `this` query.
    * @since 2.0.0
    */
   def sqlContext: SQLContext
 
   /**
-   * Whether the query is currently active or not
+   * Whether the query is currently active or not.
    * @since 2.0.0
    */
   def isActive: Boolean
@@ -56,9 +56,12 @@ trait ContinuousQuery {
    * Returns current status of all the sources.
    * @since 2.0.0
    */
-   def sourceStatuses: Array[SourceStatus]
+  def sourceStatuses: Array[SourceStatus]
 
-  /** Returns current status of the sink. */
+  /**
+   * Returns current status of the sink.
+   * @since 2.0.0
+   */
   def sinkStatus: SinkStatus
 
   /**
@@ -85,7 +88,7 @@ trait ContinuousQuery {
    * `true` immediately (if the query was terminated by `stop()`), or throw the exception
    * immediately (if the query has terminated with exception).
    *
-   * @throws ContinuousQueryException, if `this` query has terminated with an exception
+   * @throws ContinuousQueryException, if `this` query has terminated with an exception.
    *
    * @since 2.0.0
    */

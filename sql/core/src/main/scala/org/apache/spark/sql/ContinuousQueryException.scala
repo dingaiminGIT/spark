@@ -42,6 +42,9 @@ class ContinuousQueryException private[sql](
   /** Time when the exception occurred */
   val time: Long = System.currentTimeMillis
 
+  /**
+   * @since 2.0.0
+   */
   override def toString(): String = {
     val causeStr =
       s"${cause.getMessage} ${cause.getStackTrace.take(10).mkString("", "\n|\t", "\n")}"

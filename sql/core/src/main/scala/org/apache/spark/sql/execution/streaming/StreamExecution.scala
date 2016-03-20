@@ -37,6 +37,8 @@ import org.apache.spark.sql.util.ContinuousQueryListener._
  * Unlike a standard query, a streaming query executes repeatedly each time new data arrives at any
  * [[Source]] present in the query plan. Whenever new data arrives, a [[QueryExecution]] is created
  * and the results are committed transactionally to the given [[Sink]].
+ *
+ * @since 2.0.0
  */
 class StreamExecution(
     val sqlContext: SQLContext,
@@ -56,8 +58,7 @@ class StreamExecution(
   private[sql] val streamProgress = new StreamProgress
 
   /** All stream sources present the query plan. */
-  private val sources =
-    logicalPlan.collect { case s: StreamingRelation => s.source }
+  private val sources = logicalPlan.collect { case s: StreamingRelation => s.source }
 
   /** Defines the internal state of execution */
   @volatile
@@ -74,18 +75,30 @@ class StreamExecution(
     override def run(): Unit = { runBatches() }
   }
 
-  /** Whether the query is currently active or not */
+  /**
+   * Whether the query is currently active or not
+   * @since 2.0.0
+   */
   override def isActive: Boolean = state == ACTIVE
 
-  /** Returns current status of all the sources. */
+  /**
+   * Returns current status of all the sources.
+   * @since 2.0.0
+   */
   override def sourceStatuses: Array[SourceStatus] = {
     sources.map(s => new SourceStatus(s.toString, streamProgress.get(s))).toArray
   }
 
-  /** Returns current status of the sink. */
+  /**
+   * Returns current status of the sink.
+   * @since 2.0.0
+   */
   override def sinkStatus: SinkStatus = new SinkStatus(sink.toString, sink.currentOffset)
 
-  /** Returns the [[ContinuousQueryException]] if the query was terminated by an exception. */
+  /**
+   * Returns the [[ContinuousQueryException]] if the query was terminated by an exception.
+   * @since 2.0.0
+   */
   override def exception: Option[ContinuousQueryException] = Option(streamDeathCause)
 
   /**
@@ -235,6 +248,7 @@ class StreamExecution(
   /**
    * Signals to the thread executing micro-batches that it should stop running after the next
    * batch. This method blocks until the thread stops running.
+   * @since 2.0.0
    */
   override def stop(): Unit = {
     // Set the state to TERMINATED so that the batching thread knows that it was interrupted
@@ -250,6 +264,7 @@ class StreamExecution(
   /**
    * Blocks the current thread until processing for data from the given `source` has reached at
    * least the given `Offset`. This method is indented for use primarily when writing tests.
+   * @since 2.0.0
    */
   def awaitOffset(source: Source, newOffset: Offset): Unit = {
     def notDone = streamProgress.synchronized {
@@ -263,6 +278,9 @@ class StreamExecution(
     logDebug(s"Unblocked at $newOffset for $source")
   }
 
+  /**
+   * @since 2.0.0
+   */
   override def awaitTermination(): Unit = {
     if (state == INITIALIZED) {
       throw new IllegalStateException("Cannot wait for termination on a query that has not started")
@@ -273,6 +291,9 @@ class StreamExecution(
     }
   }
 
+  /**
+   * @since 2.0.0
+   */
   override def awaitTermination(timeoutMs: Long): Boolean = {
     if (state == INITIALIZED) {
       throw new IllegalStateException("Cannot wait for termination on a query that has not started")
@@ -286,10 +307,16 @@ class StreamExecution(
     }
   }
 
+  /**
+   * @since 2.0.0
+   */
   override def toString: String = {
     s"Continuous Query - $name [state = $state]"
   }
 
+  /**
+   * @since 2.0.0
+   */
   def toDebugString: String = {
     val deathCauseStr = if (streamDeathCause != null) {
       "Error:\n" + stackTraceToString(streamDeathCause.cause)
@@ -309,10 +336,10 @@ class StreamExecution(
      """.stripMargin
   }
 
-  trait State
-  case object INITIALIZED extends State
-  case object ACTIVE extends State
-  case object TERMINATED extends State
+  private trait State
+  private case object INITIALIZED extends State
+  private case object ACTIVE extends State
+  private case object TERMINATED extends State
 }
 
 private[sql] object StreamExecution {

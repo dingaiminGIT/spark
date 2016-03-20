@@ -41,7 +41,7 @@ class ContinuousQueryManager(sqlContext: SQLContext) {
   private var lastTerminatedQuery: ContinuousQuery = null
 
   /**
-   * Returns a list of active queries associated with this SQLContext
+   * Returns a list of active queries associated with this SQLContext.
    *
    * @since 2.0.0
    */
@@ -50,7 +50,7 @@ class ContinuousQueryManager(sqlContext: SQLContext) {
   }
 
   /**
-   * Returns an active query from this SQLContext or throws exception if bad name
+   * Returns an active query from this SQLContext or throws exception if bad name.
    *
    * @since 2.0.0
    */
@@ -75,7 +75,7 @@ class ContinuousQueryManager(sqlContext: SQLContext) {
    * users need to stop all of them after any of them terminates with exception, and then check the
    * `query.exception()` for each query.
    *
-   * @throws ContinuousQueryException, if any query has terminated with an exception
+   * @throws ContinuousQueryException, if any query has terminated with an exception.
    *
    * @since 2.0.0
    */
@@ -107,7 +107,7 @@ class ContinuousQueryManager(sqlContext: SQLContext) {
    * users need to stop all of them after any of them terminates with exception, and then check the
    * `query.exception()` for each query.
    *
-   * @throws ContinuousQueryException, if any query has terminated with an exception
+   * @throws ContinuousQueryException, if any query has terminated with an exception.
    *
    * @since 2.0.0
    */

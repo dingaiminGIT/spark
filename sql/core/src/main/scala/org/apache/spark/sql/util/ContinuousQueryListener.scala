@@ -25,6 +25,7 @@ import org.apache.spark.sql.util.ContinuousQueryListener._
  * :: Experimental ::
  * Interface for listening to events related to [[ContinuousQuery ContinuousQueries]].
  * @note The methods are not thread-safe as they may be called from different threads.
+ * @since 2.0.0
  */
 @Experimental
 abstract class ContinuousQueryListener {
@@ -35,13 +36,20 @@ abstract class ContinuousQueryListener {
    *       [[org.apache.spark.sql.DataFrameWriter `DataFrameWriter.startStream()`]],
    *       that is, `onQueryStart` will be called on all listeners before
    *       `DataFrameWriter.startStream()` returns the corresponding [[ContinuousQuery]].
+   * @since 2.0.0
    */
   def onQueryStarted(queryStarted: QueryStarted)
 
-  /** Called when there is some status update (ingestion rate updated, etc. */
+  /**
+   * Called when there is some status update (ingestion rate updated, etc.
+   * @since 2.0.0
+   */
   def onQueryProgress(queryProgress: QueryProgress)
 
-  /** Called when a query is stopped, with or without error */
+  /**
+   * Called when a query is stopped, with or without error.
+   * @since 2.0.0
+   */
   def onQueryTerminated(queryTerminated: QueryTerminated)
 }
 
@@ -49,19 +57,32 @@ abstract class ContinuousQueryListener {
 /**
  * :: Experimental ::
  * Companion object of [[ContinuousQueryListener]] that defines the listener events.
+ * @since 2.0.0
  */
 @Experimental
 object ContinuousQueryListener {
 
-  /** Base type of [[ContinuousQueryListener]] events */
+  /**
+   * Base type of [[ContinuousQueryListener]] events.
+   * @since 2.0.0
+   */
   trait Event
 
-  /** Event representing the start of a query */
+  /**
+   * Event representing the start of a query.
+   * @since 2.0.0
+   */
   class QueryStarted private[sql](val query: ContinuousQuery) extends Event
 
-  /** Event representing any progress updates in a query */
+  /**
+   * Event representing any progress updates in a query.
+   * @since 2.0.0
+   */
   class QueryProgress private[sql](val query: ContinuousQuery) extends Event
 
-  /** Event representing that termination of a query */
+  /**
+   * Event representing that termination of a query.
+   * @since 2.0.0
+   */
   class QueryTerminated private[sql](val query: ContinuousQuery) extends Event
 }

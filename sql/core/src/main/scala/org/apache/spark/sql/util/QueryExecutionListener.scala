@@ -32,6 +32,8 @@ import org.apache.spark.sql.execution.QueryExecution
  *
  * Note that implementations should guarantee thread-safety as they can be invoked by
  * multiple different threads.
+ *
+ * @since 2.0.0
  */
 @Experimental
 trait QueryExecutionListener {
@@ -44,6 +46,7 @@ trait QueryExecutionListener {
    * @param qe the QueryExecution object that carries detail information like logical plan,
    *           physical plan, etc.
    * @param durationNs the execution time for this query in nanoseconds.
+   * @since 2.0.0
    */
   @DeveloperApi
   def onSuccess(funcName: String, qe: QueryExecution, durationNs: Long): Unit
@@ -56,6 +59,7 @@ trait QueryExecutionListener {
    * @param qe the QueryExecution object that carries detail information like logical plan,
    *           physical plan, etc.
    * @param exception the exception that failed this query.
+   * @since 2.0.0
    */
   @DeveloperApi
   def onFailure(funcName: String, qe: QueryExecution, exception: Exception): Unit
@@ -66,12 +70,14 @@ trait QueryExecutionListener {
  * :: Experimental ::
  *
  * Manager for [[QueryExecutionListener]]. See [[org.apache.spark.sql.SQLContext.listenerManager]].
+ * @since 2.0.0
  */
 @Experimental
-class ExecutionListenerManager private[sql] () extends Logging {
+class ExecutionListenerManager private[sql]() extends Logging {
 
   /**
    * Registers the specified [[QueryExecutionListener]].
+   * @since 2.0.0
    */
   @DeveloperApi
   def register(listener: QueryExecutionListener): Unit = writeLock {
@@ -80,6 +86,7 @@ class ExecutionListenerManager private[sql] () extends Logging {
 
   /**
    * Unregisters the specified [[QueryExecutionListener]].
+   * @since 2.0.0
    */
   @DeveloperApi
   def unregister(listener: QueryExecutionListener): Unit = writeLock {
@@ -88,6 +95,7 @@ class ExecutionListenerManager private[sql] () extends Logging {
 
   /**
    * Removes all the registered [[QueryExecutionListener]].
+   * @since 2.0.0
    */
   @DeveloperApi
   def clear(): Unit = writeLock {
