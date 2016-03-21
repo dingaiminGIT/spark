@@ -25,23 +25,29 @@ package org.apache.spark.sql.execution.streaming
  * and must be able to return the [[Offset]] for all of the data that is made durable.
  * This contract allows Spark to process data with exactly-once semantics, even in the case
  * of failures that require the computation to be restarted.
+ *
+ * @since 2.0.0
  */
 trait Sink {
   /**
    * Returns the [[Offset]] for all data that is currently present in the sink, if any. This
    * function will be called by Spark when restarting execution in order to determine at which point
    * in the input stream computation should be resumed from.
+   *
+   * @since 2.0.0
    */
   def currentOffset: Option[Offset]
 
   /**
    * Accepts a new batch of data as well as a [[Offset]] that denotes how far in the input
-   * data computation has progressed to.  When computation restarts after a failure, it is important
+   * data computation has progressed to. When computation restarts after a failure, it is important
    * that a [[Sink]] returns the same [[Offset]] as the most recent batch of data that
-   * has been persisted durably.  Note that this does not necessarily have to be the
-   * [[Offset]] for the most recent batch of data that was given to the sink.  For example,
+   * has been persisted durably. Note that this does not necessarily have to be the
+   * [[Offset]] for the most recent batch of data that was given to the sink. For example,
    * it is valid to buffer data before persisting, as long as the [[Offset]] is stored
    * transactionally as data is eventually persisted.
+   *
+   * @since 2.0.0
    */
   def addBatch(batch: Batch): Unit
 }

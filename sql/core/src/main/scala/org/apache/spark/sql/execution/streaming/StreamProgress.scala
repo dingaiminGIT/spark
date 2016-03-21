@@ -22,7 +22,7 @@ import scala.collection.mutable
 /**
  * A helper class that looks like a Map[Source, Offset].
  */
-class StreamProgress {
+private[streaming] class StreamProgress {
   private val currentOffsets = new mutable.HashMap[Source, Offset]
 
   private[streaming] def update(source: Source, newOffset: Offset): Unit = {
@@ -60,7 +60,7 @@ class StreamProgress {
   }
 
   override def toString: String =
-    currentOffsets.map { case (k, v) => s"$k: $v"}.mkString("{", ",", "}")
+    currentOffsets.map { case (k, v) => s"$k: $v" }.mkString("{", ",", "}")
 
   override def equals(other: Any): Boolean = other match {
     case s: StreamProgress => currentOffsets == s.currentOffsets
