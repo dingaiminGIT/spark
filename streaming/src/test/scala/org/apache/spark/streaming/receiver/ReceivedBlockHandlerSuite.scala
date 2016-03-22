@@ -408,3 +408,4 @@ class ReceivedBlockHandlerSuite
 
   private def generateBlockId(): StreamBlockId = StreamBlockId(streamId, scala.util.Random.nextLong)
 }
+

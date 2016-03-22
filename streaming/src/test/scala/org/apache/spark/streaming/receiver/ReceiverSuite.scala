@@ -391,3 +391,4 @@ class FakeReceiver(sendData: Boolean = false) extends Receiver[Int](StorageLevel
     onStopCalled = false
   }
 }
+
