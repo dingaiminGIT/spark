@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.spark.streaming
+package org.apache.spark.streaming.receiver
 
 import java.io.File
 import java.nio.ByteBuffer
@@ -37,7 +37,6 @@ import org.apache.spark.scheduler.LiveListenerBus
 import org.apache.spark.serializer.{KryoSerializer, SerializerManager}
 import org.apache.spark.shuffle.hash.HashShuffleManager
 import org.apache.spark.storage._
-import org.apache.spark.streaming.receiver._
 import org.apache.spark.streaming.util._
 import org.apache.spark.util.{ManualClock, Utils}
 import org.apache.spark.util.io.ChunkedByteBuffer
@@ -409,4 +408,3 @@ class ReceivedBlockHandlerSuite
 
   private def generateBlockId(): StreamBlockId = StreamBlockId(streamId, scala.util.Random.nextLong)
 }
-

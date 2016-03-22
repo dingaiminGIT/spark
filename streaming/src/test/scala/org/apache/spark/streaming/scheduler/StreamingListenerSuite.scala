@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.spark.streaming
+package org.apache.spark.streaming.scheduler
 
 import java.util.concurrent.ConcurrentLinkedQueue
 
@@ -32,9 +32,9 @@ import org.scalatest.time.SpanSugar._
 import org.apache.spark.SparkException
 import org.apache.spark.internal.Logging
 import org.apache.spark.storage.StorageLevel
+import org.apache.spark.streaming._
 import org.apache.spark.streaming.dstream.DStream
 import org.apache.spark.streaming.receiver.Receiver
-import org.apache.spark.streaming.scheduler._
 
 class StreamingListenerSuite extends TestSuiteBase with Matchers {
 

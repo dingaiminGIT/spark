@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.spark.streaming
+package org.apache.spark.streaming.util
 
 import scala.collection.{immutable, mutable, Map}
 import scala.reflect.ClassTag
@@ -27,7 +27,6 @@ import com.esotericsoftware.kryo.io.{Input, Output}
 import org.apache.spark.{SparkConf, SparkFunSuite}
 import org.apache.spark.serializer._
 import org.apache.spark.streaming.rdd.MapWithStateRDDRecord
-import org.apache.spark.streaming.util.{EmptyStateMap, OpenHashMapBasedStateMap, StateMap}
 
 class StateMapSuite extends SparkFunSuite {
 

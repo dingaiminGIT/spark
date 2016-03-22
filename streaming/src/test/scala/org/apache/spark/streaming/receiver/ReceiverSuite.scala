@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.spark.streaming
+package org.apache.spark.streaming.receiver
 
 import java.io.File
 import java.nio.ByteBuffer
@@ -31,7 +31,7 @@ import org.scalatest.time.SpanSugar._
 import org.apache.spark.SparkConf
 import org.apache.spark.storage.StorageLevel
 import org.apache.spark.storage.StreamBlockId
-import org.apache.spark.streaming.receiver._
+import org.apache.spark.streaming.{StreamingContext, TestSuiteBase}
 import org.apache.spark.streaming.receiver.WriteAheadLogBasedBlockHandler._
 import org.apache.spark.util.Utils
 
@@ -391,4 +391,3 @@ class FakeReceiver(sendData: Boolean = false) extends Receiver[Int](StorageLevel
     onStopCalled = false
   }
 }
-
