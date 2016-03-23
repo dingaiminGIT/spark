@@ -30,6 +30,11 @@ import java.util.Iterator;
  */
 @org.apache.spark.annotation.DeveloperApi
 public abstract class WriteAheadLog {
+
+  public void x(){
+    System.out.print("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
+  }
+
   /**
    * Write the record to the log and return a record handle, which contains all the information
    * necessary to read back the written record. The time is used to the index the record,
