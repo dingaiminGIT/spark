@@ -157,4 +157,70 @@ class ReceiverInputDStreamSuite extends TestSuiteBase with BeforeAndAfterAll {
     }
     new ReceivedBlockInfo(0, None, None, storeResult)
   }
+  
+  test("historySumThenTrim() returns expected numRecordsLimit") {
+    val conf = new SparkConf()
+    conf.setMaster("local[4]").setAppName("ReceiverInputDStreamSuite")
+    conf.set("spark.streaming.backpressure.enabled", "true")
+    conf.set("spark.streaming.receiver.maxRate", "10")
+
+    val ssc = new StreamingContext(conf, Seconds(1))
+    val receiverStream = new ReceiverInputDStream[Int](ssc) {
+      override def getReceiver(): Receiver[Int] = null
+    }
+    type ReceiverRateController = ReceiverInputDStream[Int]#ReceiverRateController
+    val rateController = receiverStream.rateController.get.asInstanceOf[ReceiverRateController]
+
+    assert(rateController.rateLimitHistory.isEmpty)
+
+    // Make sure that rateLimitHistory starts with a special initial snapshot
+    {
+      val rate = rateController.sumHistoryThenTrim(1000)
+      assert(rate == 10.0)
+      assert(rateController.rateLimitHistory.length == 1)
+      assert(rateController.rateLimitHistory(0).limit == 10.0)
+      assert(rateController.rateLimitHistory(0).ts == 1000)
+    }
+
+    // Test if sumHistoryThenTrim() works well with the first batch which
+    // contains a special initial snapshot
+    {
+      rateController.appendRateLimitToHistory(20.0, 1100)
+      rateController.appendRateLimitToHistory(30.0, 1200)
+      rateController.appendRateLimitToHistory(40.0, 1300)
+      rateController.appendRateLimitToHistory(50.0, 1400)
+
+      val sum = rateController.sumHistoryThenTrim(1500)
+      val expected = ( 10.0 * (1100 - 1000)
+                     + 20.0 * (1200 - 1100)
+                     + 30.0 * (1300 - 1200)
+                     + 40.0 * (1400 - 1300)
+                     + 50.0 * (1500 - 1400)) / (1500 - 1000)
+      assert(sum == expected)
+      assert(rateController.rateLimitHistory.length == 1)
+      assert(rateController.rateLimitHistory(0).limit == 50.0)
+      assert(rateController.rateLimitHistory(0).ts == 1500)
+    }
+
+    {
+      val sum = rateController.sumHistoryThenTrim(2000)
+      val expected = 50.0 * (2000 - 1500) / (2000 - 1500)
+      assert(sum == expected)
+      assert(rateController.rateLimitHistory.length == 1)
+      assert(rateController.rateLimitHistory(0).limit == 50.0)
+      assert(rateController.rateLimitHistory(0).ts == 2000)
+    }
+
+    {
+      rateController.appendRateLimitToHistory(25.0, 2100)
+      val sum = rateController.sumHistoryThenTrim(2500)
+      val expected = ( 50.0 * (2100 - 2000)
+                     + 25.0 * (2500 - 2100)) / (2500 - 2000)
+      assert(sum == expected)
+      assert(rateController.rateLimitHistory.length == 1)
+      assert(rateController.rateLimitHistory(0).limit == 25.0)
+      assert(rateController.rateLimitHistory(0).ts == 2500)
+    }
+  }
+
 }

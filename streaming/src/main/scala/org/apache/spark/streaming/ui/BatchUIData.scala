@@ -64,6 +64,16 @@ private[ui] case class BatchUIData(
   def numRecords: Long = streamIdToInputInfo.values.map(_.numRecords).sum
 
   /**
+   * The over-all rate limit, i.e. the sum of all streams' rate limit, of this batch.
+   */
+  def rateLimit: Option[Double] =
+    if (streamIdToInputInfo.values.map(_.rateLimitOption).forall(_.isDefined)) {
+      Some(streamIdToInputInfo.values.map(_.rateLimitOption.get).sum)
+    } else {
+      None
+    }
+
+  /**
    * Update an output operation information of this batch.
    */
   def updateOutputOperationInfo(outputOperationInfo: OutputOperationInfo): Unit = {

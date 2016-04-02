@@ -17,13 +17,14 @@
 
 package org.apache.spark.streaming.dstream
 
+import scala.collection.mutable.ArrayBuffer
 import scala.reflect.ClassTag
 
 import org.apache.spark.rdd.{BlockRDD, RDD}
 import org.apache.spark.storage.BlockId
 import org.apache.spark.streaming.{StreamingContext, Time}
 import org.apache.spark.streaming.rdd.WriteAheadLogBackedBlockRDD
-import org.apache.spark.streaming.receiver.Receiver
+import org.apache.spark.streaming.receiver.{RateLimiter, Receiver}
 import org.apache.spark.streaming.scheduler.{RateController, ReceivedBlockInfo, StreamInputInfo}
 import org.apache.spark.streaming.scheduler.rate.RateEstimator
 import org.apache.spark.streaming.util.WriteAheadLogUtils
@@ -80,8 +81,11 @@ abstract class ReceiverInputDStream[T: ClassTag](_ssc: StreamingContext)
         val receiverTracker = ssc.scheduler.receiverTracker
         val blockInfos = receiverTracker.getBlocksOfBatch(validTime).getOrElse(id, Seq.empty)
 
+        val rateLimitOption = rateController.map {
+          _.asInstanceOf[ReceiverRateController].sumHistoryThenTrim(getTimeMillis())
+        }
         // Register the input blocks information into InputInfoTracker
-        val inputInfo = StreamInputInfo(id, blockInfos.flatMap(_.numRecords).sum)
+        val inputInfo = StreamInputInfo(id, blockInfos.flatMap(_.numRecords).sum, rateLimitOption)
         ssc.scheduler.inputInfoTracker.reportInfo(validTime, inputInfo)
 
         // Create the BlockRDD
@@ -143,8 +147,62 @@ abstract class ReceiverInputDStream[T: ClassTag](_ssc: StreamingContext)
    */
   private[streaming] class ReceiverRateController(id: Int, estimator: RateEstimator)
       extends RateController(id, estimator) {
-    override def publish(rate: Long): Unit =
-      ssc.scheduler.receiverTracker.sendRateUpdate(id, rate)
-  }
-}
 
+    private[streaming] case class RateLimitSnapshot(limit: Double, ts: Long)
+
+    private[streaming] val rateLimitHistory: ArrayBuffer[RateLimitSnapshot] = ArrayBuffer()
+
+    /**
+     * Logs the rateLimit change history, so that we can do a sum later.
+     *
+     * @param rate the new rate
+     * @param ts at which time the rate changed
+     */
+    private[streaming] def appendRateLimitToHistory(rate: Double, ts: Long) {
+      rateLimitHistory.synchronized {
+        rateLimitHistory += RateLimitSnapshot(rate, ts)
+      }
+    }
+
+    /**
+     * Calculate the upper bound of how many events can be received in a block interval.
+     * Note this should be called for each block interval once and only once.
+     *
+     * @param ts the ending timestamp of a block interval
+     * @return the upper bound of how many events can be received in a block interval
+     */
+    private[streaming] def sumHistoryThenTrim(ts: Long): Double = {
+      var rateSum = 0D
+      rateLimitHistory.synchronized {
+        if (rateLimitHistory.isEmpty) {
+          val initialRate = RateLimiter.getMaxRateLimit(_ssc.sc.conf).toDouble
+          rateLimitHistory += RateLimitSnapshot(initialRate, ts)
+          rateSum = initialRate
+        } else {
+          // first add a RateLimitSnapshot
+          // this RateLimitSnapshot will be used as the ending of this batch and the beginning
+          // of the batch
+          rateLimitHistory += RateLimitSnapshot(rateLimitHistory.last.limit, ts)
+
+          // then do a weighted sum
+          val durationSum = rateLimitHistory.last.ts - rateLimitHistory.head.ts
+          for (idx <- 0 until rateLimitHistory.length - 1) {
+            val duration = rateLimitHistory(idx + 1).ts - rateLimitHistory(idx).ts
+            rateSum += rateLimitHistory(idx).limit * duration / durationSum
+          }
+
+          // trim the history to the last one
+          rateLimitHistory.trimStart(rateLimitHistory.length - 1)
+        }
+      }
+      rateSum
+    }
+
+    override def publish(rate: Long): Unit = {
+      ssc.scheduler.receiverTracker.sendRateUpdate(id, rate)
+      appendRateLimitToHistory(rate.toDouble, getTimeMillis())
+    }
+  }
+
+  private def getTimeMillis() = ssc.scheduler.clock.getTimeMillis()
+}

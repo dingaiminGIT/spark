@@ -34,8 +34,12 @@ import org.apache.spark.streaming.{StreamingContext, Time}
  */
 @DeveloperApi
 case class StreamInputInfo(
-    inputStreamId: Int, numRecords: Long, metadata: Map[String, Any] = Map.empty) {
+    inputStreamId: Int,
+    numRecords: Long,
+    rateLimitOption: Option[Double] = None,
+    metadata: Map[String, Any] = Map.empty) {
   require(numRecords >= 0, "numRecords must not be negative")
+  require(rateLimitOption.isEmpty || rateLimitOption.get >= 0, "rateLimit must not be negative")
 
   def metadataDescription: Option[String] =
     metadata.get(StreamInputInfo.METADATA_KEY_DESCRIPTION).map(_.toString)
