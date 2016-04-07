@@ -215,20 +215,24 @@ private[streaming] class StreamingJobProgressListener(ssc: StreamingContext)
    * Return all of the record rates for each InputDStream in each batch. The key of the return value
    * is the stream id, and the value is a sequence of batch time with its record rate.
    */
-  def receivedRecordRateWithBatchTime: Map[Int, Seq[(Long, Double)]] = synchronized {
-    val _retainedBatches = retainedBatches
-    val latestBatches = _retainedBatches.map { batchUIData =>
-      (batchUIData.batchTime.milliseconds, batchUIData.streamIdToInputInfo.mapValues(_.numRecords))
-    }
-    streamIds.map { streamId =>
-      val recordRates = latestBatches.map {
-        case (batchTime, streamIdToNumRecords) =>
-          val numRecords = streamIdToNumRecords.getOrElse(streamId, 0L)
-          (batchTime, numRecords * 1000.0 / batchDuration)
+  def receivedRecordRateAndRateLimitWithBatchTime: Map[Int, Seq[(Long, Double, Option[Double])]] =
+    synchronized {
+      val _retainedBatches = retainedBatches
+      val latestBatches = _retainedBatches.map { batchUIData =>
+        (batchUIData.batchTime.milliseconds,
+         batchUIData.streamIdToInputInfo.mapValues(_.numRecords),
+         batchUIData.streamIdToInputInfo.mapValues(_.rateLimitOption))
       }
-      (streamId, recordRates)
-    }.toMap
-  }
+      streamIds.map { streamId =>
+        val recordRates = latestBatches.map {
+          case (batchTime, streamIdToNumRecords, streamIdToRateLimitOption) =>
+            val numRecords = streamIdToNumRecords.getOrElse(streamId, 0L)
+            val rateLimitOption = streamIdToRateLimitOption.getOrElse(streamId, None)
+            (batchTime, numRecords * 1000.0 / batchDuration, rateLimitOption)
+        }
+        (streamId, recordRates)
+      }.toMap
+    }
 
   def lastReceivedBatchRecords: Map[Int, Long] = synchronized {
     val lastReceivedBlockInfoOption =
