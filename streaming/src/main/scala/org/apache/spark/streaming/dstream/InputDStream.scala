@@ -55,9 +55,15 @@ abstract class InputDStream[T: ClassTag](_ssc: StreamingContext)
   /** Would this InputDStream be under rate control.
    *
    * An InputDStream would be under rate control when:
+<<<<<<< HEAD
    *  - its rateController is defined and,
    *  - for a ReceiverInputDStream, it stores data via store(dataItem), rather than other store()
    *    methods such as store(ByteBuffer), store(ArrayBuffer), store(Iterator).
+=======
+   * - its rateController is defined and,
+   * - for a ReceiverInputDStream, it stores data via store(dataItem), rather than other store()
+   *   methods such as store(ByteBuffer), store(ArrayBuffer), store(Iterator).
+>>>>>>> rate-control-line-p1
    * See SPARK-13618 for details.
    */
   protected[streaming] lazy val underRateControl: Boolean = false
