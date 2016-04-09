@@ -431,7 +431,9 @@ private[ui] class StreamingPage(parent: StreamingTab)
 
     val maxLimitRate = receivedRecordRateAndRateLimitWithBatchTime.values
       .flatMap { case streamIdAndRecordRateAndLimitRate =>
-        streamIdAndRecordRateAndLimitRate.map { case (_, _, limitRateOption) => limitRateOption }
+        streamIdAndRecordRateAndLimitRate.map {
+          case (_, _, limitRateOption) => limitRateOption.getOrElse(0D)
+        }
       }
       .reduceOption[Double](math.max)
       .getOrElse(0D)
