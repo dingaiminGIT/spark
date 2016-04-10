@@ -225,8 +225,8 @@ private[ui] class StreamingPage(parent: StreamingTab)
 
     // Use the max input rate for all InputDStreams' graphs to make the Y axis ranges same.
     // If it's not an integral number, just use its ceil integral number.
-    val maxRecordRate: Long = recordRateForAllStreams.max.map(_.ceil.toLong).getOrElse(0L)
-    val minRecordRate: Long = 0L
+    val maxRecordRate: Double = recordRateForAllStreams.max.getOrElse(0D)
+    val minRecordRate: Double = 0D
 
     val visibleRateLimitForAllStreamsOption = if (listener.allStreamsUnderRateControl) {
       val uiDate = new RecordRateUIData(batches.map { batchInfo =>
