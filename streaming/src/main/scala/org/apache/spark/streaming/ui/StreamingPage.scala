@@ -224,7 +224,6 @@ private[ui] class StreamingPage(parent: StreamingTab)
     })
 
     // Use the max input rate for all InputDStreams' graphs to make the Y axis ranges same.
-    // If it's not an integral number, just use its ceil integral number.
     val maxRecordRate: Double = recordRateForAllStreams.max.getOrElse(0D)
     val minRecordRate: Double = 0D
 
@@ -242,7 +241,7 @@ private[ui] class StreamingPage(parent: StreamingTab)
       visibleRateLimitForAllStreamsOption.map(_.max.getOrElse(0D)).getOrElse(0D)
 
     // Cal maxRecordRateOrMaxVisibleLimitRate from maxRecordRate and maxVisibleLimitRate
-    val maxRecordRateOrMaxVisibleLimitRate: Double = maxVisibleLimitRate.max(maxRecordRate)
+    val maxRecordRateOrMaxVisibleLimitRate: Double = maxVisibleLimitRate.max(maxRecordRate).ceil
 
     val schedulingDelay = new MillisecondsStatUIData(batches.flatMap { batchInfo =>
       batchInfo.schedulingDelay.map(batchInfo.batchTime.milliseconds -> _)
@@ -438,7 +437,8 @@ private[ui] class StreamingPage(parent: StreamingTab)
       .reduceOption[Double](math.max)
       .getOrElse(0D)
 
-    val maxYCalculated = StreamingPage.limitRateVisibleBound(maxRecordRate, maxLimitRate)
+    val maxVisibleLimitRate = StreamingPage.limitRateVisibleBound(maxRecordRate, maxLimitRate)
+    val maxRecordRateOrMaxVisibleLimitRate = maxVisibleLimitRate.max(maxRecordRate).ceil
 
     val content = receivedRecordRateAndRateLimitWithBatchTime.toList.sortBy(_._1).map {
       case (streamId, recordRateAndLimitRate) =>
@@ -448,7 +448,7 @@ private[ui] class StreamingPage(parent: StreamingTab)
             minX,
             maxX,
             minY,
-            maxYCalculated)
+            maxRecordRateOrMaxVisibleLimitRate)
     }.foldLeft[Seq[Node]](Nil)(_ ++ _)
 
     // scalastyle:off
