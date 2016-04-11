@@ -92,7 +92,6 @@ private[ui] abstract class BatchTableBase(
           Nil
         }
       } ++
-      <td sorttable_customkey={numRecords.toString}>{numRecords.toString} records</td>
       <td sorttable_customkey={schedulingDelay.getOrElse(Long.MaxValue).toString}>
         {formattedSchedulingDelay}
       </td>
