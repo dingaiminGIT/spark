@@ -80,13 +80,9 @@ private[ui] abstract class BatchTableBase(
     </td>
     <td sorttable_customkey={numRecords.toString}>{numRecords.toString} records</td> ++ {
       if (underRateControl) {
-          <td sorttable_customkey={rateLimitOption.getOrElse("-").toString}> {
-          if (rateLimitOption.isDefined) {
-            rateLimitOption.get + " records/s"
-            }
-          else {
-              "-"
-            }}
+          <td sorttable_customkey={rateLimitOption.map(r => f"${r.ceil}%5.0f").getOrElse("-")}> {
+            rateLimitOption.map(r => f"${r.ceil}%5.0f records/sec").getOrElse("-")
+          }
           </td>
         } else {
           Nil
