@@ -55,9 +55,9 @@ class KafkaInputDStream[
     storageLevel: StorageLevel
   ) extends ReceiverInputDStream[(K, V)](_ssc) with Logging {
 
-  // Whether this KafkaInputDStream would be under rate control depends on the concrete Receiver:
+  // Whether this KafkaInputDStream would be under rate control depends on its concrete Receiver:
   // - KafkaReceiver uses store(dataItem) so it would be under rate control if the rateController is
-  //   defined, or otherwise would NOT be under rate control
+  //   defined, or otherwise would NOT be under rate control;
   // - ReliableKafkaReceiver uses store(ArrayBuffer) so it would NOT be under rate control.
   override protected[streaming] lazy val underRateControl =
     !useReliableReceiver && rateController.isDefined
