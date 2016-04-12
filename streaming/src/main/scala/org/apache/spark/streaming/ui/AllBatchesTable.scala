@@ -21,11 +21,23 @@ import scala.xml.Node
 
 import org.apache.spark.ui.{UIUtils => SparkUIUtils}
 
-private[ui] abstract class BatchTableBase(tableId: String, batchInterval: Long) {
+private[ui] abstract class BatchTableBase(
+    tableId: String, batchInterval: Long, underRateControl: Boolean) {
 
   protected def columns: Seq[Node] = {
     <th>Batch Time</th>
-      <th>Input Size</th>
+    <th>Input Size</th> ++ {
+    if (underRateControl) {
+      <th>Input Rate Limit
+        {SparkUIUtils.tooltip("The upper bound of possible input rate of a batch, determined by"
+        + " spark.streaming.receiver.maxRate and the adaptive back pressure mechanism",
+        "top")}
+      </th>
+    }
+    else {
+      Nil
+    }
+  } ++
       <th>Scheduling Delay
         {SparkUIUtils.tooltip("Time taken by Streaming scheduler to submit jobs of a batch", "top")}
       </th>
@@ -53,6 +65,7 @@ private[ui] abstract class BatchTableBase(tableId: String, batchInterval: Long) 
     val batchTime = batch.batchTime.milliseconds
     val formattedBatchTime = UIUtils.formatBatchTime(batchTime, batchInterval)
     val numRecords = batch.numRecords
+    val rateLimitOption = batch.rateLimit
     val schedulingDelay = batch.schedulingDelay
     val formattedSchedulingDelay = schedulingDelay.map(SparkUIUtils.formatDuration).getOrElse("-")
     val processingTime = batch.processingDelay
@@ -65,7 +78,16 @@ private[ui] abstract class BatchTableBase(tableId: String, batchInterval: Long) 
         {formattedBatchTime}
       </a>
     </td>
-      <td sorttable_customkey={numRecords.toString}>{numRecords.toString} records</td>
+    <td sorttable_customkey={numRecords.toString}>{numRecords.toString} records</td> ++ {
+      if (underRateControl) {
+          <td sorttable_customkey={rateLimitOption.map(r => f"${r.ceil}%5.0f").getOrElse("-")}> {
+            rateLimitOption.map(r => f"${r.ceil}%5.0f records/sec").getOrElse("-")
+          }
+          </td>
+        } else {
+          Nil
+        }
+      } ++
       <td sorttable_customkey={schedulingDelay.getOrElse(Long.MaxValue).toString}>
         {formattedSchedulingDelay}
       </td>
@@ -111,7 +133,9 @@ private[ui] abstract class BatchTableBase(tableId: String, batchInterval: Long) 
 private[ui] class ActiveBatchTable(
     runningBatches: Seq[BatchUIData],
     waitingBatches: Seq[BatchUIData],
-    batchInterval: Long) extends BatchTableBase("active-batches-table", batchInterval) {
+    batchInterval: Long,
+    underRateControl: Boolean)
+  extends BatchTableBase("active-batches-table", batchInterval, underRateControl) {
 
   private val firstFailureReason = getFirstFailureReason(runningBatches)
 
@@ -155,8 +179,9 @@ private[ui] class ActiveBatchTable(
   }
 }
 
-private[ui] class CompletedBatchTable(batches: Seq[BatchUIData], batchInterval: Long)
-  extends BatchTableBase("completed-batches-table", batchInterval) {
+private[ui] class CompletedBatchTable(
+    batches: Seq[BatchUIData], batchInterval: Long, underRateControl: Boolean)
+  extends BatchTableBase("completed-batches-table", batchInterval, underRateControl) {
 
   private val firstFailureReason = getFirstFailureReason(batches)
 
