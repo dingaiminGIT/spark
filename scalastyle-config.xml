@@ -114,9 +114,13 @@ This file is divided into 3 sections:
 
   <check level="error" class="org.scalastyle.scalariform.PublicMethodsHaveTypeChecker" enabled="true"></check>
 
-  <check level="error" class="org.scalastyle.file.RegexChecker" enabled="true">
+  <check level="error" class="org.ext.NoFoobarChecker" enabled="true"></check>
+
+  <check level="error" class="org.scalastyle.file.RegexChecker" enabled="false">
     <parameters>
-      <parameter name="regex">^[^ ]* def (?!.*\{.*).*$</parameter>
+      <parameter name="regex">[^ ]* def (?!.*\{.*).*</parameter>
+      <!--<parameter name="regex">^[^ ]* def (?!.*\{.*).*$</parameter>-->
+      <parameter name="line">true</parameter>
     </parameters>
     <customMessage>ask lwlin</customMessage>
   </check>

@@ -2237,6 +2237,13 @@
           <inputEncoding>${project.build.sourceEncoding}</inputEncoding>
           <outputEncoding>${project.reporting.outputEncoding}</outputEncoding>
         </configuration>
+        <dependencies>
+          <dependency>
+            <groupId>org.ext</groupId>
+            <artifactId>nofoobarchecker</artifactId>
+            <version>1.0.0</version>
+          </dependency>
+        </dependencies>
         <executions>
           <execution>
             <goals>
