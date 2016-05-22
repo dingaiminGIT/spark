@@ -117,6 +117,7 @@ class DefaultSource extends FileFormat with DataSourceRegister {
       sqlContext: SQLContext,
       dataSchema: StructType,
       options: Map[String, String]): OutputWriterFactory = {
+    verifySchema(dataSchema)
     new TextOutputWriterFactory(
       sqlContext.conf,
       dataSchema,
@@ -167,8 +168,14 @@ private[sql] class TextOutputWriterFactory(
     hadoopConf: Configuration,
     options: Map[String, String]) extends OutputWriterFactory {
 
-  private val serializableConf =
-    new SerializableConfiguration(Job.getInstance(hadoopConf).getConfiguration)
+  private val serializableConf = {
+    val conf = Job.getInstance(hadoopConf).getConfiguration
+    val compressionCodec = options.get("compression").map(CompressionCodecs.getCodecClassName)
+    compressionCodec.foreach { codec =>
+      CompressionCodecs.setCodecConfiguration(conf, codec)
+    }
+    new SerializableConfiguration(conf)
+  }
 
   /**
    * Returns a [[OutputWriter]] that writes data to the give path without using an
