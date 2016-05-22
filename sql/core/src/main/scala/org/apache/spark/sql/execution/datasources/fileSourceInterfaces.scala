@@ -295,6 +295,8 @@ trait FileFormat {
     // TODO: Remove this default implementation when the other formats have been ported
     throw new UnsupportedOperationException(s"buildWriter is not supported for $this")
   }
+
+  def defaultPartitionName: String = Partition.SPARK_DEFAULT_PARTITION_NAME
 }
 
 /**
@@ -302,6 +304,13 @@ trait FileFormat {
  * form of an [[InternalRow]].
  */
 case class Partition(values: InternalRow, files: Seq[FileStatus])
+
+private[sql] object Partition {
+
+  val LEGACY_DEFAULT_PARTITION_NAME = "__HIVE_DEFAULT_PARTITION__"
+
+  val SPARK_DEFAULT_PARTITION_NAME = "__SPARK_DEFAULT_PARTITION__"
+}
 
 /**
  * An interface for objects capable of enumerating the files that comprise a relation as well

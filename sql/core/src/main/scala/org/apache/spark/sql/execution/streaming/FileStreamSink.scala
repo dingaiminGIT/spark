@@ -131,7 +131,7 @@ class FileStreamSinkWriter(
           StringType,
           Seq(Cast(c, StringType)),
           Seq(StringType))
-      val str = If(IsNull(c), Literal(PartitioningUtils.DEFAULT_PARTITION_NAME), escaped)
+      val str = If(IsNull(c), Literal(fileFormat.defaultPartitionName), escaped)
       val partitionName = Literal(c.name + "=") :: str :: Nil
       if (i == 0) partitionName else Literal(Path.SEPARATOR) :: partitionName
     }

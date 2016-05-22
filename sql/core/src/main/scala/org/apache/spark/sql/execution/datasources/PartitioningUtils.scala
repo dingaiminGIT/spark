@@ -54,6 +54,8 @@ private[sql] object PartitionSpec {
 private[sql] object PartitioningUtils {
   // This duplicates default value of Hive `ConfVars.DEFAULTPARTITIONNAME`, since sql/core doesn't
   // depend on Hive.
+  @Deprecated(
+    "please use the more specific HIVE_DEFAULT_PARTITION_NAME or SPARK_SQL_DEFAULT_PARTITION_NAME")
   private[sql] val DEFAULT_PARTITION_NAME = "__HIVE_DEFAULT_PARTITION__"
 
   private[sql] case class PartitionValues(columnNames: Seq[String], literals: Seq[Literal]) {
@@ -85,12 +87,14 @@ private[sql] object PartitioningUtils {
    */
   private[sql] def parsePartitions(
       paths: Seq[Path],
+      legacyDefaultPartitionName: String,
       defaultPartitionName: String,
       typeInference: Boolean,
       basePaths: Set[Path]): PartitionSpec = {
     // First, we need to parse every partition's path and see if we can find partition values.
     val (partitionValues, optDiscoveredBasePaths) = paths.map { path =>
-      parsePartition(path, defaultPartitionName, typeInference, basePaths)
+      parsePartition(
+          path, legacyDefaultPartitionName, defaultPartitionName, typeInference, basePaths)
     }.unzip
 
     // We create pairs of (path -> path's partition value) here
@@ -168,6 +172,7 @@ private[sql] object PartitioningUtils {
    */
   private[sql] def parsePartition(
       path: Path,
+      legacyDefaultPartitionName: String,
       defaultPartitionName: String,
       typeInference: Boolean,
       basePaths: Set[Path]): (Option[PartitionValues], Option[Path]) = {
@@ -190,8 +195,8 @@ private[sql] object PartitioningUtils {
       } else {
         // Let's say currentPath is a path of "/table/a=1/", currentPath.getName will give us a=1.
         // Once we get the string, we try to parse it and find the partition column and value.
-        val maybeColumn =
-          parsePartitionColumn(currentPath.getName, defaultPartitionName, typeInference)
+        val maybeColumn = parsePartitionColumn(
+            currentPath.getName, legacyDefaultPartitionName, defaultPartitionName, typeInference)
         maybeColumn.foreach(columns += _)
 
         // Now, we determine if we should stop.
@@ -223,6 +228,7 @@ private[sql] object PartitioningUtils {
 
   private def parsePartitionColumn(
       columnSpec: String,
+      legacyDefaultPartitionName: String,
       defaultPartitionName: String,
       typeInference: Boolean): Option[(String, Literal)] = {
     val equalSignIndex = columnSpec.indexOf('=')
@@ -235,7 +241,8 @@ private[sql] object PartitioningUtils {
       val rawColumnValue = columnSpec.drop(equalSignIndex + 1)
       assert(rawColumnValue.nonEmpty, s"Empty partition column value in '$columnSpec'")
 
-      val literal = inferPartitionColumnValue(rawColumnValue, defaultPartitionName, typeInference)
+      val literal = inferPartitionColumnValue(
+          rawColumnValue, legacyDefaultPartitionName, defaultPartitionName, typeInference)
       Some(columnName -> literal)
     }
   }
@@ -310,6 +317,7 @@ private[sql] object PartitioningUtils {
    */
   private[sql] def inferPartitionColumnValue(
       raw: String,
+      legacyDefaultPartitionName: String,
       defaultPartitionName: String,
       typeInference: Boolean): Literal = {
     if (typeInference) {
@@ -321,14 +329,14 @@ private[sql] object PartitioningUtils {
         .orElse(Try(Literal(new JBigDecimal(raw))))
         // Then falls back to string
         .getOrElse {
-          if (raw == defaultPartitionName) {
+          if (raw == legacyDefaultPartitionName || raw == defaultPartitionName) {
             Literal.create(null, NullType)
           } else {
             Literal.create(unescapePathName(raw), StringType)
           }
         }
     } else {
-      if (raw == defaultPartitionName) {
+      if (raw == legacyDefaultPartitionName || raw == defaultPartitionName) {
         Literal.create(null, NullType)
       } else {
         Literal.create(unescapePathName(raw), StringType)

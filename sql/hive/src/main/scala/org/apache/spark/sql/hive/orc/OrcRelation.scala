@@ -147,6 +147,9 @@ private[sql] class DefaultSource
       }
     }
   }
+
+  /** This should be "__HIVE_DEFAULT_PARTITION__" */
+  override def defaultPartitionName = ConfVars.DEFAULTPARTITIONNAME.defaultStrVal
 }
 
 private[orc] class OrcOutputWriter(

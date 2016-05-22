@@ -130,7 +130,7 @@ private[sql] case class InsertIntoHadoopFsRelationCommand(
             partitionColumns = partitionColumns,
             dataColumns = dataColumns,
             inputSchema = query.output,
-            PartitioningUtils.DEFAULT_PARTITION_NAME,
+            fileFormat.defaultPartitionName,
             sparkSession.conf.get(SQLConf.PARTITION_MAX_FILES),
             isAppend)
         }
