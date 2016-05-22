@@ -53,16 +53,16 @@ class FileStreamSinkSuite extends StreamTest with SharedSQLContext {
 
     def writeRange(start: Int, end: Int, numPartitions: Int): Seq[String] = {
       val df = if (testingAgainstText) {
-        spark
-          .range(start, end, 1, numPartitions)
-          .map(_.toString)
-          .toDF("id")
-      }
-      else {
-        spark
-          .range(start, end, 1, numPartitions)
-          .select($"id", lit(100).as("data"))
-      }
+          spark
+            .range(start, end, 1, numPartitions)
+            .map(_.toString)
+            .toDF("id")
+        }
+        else {
+          spark
+            .range(start, end, 1, numPartitions)
+            .select($"id", lit(100).as("data"))
+        }
 
       val writer = new FileStreamSinkWriter(
         df, fileFormat, path.toString, partitionColumnNames = Nil, hadoopConf, Map.empty)
@@ -106,17 +106,17 @@ class FileStreamSinkSuite extends StreamTest with SharedSQLContext {
 
     def writeRange(start: Int, end: Int, numPartitions: Int): Seq[String] = {
       val df = if (testingAgainstText) {
-        spark
-          .range(start, end, 1, numPartitions)
-          .map(_.toString)
-          .flatMap(x => Iterator(x, x, x)).toDF("id")
-          .select($"id", lit("100").as("data"))
-      } else {
-        spark
-          .range(start, end, 1, numPartitions)
-          .flatMap(x => Iterator(x, x, x)).toDF("id")
-          .select($"id", lit(100).as("data1"), lit(1000).as("data2"))
-      }
+          spark
+            .range(start, end, 1, numPartitions)
+            .map(_.toString)
+            .flatMap(x => Iterator(x, x, x)).toDF("id")
+            .select($"id", lit("100").as("data"))
+        } else {
+          spark
+            .range(start, end, 1, numPartitions)
+            .flatMap(x => Iterator(x, x, x)).toDF("id")
+            .select($"id", lit(100).as("data1"), lit(1000).as("data2"))
+        }
       require(df.rdd.partitions.size === numPartitions)
       val writer = new FileStreamSinkWriter(
         df, fileFormat, path.toString, partitionColumnNames = Seq("id"), hadoopConf, Map.empty)
