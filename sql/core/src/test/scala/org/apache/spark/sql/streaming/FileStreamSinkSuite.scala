@@ -26,6 +26,7 @@ import org.apache.spark.sql._
 import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
 import org.apache.spark.sql.execution.DataSourceScanExec
 import org.apache.spark.sql.execution.datasources._
+import org.apache.spark.sql.execution.datasources.text
 import org.apache.spark.sql.execution.streaming.{FileStreamSinkWriter, MemoryStream, MetadataLogFileCatalog}
 import org.apache.spark.sql.functions._
 import org.apache.spark.sql.test.SharedSQLContext
@@ -35,13 +36,19 @@ import org.apache.spark.util.Utils
 class FileStreamSinkSuite extends StreamTest with SharedSQLContext {
   import testImplicits._
 
+  test("FileStreamSinkWriter - unpartitioned data - parquet") {
+    testUnpartitionedData(new text.DefaultSource())
+  }
 
-  test("FileStreamSinkWriter - unpartitioned data") {
+  test("FileStreamSinkWriter - unpartitioned data - text") {
+    testUnpartitionedData(new text.DefaultSource())
+  }
+
+  private def testUnpartitionedData(fileFormat: FileFormat) {
     val path = Utils.createTempDir()
     path.delete()
 
     val hadoopConf = spark.sparkContext.hadoopConfiguration
-    val fileFormat = new parquet.DefaultSource()
 
     def writeRange(start: Int, end: Int, numPartitions: Int): Seq[String] = {
       val df = spark
@@ -262,10 +269,11 @@ class FileStreamSinkSuite extends StreamTest with SharedSQLContext {
 
     testFormat(None) // should not throw error as default format parquet when not specified
     testFormat(Some("parquet"))
+    testFormat(Some("text"))
     val e = intercept[UnsupportedOperationException] {
-      testFormat(Some("text"))
+      testFormat(Some("orc"))
     }
-    Seq("text", "not support", "stream").foreach { s =>
+    Seq("orc", "not support", "stream").foreach { s =>
       assert(e.getMessage.contains(s))
     }
   }
