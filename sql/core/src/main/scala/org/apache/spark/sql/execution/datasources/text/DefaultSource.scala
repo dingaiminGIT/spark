@@ -203,9 +203,7 @@ private[sql] class TextOutputWriterFactory(
     // Custom TextOutputFormat that disable use of committer and writes to the given path
     val outputFormat = new TextOutputFormat[NullWritable, Text]() {
       override def getOutputCommitter(c: TaskAttemptContext): OutputCommitter = { null }
-      override def getDefaultWorkFile(c: TaskAttemptContext, extension: String): Path = {
-        new Path(s"$path.txt$extension")
-      }
+      override def getDefaultWorkFile(c: TaskAttemptContext, ext: String): Path = { new Path(path) }
     }
     outputFormat.getRecordWriter(hadoopAttemptContext)
   }
