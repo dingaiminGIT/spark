@@ -220,7 +220,8 @@ case class DataSource(
 
       // TODO: Remove the `isInstanceOf` check when other formats have been ported
       case fileFormat: FileFormat
-          if fileFormat.isInstanceOf[parquet.DefaultSource]
+          if fileFormat.isInstanceOf[csv.DefaultSource]
+          || fileFormat.isInstanceOf[parquet.DefaultSource]
           || fileFormat.isInstanceOf[text.DefaultSource] =>
         val caseInsensitiveOptions = new CaseInsensitiveMap(options)
         val path = caseInsensitiveOptions.getOrElse("path", {
