@@ -37,11 +37,11 @@ import org.apache.spark.util.Utils
 class FileStreamSinkSuite extends StreamTest with SharedSQLContext {
   import testImplicits._
 
-  test("FileStreamSinkWriter - unpartitioned data - parquet") {
+  test("FileStreamSinkWriter - parquet - unpartitioned data") {
     testUnpartitionedData(new parquet.DefaultSource())
   }
 
-  test("FileStreamSinkWriter - unpartitioned data - text") {
+  test("FileStreamSinkWriter - text - unpartitioned data") {
     testUnpartitionedData(new text.DefaultSource())
   }
 
@@ -89,11 +89,11 @@ class FileStreamSinkSuite extends StreamTest with SharedSQLContext {
         (0 until 20).map { id => if (testingAgainstText) Row(id.toString) else Row(id, 100)} )
   }
 
-  test("FileStreamSinkWriter - partitioned data - parquet") {
+  test("FileStreamSinkWriter - parquet - partitioned data") {
     testPartitionedData(new parquet.DefaultSource())
   }
 
-  test("FileStreamSinkWriter - partitioned data - text") {
+  test("FileStreamSinkWriter - text - partitioned data") {
     testPartitionedData(new text.DefaultSource())
   }
 
@@ -166,8 +166,17 @@ class FileStreamSinkSuite extends StreamTest with SharedSQLContext {
         answer1 ++ answer2)
   }
 
-  test("FileStreamSink - unpartitioned writing and batch reading") {
-    val inputData = MemoryStream[Int]
+  test("FileStreamSink - parquet - unpartitioned writing and batch reading") {
+    testUnpartitionedWritingAndBatchReading(new parquet.DefaultSource())
+  }
+
+  test("FileStreamSink - text - unpartitioned writing and batch reading") {
+    testUnpartitionedWritingAndBatchReading(new text.DefaultSource())
+  }
+
+  private def testUnpartitionedWritingAndBatchReading(
+      fileFormat: FileFormat with DataSourceRegister) {
+    val inputData = MemoryStream[String]
     val df = inputData.toDF()
 
     val outputDir = Utils.createTempDir(namePrefix = "stream.output").getCanonicalPath
@@ -178,18 +187,18 @@ class FileStreamSinkSuite extends StreamTest with SharedSQLContext {
     try {
       query =
         df.write
-          .format("parquet")
+          .format(fileFormat.shortName())
           .option("checkpointLocation", checkpointDir)
           .startStream(outputDir)
 
-      inputData.addData(1, 2, 3)
+      inputData.addData("1", "2", "3")
 
       failAfter(streamingTimeout) {
         query.processAllAvailable()
       }
 
-      val outputDf = spark.read.parquet(outputDir).as[Int]
-      checkDataset(outputDf, 1, 2, 3)
+      val outputDf = spark.read.format(fileFormat.shortName()).load(outputDir).as[String]
+      checkDataset(outputDf, "1", "2", "3")
 
     } finally {
       if (query != null) {
