@@ -31,7 +31,7 @@ import org.apache.spark.rdd.RDD
 import org.apache.spark.sql._
 import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.catalyst.expressions.GenericMutableRow
-import org.apache.spark.sql.execution.datasources.{OutputWriter, OutputWriterFactory, PartitionedFile}
+import org.apache.spark.sql.execution.datasources.{CompressionCodecs, OutputWriter, OutputWriterFactory, PartitionedFile}
 import org.apache.spark.sql.internal.SQLConf
 import org.apache.spark.sql.types._
 import org.apache.spark.util.SerializableConfiguration
@@ -220,8 +220,15 @@ private[sql] class CSVStreamingOutputWriterFactory(
     hadoopConf: Configuration,
     options: Map[String, String]) extends OutputWriterFactory {
 
-  private val serializableConf =
-    new SerializableConfiguration(Job.getInstance(hadoopConf).getConfiguration)
+  private val csvOptions = new CSVOptions(options)
+
+  private val serializableConf = {
+    val conf = Job.getInstance(hadoopConf).getConfiguration
+    csvOptions.compressionCodec.foreach { codec =>
+      CompressionCodecs.setCodecConfiguration(conf, codec)
+    }
+    new SerializableConfiguration(conf)
+  }
 
   /**
    * Returns a [[OutputWriter]] that writes data to the give path without using an
@@ -236,16 +243,33 @@ private[sql] class CSVStreamingOutputWriterFactory(
     // Instance of RecordWriter that does not use OutputCommitter
     private val recordWriter = createNoCommitterRecordWriter(path, hadoopAttemptContext)
 
-    private[this] val buffer = new Text()
+    // create the Generator without separator inserted between 2 records
+    private[this] val text = new Text()
+
+    private var firstRow: Boolean = csvOptions.headerFlag
+
+    private val csvWriter = new LineCsvWriter(csvOptions, dataSchema.fieldNames.toSeq)
+
+    private def rowToString(row: Seq[Any]): Seq[String] = row.map { field =>
+      if (field != null) {
+        field.toString
+      } else {
+        csvOptions.nullValue
+      }
+    }
 
     override def write(row: Row): Unit = {
       throw new UnsupportedOperationException("call writeInternal")
     }
 
     protected[sql] override def writeInternal(row: InternalRow): Unit = {
-      val utf8string = row.getUTF8String(0)
-      buffer.set(utf8string.getBytes)
-      recordWriter.write(NullWritable.get(), buffer)
+      // TODO: Instead of converting and writing every row, we should use the univocity buffer
+      val resultString = csvWriter.writeRow(rowToString(row.toSeq(dataSchema)), firstRow)
+      if (firstRow) {
+        firstRow = false
+      }
+      text.set(resultString)
+      recordWriter.write(NullWritable.get(), text)
     }
 
     override def close(): Unit = recordWriter.close(hadoopAttemptContext)
@@ -271,7 +295,6 @@ private[sql] class CSVStreamingOutputWriterFactory(
       context: TaskAttemptContext): OutputWriter = {
     throw new UnsupportedOperationException(
       "this version of newInstance is not supported for " +
-        classOf[TextOutputWriterFactory].getSimpleName)
+        classOf[CSVStreamingOutputWriterFactory].getSimpleName)
   }
 }
-

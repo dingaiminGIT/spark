@@ -28,8 +28,6 @@ import org.apache.hadoop.mapreduce._
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.{SQLContext, SparkSession}
 import org.apache.spark.sql.catalyst.InternalRow
-import org.apache.spark.sql.catalyst.expressions.JoinedRow
-import org.apache.spark.sql.catalyst.expressions.codegen.GenerateUnsafeProjection
 import org.apache.spark.sql.execution.datasources._
 import org.apache.spark.sql.sources._
 import org.apache.spark.sql.types.{StringType, StructField, StructType}
@@ -177,7 +175,7 @@ class DefaultSource extends FileFormat with DataSourceRegister {
       sqlContext: SQLContext,
       dataSchema: StructType,
       options: Map[String, String]): OutputWriterFactory = {
-    new TextOutputWriterFactory(
+    new CSVStreamingOutputWriterFactory(
       sqlContext.conf,
       dataSchema,
       sqlContext.sparkContext.hadoopConfiguration,
