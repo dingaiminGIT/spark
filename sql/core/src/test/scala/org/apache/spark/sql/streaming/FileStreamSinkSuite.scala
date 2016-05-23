@@ -69,7 +69,7 @@ class FileStreamSinkSuite extends StreamTest with SharedSQLContext {
           spark
             .range(start, end, 1, numPartitions)
             .map(_.toString).toDF("id")
-            .select($"id", lit("foo").as("data"))
+            .select($"id", lit("foo").as("value"))
         }
 
       val writer = new FileStreamSinkWriter(
@@ -125,12 +125,12 @@ class FileStreamSinkSuite extends StreamTest with SharedSQLContext {
           spark
             .range(start, end, 1, numPartitions)
             .flatMap(x => Iterator(x, x, x)).toDF("id")
-            .select($"id", lit("foo").as("data"))
+            .select($"id", lit("foo").as("value"))
         } else {
           spark
             .range(start, end, 1, numPartitions)
             .flatMap(x => Iterator(x, x, x)).toDF("id")
-            .select($"id", lit("foo").as("data1"), lit("bar").as("data2"))
+            .select($"id", lit("foo").as("value1"), lit("bar").as("value2"))
         }
       require(df.rdd.partitions.size === numPartitions)
       val writer = new FileStreamSinkWriter(
