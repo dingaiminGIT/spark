@@ -41,7 +41,7 @@ class FileStreamSinkSuite extends StreamTest with SharedSQLContext {
   }
 
   test("FileStreamSinkWriter - json - unpartitioned data") {
-    testUnpartitionedData(new parquet.DefaultSource())
+    testUnpartitionedData(new json.DefaultSource())
   }
 
   test("FileStreamSinkWriter - parquet - unpartitioned data") {
@@ -101,7 +101,7 @@ class FileStreamSinkSuite extends StreamTest with SharedSQLContext {
   }
 
   test("FileStreamSinkWriter - json - partitioned data") {
-    testPartitionedData(new parquet.DefaultSource())
+    testPartitionedData(new json.DefaultSource())
   }
 
   test("FileStreamSinkWriter - parquet - partitioned data") {
@@ -185,7 +185,7 @@ class FileStreamSinkSuite extends StreamTest with SharedSQLContext {
   }
 
   test("FileStreamSink - json - unpartitioned writing and batch reading") {
-    testUnpartitionedWritingAndBatchReading(new parquet.DefaultSource())
+    testUnpartitionedWritingAndBatchReading(new json.DefaultSource())
   }
 
   test("FileStreamSink - parquet - unpartitioned writing and batch reading") {
@@ -235,7 +235,7 @@ class FileStreamSinkSuite extends StreamTest with SharedSQLContext {
   }
 
   test("FileStreamSink - json - partitioned writing and batch reading") {
-    testPartitionedWritingAndBatchReading(new parquet.DefaultSource())
+    testPartitionedWritingAndBatchReading(new json.DefaultSource())
   }
 
   test("FileStreamSink - parquet - partitioned writing and batch reading") {
