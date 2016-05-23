@@ -263,7 +263,6 @@ private[sql] class CSVStreamingOutputWriterFactory(
     }
 
     protected[sql] override def writeInternal(row: InternalRow): Unit = {
-      // TODO: Instead of converting and writing every row, we should use the univocity buffer
       val resultString = csvWriter.writeRow(rowToString(row.toSeq(dataSchema)), firstRow)
       if (firstRow) {
         firstRow = false

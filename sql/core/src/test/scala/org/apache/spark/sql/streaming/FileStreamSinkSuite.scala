@@ -60,12 +60,17 @@ class FileStreamSinkSuite extends StreamTest with SharedSQLContext {
     val testingAgainstText = fileFormat.isInstanceOf[text.DefaultSource]
 
     def writeRange(start: Int, end: Int, numPartitions: Int): Seq[String] = {
+
+      // The `text` format accepts only one unpartitioned column, and requires it's contents be
+      // strings; so we occasionally treat `text` format differently.
       val df = if (testingAgainstText) {
+          // For `text` format, we'll have only one unpartitioned column
           spark
             .range(start, end, 1, numPartitions)
             .map(_.toString).toDF("id")
         }
         else {
+          // For the other formats, we'll have two unpartitioned columns
           spark
             .range(start, end, 1, numPartitions)
             .map(_.toString).toDF("id")
@@ -122,11 +127,13 @@ class FileStreamSinkSuite extends StreamTest with SharedSQLContext {
 
     def writeRange(start: Int, end: Int, numPartitions: Int): Seq[String] = {
       val df = if (testingAgainstText) {
+          // For `text` format, we'll have only one unpartitioned column
           spark
             .range(start, end, 1, numPartitions)
             .flatMap(x => Iterator(x, x, x)).toDF("id")
             .select($"id", lit("foo").as("value"))
         } else {
+          // For the other formats, we'll have two unpartitioned columns
           spark
             .range(start, end, 1, numPartitions)
             .flatMap(x => Iterator(x, x, x)).toDF("id")
