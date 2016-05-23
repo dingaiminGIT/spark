@@ -61,8 +61,8 @@ class FileStreamSinkSuite extends StreamTest with SharedSQLContext {
 
     def writeRange(start: Int, end: Int, numPartitions: Int): Seq[String] = {
 
-      // The `text` format accepts only one unpartitioned column, and requires it's contents be
-      // strings; so we occasionally treat `text` format differently.
+      // The `text` format accepts only one unpartitioned column, and requires the contents be
+      // strings; so we occasionally treat `text` format differently from the other formats.
       val df = if (testingAgainstText) {
           // For `text` format, we'll have only one unpartitioned column
           spark
