@@ -40,6 +40,10 @@ class FileStreamSinkSuite extends StreamTest with SharedSQLContext {
     testUnpartitionedData(new csv.DefaultSource())
   }
 
+  test("FileStreamSinkWriter - json - unpartitioned data") {
+    testUnpartitionedData(new parquet.DefaultSource())
+  }
+
   test("FileStreamSinkWriter - parquet - unpartitioned data") {
     testUnpartitionedData(new parquet.DefaultSource())
   }
@@ -94,6 +98,10 @@ class FileStreamSinkSuite extends StreamTest with SharedSQLContext {
 
   test("FileStreamSinkWriter - csv - partitioned data") {
     testPartitionedData(new csv.DefaultSource())
+  }
+
+  test("FileStreamSinkWriter - json - partitioned data") {
+    testPartitionedData(new parquet.DefaultSource())
   }
 
   test("FileStreamSinkWriter - parquet - partitioned data") {
@@ -176,6 +184,10 @@ class FileStreamSinkSuite extends StreamTest with SharedSQLContext {
     testUnpartitionedWritingAndBatchReading(new csv.DefaultSource())
   }
 
+  test("FileStreamSink - json - unpartitioned writing and batch reading") {
+    testUnpartitionedWritingAndBatchReading(new parquet.DefaultSource())
+  }
+
   test("FileStreamSink - parquet - unpartitioned writing and batch reading") {
     testUnpartitionedWritingAndBatchReading(new parquet.DefaultSource())
   }
@@ -220,6 +232,10 @@ class FileStreamSinkSuite extends StreamTest with SharedSQLContext {
 
   test("FileStreamSink - csv - partitioned writing and batch reading") {
     testPartitionedWritingAndBatchReading(new csv.DefaultSource())
+  }
+
+  test("FileStreamSink - json - partitioned writing and batch reading") {
+    testPartitionedWritingAndBatchReading(new parquet.DefaultSource())
   }
 
   test("FileStreamSink - parquet - partitioned writing and batch reading") {
@@ -352,12 +368,13 @@ class FileStreamSinkSuite extends StreamTest with SharedSQLContext {
 
     testFormat(None) // should not throw error as default format parquet when not specified
     testFormat(Some("csv"))
+    testFormat(Some("json"))
     testFormat(Some("parquet"))
     testFormat(Some("text"))
     val e = intercept[UnsupportedOperationException] {
-      testFormat(Some("json"))
+      testFormat(Some("jdbc"))
     }
-    Seq("json", "not support", "stream").foreach { s =>
+    Seq("jdbc", "not support", "stream").foreach { s =>
       assert(e.getMessage.contains(s))
     }
   }
