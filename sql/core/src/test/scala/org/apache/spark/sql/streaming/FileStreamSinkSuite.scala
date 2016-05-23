@@ -272,7 +272,7 @@ class FileStreamSinkSuite extends StreamTest with SharedSQLContext {
           .format(fileFormat.shortName())
           .partitionBy("id")
           .option("checkpointLocation", checkpointDir)
-          .option("header", "true") // this is only for cvs to save column names into files
+          .option("header", "true") // this is only for `cvs` to save column names into files
           .startStream(outputDir)
 
       inputData.addData(1, 2, 3)
@@ -284,7 +284,7 @@ class FileStreamSinkSuite extends StreamTest with SharedSQLContext {
         sqlContext
           .read
           .format(fileFormat.shortName())
-          .option("header", "true") // this is only for cvs to load column names back from files
+          .option("header", "true") // this is only for `cvs` to load column names back from files
           .load(outputDir)
 
       val expectedSchema = new StructType()
