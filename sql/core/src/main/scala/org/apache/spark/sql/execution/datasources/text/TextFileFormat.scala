@@ -68,24 +68,8 @@ class TextFileFormat extends FileFormat with DataSourceRegister {
     verifySchema(dataSchema)
 
     val conf = job.getConfiguration
-    val compressionCodec = options.get("compression").map(CompressionCodecs.getCodecClassName)
-    compressionCodec.foreach { codec =>
-      CompressionCodecs.setCodecConfiguration(conf, codec)
-    }
-
+    TextFileFormat.prepareConfForWriting(conf, options)
     new BatchOutputWriterFactory
-  }
-
-  override def buildWriter(
-      sqlContext: SQLContext,
-      dataSchema: StructType,
-      options: Map[String, String]): OutputWriterFactory = {
-    verifySchema(dataSchema)
-    new StreamingTextOutputWriterFactory(
-      sqlContext.conf,
-      dataSchema,
-      sqlContext.sparkContext.hadoopConfiguration,
-      options)
   }
 
   override def buildReader(
@@ -124,17 +108,23 @@ class TextFileFormat extends FileFormat with DataSourceRegister {
       }
     }
   }
-}
 
-private[text] object TextFileFormat {
-
+  override def buildWriter(
+      sqlContext: SQLContext,
+      dataSchema: StructType,
+      options: Map[String, String]): OutputWriterFactory = {
+    verifySchema(dataSchema)
+    new StreamingTextOutputWriterFactory(
+      sqlContext.conf,
+      dataSchema,
+      sqlContext.sparkContext.hadoopConfiguration,
+      options)
+  }
 }
 
 /** Add some comments here */
-private[text] abstract class TextOutputWriterBase(
-    path: String,
-    dataSchema: StructType,
-    context: TaskAttemptContext) extends OutputWriter {
+private[text] abstract class TextOutputWriterBase(context: TaskAttemptContext)
+  extends OutputWriter {
 
   private[this] val buffer = new Text()
 
@@ -164,7 +154,7 @@ private[text] class BatchOutputWriterFactory extends OutputWriterFactory {
       throw new AnalysisException("Text doesn't support bucketing")
     }
     // Returns the `batch` TextOutputWriter
-    new TextOutputWriterBase(path, dataSchema, context) {
+    new TextOutputWriterBase(context) {
       override private[text] val recordWriter: RecordWriter[NullWritable, Text] = {
         new TextOutputFormat[NullWritable, Text]() {
           override def getDefaultWorkFile(
@@ -196,10 +186,7 @@ private[text] class StreamingTextOutputWriterFactory(
 
   private val serializableConf = {
     val conf = Job.getInstance(hadoopConf).getConfiguration
-    val compressionCodec = options.get("compression").map(CompressionCodecs.getCodecClassName)
-    compressionCodec.foreach { codec =>
-      CompressionCodecs.setCodecConfiguration(conf, codec)
-    }
+    TextFileFormat.prepareConfForWriting(conf, options)
     new SerializableConfiguration(conf)
   }
 
@@ -212,9 +199,20 @@ private[text] class StreamingTextOutputWriterFactory(
     val hadoopAttemptContext =
       new TaskAttemptContextImpl(serializableConf.value, hadoopTaskAttempId)
     // Returns the `batch` TextOutputWriter
-    new TextOutputWriterBase(path, dataSchema, hadoopAttemptContext) {
+    new TextOutputWriterBase(hadoopAttemptContext) {
       override private[text] val recordWriter: RecordWriter[NullWritable, Text] =
         createNoCommitterTextRecordWriter(path, hadoopAttemptContext)
+    }
+  }
+}
+
+private[text] object TextFileFormat {
+  private[text] def prepareConfForWriting(
+      conf: Configuration,
+      options: Map[String, String]): Unit = {
+    val compressionCodec = options.get("compression").map(CompressionCodecs.getCodecClassName)
+    compressionCodec.foreach { codec =>
+      CompressionCodecs.setCodecConfiguration(conf, codec)
     }
   }
 }
