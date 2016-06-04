@@ -246,7 +246,12 @@ case class DataSource(
       case s: StreamSinkProvider =>
         s.createSink(sparkSession.sqlContext, options, partitionColumns, outputMode)
 
-      case parquet: parquet.ParquetFileFormat =>
+      // TODO: Remove the `isInstanceOf` check when all formats have been ported
+      case fileFormat: FileFormat
+        if (fileFormat.isInstanceOf[csv.CSVFileFormat]
+          || fileFormat.isInstanceOf[json.JsonFileFormat]
+          || fileFormat.isInstanceOf[parquet.ParquetFileFormat]
+          || fileFormat.isInstanceOf[text.TextFileFormat]) =>
         val caseInsensitiveOptions = new CaseInsensitiveMap(options)
         val path = caseInsensitiveOptions.getOrElse("path", {
           throw new IllegalArgumentException("'path' is not specified")
@@ -255,7 +260,7 @@ case class DataSource(
           throw new IllegalArgumentException(
             s"Data source $className does not support $outputMode output mode")
         }
-        new FileStreamSink(sparkSession, path, parquet, partitionColumns, options)
+        new FileStreamSink(sparkSession, path, fileFormat, partitionColumns, options)
 
       case _ =>
         throw new UnsupportedOperationException(

@@ -21,9 +21,11 @@ import org.apache.hadoop.fs.Path
 import org.apache.hadoop.io.{NullWritable, Text}
 import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat
 import org.apache.hadoop.mapreduce.{OutputCommitter, RecordWriter, TaskAttemptContext}
+
 import org.apache.spark.sql.types.StructType
 
 private[datasources] abstract class StreamingOutputWriterFactory extends OutputWriterFactory {
+
   /** Create a text [[RecordWriter]] that writes the given path without using OutputCommitter */
   private[datasources] def createNoCommitterTextRecordWriter(
       path: String,
