@@ -159,11 +159,11 @@ object CSVRelation extends Logging {
 }
 
 /**
-  * A factory for generating OutputWriters for writing csv files. This is implemented different
-  * from the 'Batch' CSVOutputWriter as this does not use any [[OutputCommitter]]. It simply
-  * writes the data to the path used to generate the output writer. Callers of this factory
-  * has to ensure which files are to be considered as committed.
-  */
+ * A factory for generating OutputWriters for writing csv files. This is implemented different
+ * from the 'Batch' CSVOutputWriter as this does not use any [[OutputCommitter]]. It simply
+ * writes the data to the path used to generate the output writer. Callers of this factory
+ * has to ensure which files are to be considered as committed.
+ */
 private[csv] class StreamingCSVOutputWriterFactory(
   sqlConf: SQLConf,
   dataSchema: StructType,
@@ -186,7 +186,7 @@ private[csv] class StreamingCSVOutputWriterFactory(
       new TaskAttemptContextImpl(serializableConf.value, hadoopTaskAttempId)
     // Returns a `Streaming` CSVOutputWriter
     new CSVOutputWriterBase(dataSchema, hadoopAttemptContext, csvOptions) {
-      override private[text] val recordWriter: RecordWriter[NullWritable, Text] =
+      override private[csv] val recordWriter: RecordWriter[NullWritable, Text] =
         createNoCommitterTextRecordWriter(path, hadoopAttemptContext)
     }
   }

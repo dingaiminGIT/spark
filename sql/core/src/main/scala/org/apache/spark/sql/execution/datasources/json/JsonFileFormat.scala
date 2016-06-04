@@ -184,7 +184,7 @@ class JsonFileFormat extends FileFormat with DataSourceRegister {
  * writes the data to the path used to generate the output writer. Callers of this factory
  * has to ensure which files are to be considered as committed.
  */
-private[text] class StreamingJsonOutputWriterFactory(
+private[json] class StreamingJsonOutputWriterFactory(
     sqlConf: SQLConf,
     dataSchema: StructType,
     hadoopConf: Configuration,
@@ -206,7 +206,7 @@ private[text] class StreamingJsonOutputWriterFactory(
       new TaskAttemptContextImpl(serializableConf.value, hadoopTaskAttempId)
     // Returns the `batch` JsonOutputWriter
     new JsonOutputWriterBase(dataSchema, hadoopAttemptContext) {
-      override private[text] val recordWriter: RecordWriter[NullWritable, Text] =
+      override private[json] val recordWriter: RecordWriter[NullWritable, Text] =
         createNoCommitterTextRecordWriter(path, hadoopAttemptContext)
     }
   }

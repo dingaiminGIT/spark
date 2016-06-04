@@ -19,8 +19,8 @@ package org.apache.spark.sql.execution.datasources
 
 import org.apache.hadoop.fs.Path
 import org.apache.hadoop.io.{NullWritable, Text}
-import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat
 import org.apache.hadoop.mapreduce.{OutputCommitter, RecordWriter, TaskAttemptContext}
+import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat
 
 import org.apache.spark.sql.types.StructType
 

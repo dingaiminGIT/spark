@@ -445,13 +445,14 @@ private[parquet] class BatchParquetOutputWriterFactory extends OutputWriterFacto
             // Here we override `getDefaultWorkFile` for two reasons:
             //
             //  1. To allow appending.  We need to generate unique output file names to avoid
-            //     overwriting existing files (either exist before the write job, or are just written
-            //     by other tasks within the same write job).
+            //     overwriting existing files (either exist before the write job, or are just
+            //     written by other tasks within the same write job).
             //
             //  2. To allow dynamic partitioning.  Default `getDefaultWorkFile` uses
             //     `FileOutputCommitter.getWorkPath()`, which points to the base directory of all
             //     partitions in the case of dynamic partitioning.
-            override def getDefaultWorkFile(context: TaskAttemptContext, extension: String): Path = {
+            override def getDefaultWorkFile(
+                context: TaskAttemptContext, extension: String): Path = {
               val configuration = context.getConfiguration
               val uniqueWriteJobId = configuration.get(
                 CreateDataSourceTableUtils.DATASOURCE_WRITEJOBUUID)
