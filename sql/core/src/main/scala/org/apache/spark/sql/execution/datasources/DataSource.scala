@@ -34,6 +34,7 @@ import org.apache.spark.sql.execution.datasources.csv.CSVFileFormat
 import org.apache.spark.sql.execution.datasources.jdbc.JdbcRelationProvider
 import org.apache.spark.sql.execution.datasources.json.JsonFileFormat
 import org.apache.spark.sql.execution.datasources.parquet.ParquetFileFormat
+import org.apache.spark.sql.execution.datasources.text.TextFileFormat
 import org.apache.spark.sql.execution.streaming._
 import org.apache.spark.sql.internal.SQLConf
 import org.apache.spark.sql.sources._
@@ -248,10 +249,10 @@ case class DataSource(
 
       // TODO: Remove the `isInstanceOf` check when all formats have been ported
       case fileFormat: FileFormat
-        if (fileFormat.isInstanceOf[csv.CSVFileFormat]
-          || fileFormat.isInstanceOf[json.JsonFileFormat]
-          || fileFormat.isInstanceOf[parquet.ParquetFileFormat]
-          || fileFormat.isInstanceOf[text.TextFileFormat]) =>
+        if (fileFormat.isInstanceOf[CSVFileFormat]
+          || fileFormat.isInstanceOf[JsonFileFormat]
+          || fileFormat.isInstanceOf[ParquetFileFormat]
+          || fileFormat.isInstanceOf[TextFileFormat]) =>
         val caseInsensitiveOptions = new CaseInsensitiveMap(options)
         val path = caseInsensitiveOptions.getOrElse("path", {
           throw new IllegalArgumentException("'path' is not specified")
