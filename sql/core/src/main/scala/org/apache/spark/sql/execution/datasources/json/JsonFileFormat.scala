@@ -207,7 +207,10 @@ private[json] class StreamingJsonOutputWriterFactory(
     // Returns the `batch` JsonOutputWriter
     new JsonOutputWriterBase(dataSchema, hadoopAttemptContext) {
       override private[json] val recordWriter: RecordWriter[NullWritable, Text] =
-        createNoCommitterTextRecordWriter(path, hadoopAttemptContext)
+        createNoCommitterTextRecordWriter(
+          path,
+          hadoopAttemptContext,
+          (c: TaskAttemptContext, ext: String) => { new Path(s"$path.json$ext") })
     }
   }
 }

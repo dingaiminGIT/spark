@@ -422,7 +422,10 @@ private[parquet] class StreamingParquetOutputWriterFactory(
         val outputFormat = new ParquetOutputFormat[InternalRow]() {
           override def getOutputCommitter(c: TaskAttemptContext): OutputCommitter = { null }
           override def getDefaultWorkFile(c: TaskAttemptContext, ext: String): Path = {
-            new Path(path)
+            // It has the `.parquet` extension at the end because (de)compression tools
+            // such as gunzip would not be able to decompress this as the compression
+            // is not applied on this whole file but on each "page" in Parquet format.
+            new Path(s"$path$ext")
           }
         }
         outputFormat.getRecordWriter(hadoopAttemptContext)

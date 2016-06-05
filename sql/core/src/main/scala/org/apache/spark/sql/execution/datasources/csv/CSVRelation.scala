@@ -187,7 +187,10 @@ private[csv] class StreamingCSVOutputWriterFactory(
     // Returns a `Streaming` CSVOutputWriter
     new CSVOutputWriterBase(dataSchema, hadoopAttemptContext, csvOptions) {
       override private[csv] val recordWriter: RecordWriter[NullWritable, Text] =
-        createNoCommitterTextRecordWriter(path, hadoopAttemptContext)
+        createNoCommitterTextRecordWriter(
+          path,
+          hadoopAttemptContext,
+          (c: TaskAttemptContext, ext: String) => { new Path(s"$path.csv$ext") })
     }
   }
 }

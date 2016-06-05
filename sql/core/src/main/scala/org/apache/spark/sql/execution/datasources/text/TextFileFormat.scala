@@ -202,7 +202,10 @@ private[text] class StreamingTextOutputWriterFactory(
     // Returns the `batch` TextOutputWriter
     new TextOutputWriterBase(hadoopAttemptContext) {
       override private[text] val recordWriter: RecordWriter[NullWritable, Text] =
-        createNoCommitterTextRecordWriter(path, hadoopAttemptContext)
+        createNoCommitterTextRecordWriter(
+          path,
+          hadoopAttemptContext,
+          (c: TaskAttemptContext, ext: String) => { new Path(s"$path.txt$ext") })
     }
   }
 }

@@ -29,11 +29,15 @@ private[datasources] abstract class StreamingOutputWriterFactory extends OutputW
   /** Create a text [[RecordWriter]] that writes the given path without using OutputCommitter */
   private[datasources] def createNoCommitterTextRecordWriter(
       path: String,
-      hadoopAttemptContext: TaskAttemptContext): RecordWriter[NullWritable, Text] = {
+      hadoopAttemptContext: TaskAttemptContext,
+      defaultWorkingFileFuc: (TaskAttemptContext, String) => Path
+    ): RecordWriter[NullWritable, Text] = {
     // Custom TextOutputFormat that disable use of committer and writes to the given path
     val outputFormat = new TextOutputFormat[NullWritable, Text]() {
       override def getOutputCommitter(c: TaskAttemptContext): OutputCommitter = { null }
-      override def getDefaultWorkFile(c: TaskAttemptContext, ext: String): Path = { new Path(path) }
+      override def getDefaultWorkFile(c: TaskAttemptContext, ext: String): Path = {
+        defaultWorkingFileFuc(c, ext)
+      }
     }
     outputFormat.getRecordWriter(hadoopAttemptContext)
   }
