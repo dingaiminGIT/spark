@@ -39,7 +39,7 @@ private[datasources] abstract class StreamingOutputWriterFactory extends OutputW
   }
 
   /** Disable the use of the older API. */
-  def newInstance(
+  override def newInstance(
       path: String,
       bucketId: Option[Int],
       dataSchema: StructType,
