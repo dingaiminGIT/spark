@@ -204,7 +204,7 @@ private[json] class StreamingJsonOutputWriterFactory(
     val hadoopTaskAttempId = new TaskAttemptID(new TaskID(new JobID, TaskType.MAP, 0), 0)
     val hadoopAttemptContext =
       new TaskAttemptContextImpl(serializableConf.value, hadoopTaskAttempId)
-    // Returns a `streaming` JsonOutputWriter
+    // Returns a 'streaming' JsonOutputWriter
     new JsonOutputWriterBase(dataSchema, hadoopAttemptContext) {
       override private[json] val recordWriter: RecordWriter[NullWritable, Text] =
         createNoCommitterTextRecordWriter(

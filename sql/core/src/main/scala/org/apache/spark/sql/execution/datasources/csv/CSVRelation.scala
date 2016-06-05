@@ -190,7 +190,7 @@ private[csv] class StreamingCSVOutputWriterFactory(
     val hadoopTaskAttempId = new TaskAttemptID(new TaskID(new JobID, TaskType.MAP, 0), 0)
     val hadoopAttemptContext =
       new TaskAttemptContextImpl(serializableConf.value, hadoopTaskAttempId)
-    // Returns a `streaming` CSVOutputWriter
+    // Returns a 'streaming' CSVOutputWriter
     new CSVOutputWriterBase(dataSchema, hadoopAttemptContext, csvOptions) {
       override private[csv] val recordWriter: RecordWriter[NullWritable, Text] =
         createNoCommitterTextRecordWriter(

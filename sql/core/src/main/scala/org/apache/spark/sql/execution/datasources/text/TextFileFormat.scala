@@ -157,7 +157,7 @@ private[text] class BatchOutputWriterFactory extends OutputWriterFactory {
     if (bucketId.isDefined) {
       throw new AnalysisException("Text doesn't support bucketing")
     }
-    // Returns the `batch` TextOutputWriter
+    // Returns a 'batch' TextOutputWriter
     new TextOutputWriterBase(context) {
       override private[text] val recordWriter: RecordWriter[NullWritable, Text] = {
         new TextOutputFormat[NullWritable, Text]() {
@@ -202,7 +202,7 @@ private[text] class StreamingTextOutputWriterFactory(
     val hadoopTaskAttempId = new TaskAttemptID(new TaskID(new JobID, TaskType.MAP, 0), 0)
     val hadoopAttemptContext =
       new TaskAttemptContextImpl(serializableConf.value, hadoopTaskAttempId)
-    // Returns a `streaming` TextOutputWriter
+    // Returns a `streaming' TextOutputWriter
     new TextOutputWriterBase(hadoopAttemptContext) {
       override private[text] val recordWriter: RecordWriter[NullWritable, Text] =
         createNoCommitterTextRecordWriter(
