@@ -180,7 +180,7 @@ class JsonFileFormat extends FileFormat with DataSourceRegister {
 
 /**
  * A factory for generating [[OutputWriter]]s for writing json files. This is implemented different
- * from the 'batch' [[OutputWriter]] as this does not use any [[OutputCommitter]]. It simply
+ * from the 'batch' JsonOutputWriter as this does not use any [[OutputCommitter]]. It simply
  * writes the data to the path used to generate the output writer. Callers of this factory
  * has to ensure which files are to be considered as committed.
  */
