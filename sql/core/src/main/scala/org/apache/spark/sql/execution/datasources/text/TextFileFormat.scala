@@ -177,8 +177,8 @@ private[text] class BatchOutputWriterFactory extends OutputWriterFactory {
 }
 
 /**
- * A factory for generating [[OutputWriter]]s for writing text files. This implemented is different
- * from the 'batch' [[OutputWriter]] as this does not use any [[OutputCommitter]]. It simply
+ * A factory for generating [[OutputWriter]]s for writing text files. This is implemented different
+ * from the 'batch' TextOutputWriter as this does not use any [[OutputCommitter]]. It simply
  * writes the data to the path used to generate the output writer. Callers of this factory
  * has to ensure which files are to be considered as committed.
  */
