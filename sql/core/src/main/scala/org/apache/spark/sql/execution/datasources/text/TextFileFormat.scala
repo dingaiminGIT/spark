@@ -132,7 +132,7 @@ private[text] abstract class TextOutputWriterBase(context: TaskAttemptContext)
 
   private[this] val buffer = new Text()
 
-  // different subclass may provide different record writer
+  // different subclass may provide different record writers
   private[text] val recordWriter: RecordWriter[NullWritable, Text]
 
   override def write(row: Row): Unit = throw new UnsupportedOperationException("call writeInternal")
@@ -202,7 +202,7 @@ private[text] class StreamingTextOutputWriterFactory(
     val hadoopTaskAttempId = new TaskAttemptID(new TaskID(new JobID, TaskType.MAP, 0), 0)
     val hadoopAttemptContext =
       new TaskAttemptContextImpl(serializableConf.value, hadoopTaskAttempId)
-    // Returns the `batch` TextOutputWriter
+    // Returns a `streaming` TextOutputWriter
     new TextOutputWriterBase(hadoopAttemptContext) {
       override private[text] val recordWriter: RecordWriter[NullWritable, Text] =
         createNoCommitterTextRecordWriter(

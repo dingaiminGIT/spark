@@ -366,11 +366,14 @@ private[sql] class ParquetFileFormat
   }
 }
 
-// NOTE: This class and subclasses are instantiated and used on executor side only, no need to
-// be serializable.
+/**
+ * Base ParquetOutputWriter class for 'batch' ParquetOutputWriter and 'streaming'
+ * ParquetOutputWriter.
+ * The writing logic to a single file resides in this base class.
+ */
 private[parquet] abstract class ParquetOutputWriterBase(context: TaskAttemptContext)
   extends OutputWriter {
-  /** Add some comments here */
+  // different subclass may provide different record writers
   private[parquet] val recordWriter: RecordWriter[Void, InternalRow]
 
   override def write(row: Row): Unit = throw new UnsupportedOperationException("call writeInternal")
@@ -381,8 +384,8 @@ private[parquet] abstract class ParquetOutputWriterBase(context: TaskAttemptCont
 }
 
 /**
- * A factory for generating OutputWriters for writing parquet files. This implemented is different
- * from the 'Batch' ParquetOutputWriter as this does not use any [[OutputCommitter]]. It simply
+ * A factory for generating OutputWriters for writing parquet files. This is implemented different
+ * from the 'batch' ParquetOutputWriter as this does not use any [[OutputCommitter]]. It simply
  * writes the data to the path used to generate the output writer. Callers of this factory
  * has to ensure which files are to be considered as committed.
  */
@@ -414,7 +417,7 @@ private[parquet] class StreamingParquetOutputWriterFactory(
     val hadoopAttemptContext =
       new TaskAttemptContextImpl(serializableConf.value, hadoopTaskAttempId)
 
-    // Returns a 'Streaming' ParquetOutputWriter
+    // Returns a 'streaming' ParquetOutputWriter
     new ParquetOutputWriterBase(hadoopAttemptContext) {
       // Instance of ParquetRecordWriter that does not use OutputCommitter
       private[parquet] override val recordWriter: RecordWriter[Void, InternalRow] = {
@@ -440,7 +443,7 @@ private[parquet] class BatchParquetOutputWriterFactory extends OutputWriterFacto
       bucketId: Option[Int],
       dataSchema: StructType,
       context: TaskAttemptContext): OutputWriter = {
-    // Return a 'Batch' ParquetOutputWriter
+    // Return a 'batch' ParquetOutputWriter
     new ParquetOutputWriterBase(context) {
       private[parquet] override val recordWriter: RecordWriter[Void, InternalRow] = {
         val outputFormat = {

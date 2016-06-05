@@ -208,7 +208,7 @@ private[csv] class BatchCSVOutputWriterFactory(params: CSVOptions) extends Outpu
       dataSchema: StructType,
       context: TaskAttemptContext): OutputWriter = {
     if (bucketId.isDefined) sys.error("csv doesn't support bucketing")
-    /* Returns a 'batch' CSVOutputWriter */
+    // Returns a 'batch' CSVOutputWriter
     new CSVOutputWriterBase(dataSchema, context, params) {
       private[csv] override val recordWriter: RecordWriter[NullWritable, Text] = {
         new TextOutputFormat[NullWritable, Text]() {
@@ -237,7 +237,7 @@ private[csv] abstract class CSVOutputWriterBase(
   // create the Generator without separator inserted between 2 records
   private[this] val text = new Text()
 
-  // different subclass may provide different record writer
+  // different subclass may provide different record writers
   private[csv] val recordWriter: RecordWriter[NullWritable, Text]
 
   private val FLUSH_BATCH_SIZE = 1024L

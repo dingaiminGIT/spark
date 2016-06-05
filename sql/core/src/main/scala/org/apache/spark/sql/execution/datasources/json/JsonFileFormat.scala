@@ -86,7 +86,7 @@ class JsonFileFormat extends FileFormat with DataSourceRegister {
           bucketId: Option[Int],
           dataSchema: StructType,
           context: TaskAttemptContext): OutputWriter = {
-        // Returns a 'Batch' JsonOutputWriter
+        // Returns a 'batch' JsonOutputWriter
         new JsonOutputWriterBase(dataSchema, context) {
           private[json] override val recordWriter: RecordWriter[NullWritable, Text] = {
             new TextOutputFormat[NullWritable, Text]() {
@@ -179,7 +179,7 @@ class JsonFileFormat extends FileFormat with DataSourceRegister {
 }
 
 /**
- * A factory for generating [[OutputWriter]]s for writing json files. This implemented is different
+ * A factory for generating [[OutputWriter]]s for writing json files. This is implemented different
  * from the 'batch' [[OutputWriter]] as this does not use any [[OutputCommitter]]. It simply
  * writes the data to the path used to generate the output writer. Callers of this factory
  * has to ensure which files are to be considered as committed.
@@ -204,7 +204,7 @@ private[json] class StreamingJsonOutputWriterFactory(
     val hadoopTaskAttempId = new TaskAttemptID(new TaskID(new JobID, TaskType.MAP, 0), 0)
     val hadoopAttemptContext =
       new TaskAttemptContextImpl(serializableConf.value, hadoopTaskAttempId)
-    // Returns the `batch` JsonOutputWriter
+    // Returns a `streaming` JsonOutputWriter
     new JsonOutputWriterBase(dataSchema, hadoopAttemptContext) {
       override private[json] val recordWriter: RecordWriter[NullWritable, Text] =
         createNoCommitterTextRecordWriter(
@@ -229,7 +229,7 @@ private[json] abstract class JsonOutputWriterBase(
   private[this] val gen = new JsonFactory().createGenerator(writer).setRootValueSeparator(null)
   private[this] val result = new Text()
 
-  // different subclass may provide different record writer
+  // different subclass may provide different record writers
   private[json] val recordWriter: RecordWriter[NullWritable, Text]
 
   override def write(row: Row): Unit = throw new UnsupportedOperationException("call writeInternal")
