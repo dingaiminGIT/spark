@@ -166,7 +166,7 @@ object CSVRelation extends Logging {
 
 /**
  * A factory for generating OutputWriters for writing csv files. This is implemented different
- * from the 'Batch' CSVOutputWriter as this does not use any [[OutputCommitter]]. It simply
+ * from the 'batch' CSVOutputWriter as this does not use any [[OutputCommitter]]. It simply
  * writes the data to the path used to generate the output writer. Callers of this factory
  * has to ensure which files are to be considered as committed.
  */
@@ -190,7 +190,7 @@ private[csv] class StreamingCSVOutputWriterFactory(
     val hadoopTaskAttempId = new TaskAttemptID(new TaskID(new JobID, TaskType.MAP, 0), 0)
     val hadoopAttemptContext =
       new TaskAttemptContextImpl(serializableConf.value, hadoopTaskAttempId)
-    // Returns a `Streaming` CSVOutputWriter
+    // Returns a `streaming` CSVOutputWriter
     new CSVOutputWriterBase(dataSchema, hadoopAttemptContext, csvOptions) {
       override private[csv] val recordWriter: RecordWriter[NullWritable, Text] =
         createNoCommitterTextRecordWriter(
@@ -208,7 +208,7 @@ private[csv] class BatchCSVOutputWriterFactory(params: CSVOptions) extends Outpu
       dataSchema: StructType,
       context: TaskAttemptContext): OutputWriter = {
     if (bucketId.isDefined) sys.error("csv doesn't support bucketing")
-    /* Returns a 'Batch' CSVOutputWriter */
+    /* Returns a 'batch' CSVOutputWriter */
     new CSVOutputWriterBase(dataSchema, context, params) {
       private[csv] override val recordWriter: RecordWriter[NullWritable, Text] = {
         new TextOutputFormat[NullWritable, Text]() {
@@ -225,6 +225,10 @@ private[csv] class BatchCSVOutputWriterFactory(params: CSVOptions) extends Outpu
   }
 }
 
+/**
+ * Base CSVOutputWriter class for 'batch' CSVOutputWriter and 'streaming' CSVOutputWriter. The
+ * writing logic to a single file resides in this base class.
+ */
 private[csv] abstract class CSVOutputWriterBase(
     dataSchema: StructType,
     context: TaskAttemptContext,
@@ -233,6 +237,7 @@ private[csv] abstract class CSVOutputWriterBase(
   // create the Generator without separator inserted between 2 records
   private[this] val text = new Text()
 
+  // different subclass may provide different record writer
   private[csv] val recordWriter: RecordWriter[NullWritable, Text]
 
   private val FLUSH_BATCH_SIZE = 1024L

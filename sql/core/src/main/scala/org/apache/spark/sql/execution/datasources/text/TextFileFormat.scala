@@ -123,13 +123,16 @@ class TextFileFormat extends FileFormat with DataSourceRegister {
   }
 }
 
-/** Add some comments here */
+/**
+ * Base TextOutputWriter class for 'batch' TextOutputWriter and 'streaming' TextOutputWriter. The
+ * writing logic to a single file resides in this base class.
+ */
 private[text] abstract class TextOutputWriterBase(context: TaskAttemptContext)
   extends OutputWriter {
 
   private[this] val buffer = new Text()
 
-  /** Add some comments here */
+  // different subclass may provide different record writer
   private[text] val recordWriter: RecordWriter[NullWritable, Text]
 
   override def write(row: Row): Unit = throw new UnsupportedOperationException("call writeInternal")

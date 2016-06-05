@@ -215,6 +215,10 @@ private[json] class StreamingJsonOutputWriterFactory(
   }
 }
 
+/**
+ * Base JsonOutputWriter class for 'batch' JsonOutputWriter and 'streaming' JsonOutputWriter. The
+ * writing logic to a single file resides in this base class.
+ */
 private[json] abstract class JsonOutputWriterBase(
     dataSchema: StructType,
     context: TaskAttemptContext)
@@ -225,6 +229,7 @@ private[json] abstract class JsonOutputWriterBase(
   private[this] val gen = new JsonFactory().createGenerator(writer).setRootValueSeparator(null)
   private[this] val result = new Text()
 
+  // different subclass may provide different record writer
   private[json] val recordWriter: RecordWriter[NullWritable, Text]
 
   override def write(row: Row): Unit = throw new UnsupportedOperationException("call writeInternal")
