@@ -37,6 +37,17 @@ import org.apache.spark.util.SerializableConfiguration
 object FileStreamSink {
   // The name of the subdirectory that is used to store metadata about which files are valid.
   val metadataDir = "_spark_metadata"
+
+  // List FileStatus using fs.globStatus(), then transform this FileStatus into SinkFileStatus
+  private[sql] def getSinkFileStatusUsingGlob(
+      paths: Seq[Path], hadoopConf: Configuration): Seq[SinkFileStatus] = {
+    val fs = paths.head.getFileSystem(hadoopConf)
+    paths.map(path => {
+      val fileStatuses = fs.globStatus(new Path(path.toString + "*"))
+      assert(fileStatuses.length == 1, s"Unexpected number of paths starting with ${path}")
+      SinkFileStatus(fileStatuses.head)
+    })
+  }
 }
 
 /**
@@ -172,7 +183,7 @@ class FileStreamSinkWriter(
       }
       writer.close()
       writer = null
-      SinkFileStatus(fs.getFileStatus(path))
+      FileStreamSink.getSinkFileStatusUsingGlob(Seq(path), serializableConf.value).head
     } catch {
       case cause: Throwable =>
         logError("Aborting task.", cause)
@@ -247,8 +258,7 @@ class FileStreamSinkWriter(
         currentWriter = null
       }
       if (paths.nonEmpty) {
-        val fs = paths.head.getFileSystem(serializableConf.value)
-        paths.map(p => SinkFileStatus(fs.getFileStatus(p)))
+        FileStreamSink.getSinkFileStatusUsingGlob(paths, serializableConf.value)
       } else Seq.empty
     } catch {
       case cause: Throwable =>

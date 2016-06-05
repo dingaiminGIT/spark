@@ -21,6 +21,8 @@ import java.io.File
 
 import org.apache.commons.io.FileUtils
 import org.apache.commons.io.filefilter.{DirectoryFileFilter, RegexFileFilter}
+import org.apache.hadoop.conf.Configuration
+import org.apache.hadoop.fs.Path
 import org.apache.spark.sql._
 import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
 import org.apache.spark.sql.execution.DataSourceScanExec
@@ -405,4 +407,34 @@ class FileStreamSinkSuite extends StreamTest {
     }
   }
 
+  test("getSinkFileStatusUsingGlob()") {
+    val dir = Utils.createTempDir(namePrefix = "streaming").getCanonicalPath
+
+    //  file_1_xxx would be something like "$dir/file_1.fe673e8d-1880-4322-927b-32af3a3f1a78"
+    val file_1_xxx = Utils.tempFileWith(new File(dir, "file_1"))
+    file_1_xxx.createNewFile()
+
+    val file1SinkFileStatus =
+      FileStreamSink.getSinkFileStatusUsingGlob(Seq(new Path(dir, "file_1")), new Configuration)
+    assert(file1SinkFileStatus != null)
+    assert(file1SinkFileStatus.length == 1)
+    assert(file1SinkFileStatus.head.path == "file://" + file_1_xxx.getAbsoluteFile)
+    assert(file1SinkFileStatus.head.isDir == false)
+    assert(file1SinkFileStatus.head.action == "add")
+    println(file_1_xxx.getAbsoluteFile)
+
+    //  file_2_xxx would be something like "$dir/file_2.fe673e8d-1880-4322-927b-32af3a3f1a78"
+    val file_2_xxx = Utils.tempFileWith(new File(dir, "file_2"))
+    file_2_xxx.createNewFile()
+    //  file_2_yyy would be something like "$dir/file_2.8486e440-35ba-4a7f-bb5d-3b0ddac65830"
+    val file_2_yyy = Utils.tempFileWith(new File(dir, "file_2"))
+    file_2_yyy.createNewFile()
+
+    // We would expect only one file being matched, so it should fail if more than one file match
+    val e = intercept[AssertionError](
+      FileStreamSink.getSinkFileStatusUsingGlob(Seq(new Path(dir, "file_2")), new Configuration))
+    Seq("unexpected number", "starting with").foreach { s =>
+      assert(e.getMessage.toLowerCase.contains(s.toLowerCase))
+    }
+  }
 }
