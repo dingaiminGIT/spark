@@ -70,35 +70,74 @@ private[sql] class ParquetFileFormat
       job: Job,
       options: Map[String, String],
       dataSchema: StructType): OutputWriterFactory = {
-    // Setup some configurations for writing out
-    ParquetFileFormat.prepareConfForWriting(
-      job,
-      sparkSession.sessionState.conf,
-      options,
-      dataSchema,
-      // Setup the committer class when under non-continuous-queries scenario
-      (conf: Configuration) => {
-        val committerClass =
-          conf.getClass(
-            SQLConf.PARQUET_OUTPUT_COMMITTER_CLASS.key,
-            classOf[ParquetOutputCommitter],
-            classOf[ParquetOutputCommitter])
 
-        if (conf.get(SQLConf.PARQUET_OUTPUT_COMMITTER_CLASS.key) == null) {
-          logInfo("Using default output committer for Parquet: " +
-            classOf[ParquetOutputCommitter].getCanonicalName)
-        } else {
-          logInfo(
-            "Using user defined output committer for Parquet: " + committerClass.getCanonicalName)
-        }
+    val parquetOptions = new ParquetOptions(options, sparkSession.sessionState.conf)
 
-        conf.setClass(
-          SQLConf.OUTPUT_COMMITTER_CLASS.key,
-          committerClass,
-          classOf[ParquetOutputCommitter])
-      })
+    val conf = ContextUtil.getConfiguration(job)
 
-    new BatchParquetOutputWriterFactory
+    val committerClass =
+      conf.getClass(
+        SQLConf.PARQUET_OUTPUT_COMMITTER_CLASS.key,
+        classOf[ParquetOutputCommitter],
+        classOf[ParquetOutputCommitter])
+
+    if (conf.get(SQLConf.PARQUET_OUTPUT_COMMITTER_CLASS.key) == null) {
+      logInfo("Using default output committer for Parquet: " +
+        classOf[ParquetOutputCommitter].getCanonicalName)
+    } else {
+      logInfo("Using user defined output committer for Parquet: " + committerClass.getCanonicalName)
+    }
+
+    conf.setClass(
+      SQLConf.OUTPUT_COMMITTER_CLASS.key,
+      committerClass,
+      classOf[ParquetOutputCommitter])
+
+    // We're not really using `ParquetOutputFormat[Row]` for writing data here, because we override
+    // it in `ParquetOutputWriter` to support appending and dynamic partitioning.  The reason why
+    // we set it here is to setup the output committer class to `ParquetOutputCommitter`, which is
+    // bundled with `ParquetOutputFormat[Row]`.
+    job.setOutputFormatClass(classOf[ParquetOutputFormat[Row]])
+
+    ParquetOutputFormat.setWriteSupportClass(job, classOf[CatalystWriteSupport])
+
+    // We want to clear this temporary metadata from saving into Parquet file.
+    // This metadata is only useful for detecting optional columns when pushdowning filters.
+    val dataSchemaToWrite = StructType.removeMetadata(StructType.metadataKeyForOptionalField,
+      dataSchema).asInstanceOf[StructType]
+    CatalystWriteSupport.setSchema(dataSchemaToWrite, conf)
+
+    // Sets flags for `CatalystSchemaConverter` (which converts Catalyst schema to Parquet schema)
+    // and `CatalystWriteSupport` (writing actual rows to Parquet files).
+    conf.set(
+      SQLConf.PARQUET_BINARY_AS_STRING.key,
+      sparkSession.sessionState.conf.isParquetBinaryAsString.toString)
+
+    conf.set(
+      SQLConf.PARQUET_INT96_AS_TIMESTAMP.key,
+      sparkSession.sessionState.conf.isParquetINT96AsTimestamp.toString)
+
+    conf.set(
+      SQLConf.PARQUET_WRITE_LEGACY_FORMAT.key,
+      sparkSession.sessionState.conf.writeLegacyParquetFormat.toString)
+
+    // Sets compression scheme
+    conf.set(ParquetOutputFormat.COMPRESSION, parquetOptions.compressionCodec)
+
+    // SPARK-15719: Disables writing Parquet summary files by default.
+    if (conf.get(ParquetOutputFormat.ENABLE_JOB_SUMMARY) == null) {
+      conf.setBoolean(ParquetOutputFormat.ENABLE_JOB_SUMMARY, false)
+    }
+
+    new OutputWriterFactory {
+      override def newInstance(
+          path: String,
+          bucketId: Option[Int],
+          dataSchema: StructType,
+          context: TaskAttemptContext): OutputWriter = {
+        new ParquetOutputWriter(path, bucketId, context)
+      }
+    }
   }
 
   def inferSchema(
@@ -358,7 +397,7 @@ private[sql] class ParquetFileFormat
       sqlContext: SQLContext,
       dataSchema: StructType,
       options: Map[String, String]): OutputWriterFactory = {
-    new StreamingParquetOutputWriterFactory(
+    new ParquetOutputWriterFactory(
       sqlContext.conf,
       dataSchema,
       sqlContext.sparkContext.hadoopConfiguration,
@@ -367,43 +406,53 @@ private[sql] class ParquetFileFormat
 }
 
 /**
- * Base ParquetOutputWriter class for 'batch' ParquetOutputWriter and 'streaming'
- * ParquetOutputWriter.
- * The writing logic to a single file resides in this base class.
- */
-private[parquet] abstract class ParquetOutputWriterBase(context: TaskAttemptContext)
-  extends OutputWriter {
-  // different subclass may provide different record writers
-  private[parquet] val recordWriter: RecordWriter[Void, InternalRow]
-
-  override def write(row: Row): Unit = throw new UnsupportedOperationException("call writeInternal")
-
-  override protected[sql] def writeInternal(row: InternalRow): Unit = recordWriter.write(null, row)
-
-  override def close(): Unit = recordWriter.close(context)
-}
-
-/**
- * A factory for generating OutputWriters for writing parquet files. This is implemented different
- * from the 'batch' ParquetOutputWriter as this does not use any [[OutputCommitter]]. It simply
+ * A factory for generating OutputWriters for writing parquet files. This implemented is different
+ * from the [[ParquetOutputWriter]] as this does not use any [[OutputCommitter]]. It simply
  * writes the data to the path used to generate the output writer. Callers of this factory
  * has to ensure which files are to be considered as committed.
  */
-private[parquet] class StreamingParquetOutputWriterFactory(
+private[sql] class ParquetOutputWriterFactory(
     sqlConf: SQLConf,
     dataSchema: StructType,
     hadoopConf: Configuration,
-    options: Map[String, String]) extends StreamingOutputWriterFactory {
+    options: Map[String, String]) extends OutputWriterFactory {
 
   private val serializableConf: SerializableConfiguration = {
-    // Setup some configurations for writing out
-    val conf = ParquetFileFormat.prepareConfForWriting(
-      Job.getInstance(hadoopConf),
-      sqlConf,
-      options,
-      dataSchema,
-      // We don't setup committer class when under continuous-queries scenario
-      (_: Configuration) => {})
+    val job = Job.getInstance(hadoopConf)
+    val conf = ContextUtil.getConfiguration(job)
+    val parquetOptions = new ParquetOptions(options, sqlConf)
+
+    // We're not really using `ParquetOutputFormat[Row]` for writing data here, because we override
+    // it in `ParquetOutputWriter` to support appending and dynamic partitioning.  The reason why
+    // we set it here is to setup the output committer class to `ParquetOutputCommitter`, which is
+    // bundled with `ParquetOutputFormat[Row]`.
+    job.setOutputFormatClass(classOf[ParquetOutputFormat[Row]])
+
+    ParquetOutputFormat.setWriteSupportClass(job, classOf[CatalystWriteSupport])
+
+    // We want to clear this temporary metadata from saving into Parquet file.
+    // This metadata is only useful for detecting optional columns when pushdowning filters.
+    val dataSchemaToWrite = StructType.removeMetadata(
+      StructType.metadataKeyForOptionalField,
+      dataSchema).asInstanceOf[StructType]
+    CatalystWriteSupport.setSchema(dataSchemaToWrite, conf)
+
+    // Sets flags for `CatalystSchemaConverter` (which converts Catalyst schema to Parquet schema)
+    // and `CatalystWriteSupport` (writing actual rows to Parquet files).
+    conf.set(
+      SQLConf.PARQUET_BINARY_AS_STRING.key,
+      sqlConf.isParquetBinaryAsString.toString)
+
+    conf.set(
+      SQLConf.PARQUET_INT96_AS_TIMESTAMP.key,
+      sqlConf.isParquetINT96AsTimestamp.toString)
+
+    conf.set(
+      SQLConf.PARQUET_WRITE_LEGACY_FORMAT.key,
+      sqlConf.writeLegacyParquetFormat.toString)
+
+    // Sets compression scheme
+    conf.set(ParquetOutputFormat.COMPRESSION, parquetOptions.compressionCodec)
     new SerializableConfiguration(conf)
   }
 
@@ -411,72 +460,94 @@ private[parquet] class StreamingParquetOutputWriterFactory(
    * Returns a [[OutputWriter]] that writes data to the give path without using
    * [[OutputCommitter]].
    */
-  override private[sql] def newWriter(path: String): OutputWriter = {
+  override private[sql] def newWriter(path: String): OutputWriter = new OutputWriter {
+
     // Create TaskAttemptContext that is used to pass on Configuration to the ParquetRecordWriter
-    val hadoopTaskAttempId = new TaskAttemptID(new TaskID(new JobID, TaskType.MAP, 0), 0)
-    val hadoopAttemptContext =
-      new TaskAttemptContextImpl(serializableConf.value, hadoopTaskAttempId)
+    private val hadoopTaskAttempId = new TaskAttemptID(new TaskID(new JobID, TaskType.MAP, 0), 0)
+    private val hadoopAttemptContext = new TaskAttemptContextImpl(
+      serializableConf.value, hadoopTaskAttempId)
 
-    // Returns a 'streaming' ParquetOutputWriter
-    new ParquetOutputWriterBase(hadoopAttemptContext) {
-      // Instance of ParquetRecordWriter that does not use OutputCommitter
-      private[parquet] override val recordWriter: RecordWriter[Void, InternalRow] = {
-        // Custom ParquetOutputFormat that disable use of committer and writes to the given path
-        val outputFormat = new ParquetOutputFormat[InternalRow]() {
-          override def getOutputCommitter(c: TaskAttemptContext): OutputCommitter = { null }
-          override def getDefaultWorkFile(c: TaskAttemptContext, ext: String): Path = {
-            // It has the `.parquet` extension at the end because (de)compression tools
-            // such as gunzip would not be able to decompress this as the compression
-            // is not applied on this whole file but on each "page" in Parquet format.
-            new Path(s"$path$ext")
-          }
-        }
-        outputFormat.getRecordWriter(hadoopAttemptContext)
-      }
+    // Instance of ParquetRecordWriter that does not use OutputCommitter
+    private val recordWriter = createNoCommitterRecordWriter(path, hadoopAttemptContext)
+
+    override def write(row: Row): Unit = {
+      throw new UnsupportedOperationException("call writeInternal")
     }
-  }
-}
 
-private[parquet] class BatchParquetOutputWriterFactory extends OutputWriterFactory {
-  override def newInstance(
+    protected[sql] override def writeInternal(row: InternalRow): Unit = {
+      recordWriter.write(null, row)
+    }
+
+    override def close(): Unit = recordWriter.close(hadoopAttemptContext)
+  }
+
+  /** Create a [[ParquetRecordWriter]] that writes the given path without using OutputCommitter */
+  private def createNoCommitterRecordWriter(
+      path: String,
+      hadoopAttemptContext: TaskAttemptContext): RecordWriter[Void, InternalRow] = {
+    // Custom ParquetOutputFormat that disable use of committer and writes to the given path
+    val outputFormat = new ParquetOutputFormat[InternalRow]() {
+      override def getOutputCommitter(c: TaskAttemptContext): OutputCommitter = { null }
+      override def getDefaultWorkFile(c: TaskAttemptContext, ext: String): Path = { new Path(path) }
+    }
+    outputFormat.getRecordWriter(hadoopAttemptContext)
+  }
+
+  /** Disable the use of the older API. */
+  def newInstance(
       path: String,
       bucketId: Option[Int],
       dataSchema: StructType,
       context: TaskAttemptContext): OutputWriter = {
-    // Returns a 'batch' ParquetOutputWriter
-    new ParquetOutputWriterBase(context) {
-      private[parquet] override val recordWriter: RecordWriter[Void, InternalRow] = {
-        val outputFormat = {
-          new ParquetOutputFormat[InternalRow]() {
-            // Here we override `getDefaultWorkFile` for two reasons:
-            //
-            //  1. To allow appending.  We need to generate unique output file names to avoid
-            //     overwriting existing files (either exist before the write job, or are just
-            //     written by other tasks within the same write job).
-            //
-            //  2. To allow dynamic partitioning.  Default `getDefaultWorkFile` uses
-            //     `FileOutputCommitter.getWorkPath()`, which points to the base directory of all
-            //     partitions in the case of dynamic partitioning.
-            override def getDefaultWorkFile(
-                context: TaskAttemptContext, extension: String): Path = {
-              val configuration = context.getConfiguration
-              val uniqueWriteJobId = configuration.get(
-                CreateDataSourceTableUtils.DATASOURCE_WRITEJOBUUID)
-              val taskAttemptId = context.getTaskAttemptID
-              val split = taskAttemptId.getTaskID.getId
-              val bucketString = bucketId.map(BucketingUtils.bucketIdToString).getOrElse("")
-              // It has the `.parquet` extension at the end because (de)compression tools
-              // such as gunzip would not be able to decompress this as the compression
-              // is not applied on this whole file but on each "page" in Parquet format.
-              new Path(path, f"part-r-$split%05d-$uniqueWriteJobId$bucketString$extension")
-            }
-          }
-        }
+    throw new UnsupportedOperationException(
+      "this verison of newInstance not supported for " +
+        "ParquetOutputWriterFactory")
+  }
+}
 
-        outputFormat.getRecordWriter(context)
+
+// NOTE: This class is instantiated and used on executor side only, no need to be serializable.
+private[sql] class ParquetOutputWriter(
+    path: String,
+    bucketId: Option[Int],
+    context: TaskAttemptContext)
+  extends OutputWriter {
+
+  private val recordWriter: RecordWriter[Void, InternalRow] = {
+    val outputFormat = {
+      new ParquetOutputFormat[InternalRow]() {
+        // Here we override `getDefaultWorkFile` for two reasons:
+        //
+        //  1. To allow appending.  We need to generate unique output file names to avoid
+        //     overwriting existing files (either exist before the write job, or are just written
+        //     by other tasks within the same write job).
+        //
+        //  2. To allow dynamic partitioning.  Default `getDefaultWorkFile` uses
+        //     `FileOutputCommitter.getWorkPath()`, which points to the base directory of all
+        //     partitions in the case of dynamic partitioning.
+        override def getDefaultWorkFile(context: TaskAttemptContext, extension: String): Path = {
+          val configuration = context.getConfiguration
+          val uniqueWriteJobId = configuration.get(
+            CreateDataSourceTableUtils.DATASOURCE_WRITEJOBUUID)
+          val taskAttemptId = context.getTaskAttemptID
+          val split = taskAttemptId.getTaskID.getId
+          val bucketString = bucketId.map(BucketingUtils.bucketIdToString).getOrElse("")
+          // It has the `.parquet` extension at the end because (de)compression tools
+          // such as gunzip would not be able to decompress this as the compression
+          // is not applied on this whole file but on each "page" in Parquet format.
+          new Path(path, f"part-r-$split%05d-$uniqueWriteJobId$bucketString$extension")
+        }
       }
     }
+
+    outputFormat.getRecordWriter(context)
   }
+
+  override def write(row: Row): Unit = throw new UnsupportedOperationException("call writeInternal")
+
+  override protected[sql] def writeInternal(row: InternalRow): Unit = recordWriter.write(null, row)
+
+  override def close(): Unit = recordWriter.close(context)
 }
 
 private[sql] object ParquetFileFormat extends Logging {
@@ -568,63 +639,6 @@ private[sql] object ParquetFileFormat extends Logging {
     }
 
     overrideMinSplitSize(parquetBlockSize, job.getConfiguration)
-  }
-
-  /**
-   * Get a [[Configuration]] from the given job, and then setup writing parameters into it.
-   * Both continuous-queries writing process and non-continuous-queries writing process will
-   * call this function.
-   */
-  private[parquet] def prepareConfForWriting(
-      job: Job,
-      sqlConf: SQLConf,
-      options: Map[String, String],
-      dataSchema: StructType,
-      setupCommitterClassFunc: (Configuration) => Unit): Configuration = {
-    val parquetOptions = new ParquetOptions(options, sqlConf)
-    val conf = ContextUtil.getConfiguration(job)
-
-    // We may need to setup committer class if under non-continuous-queries scenario
-    setupCommitterClassFunc(conf)
-
-    // We're not really using `ParquetOutputFormat[Row]` for writing data here, because we override
-    // it in `ParquetOutputWriter` to support appending and dynamic partitioning.  The reason why
-    // we set it here is to setup the output committer class to `ParquetOutputCommitter`, which is
-    // bundled with `ParquetOutputFormat[Row]`.
-    job.setOutputFormatClass(classOf[ParquetOutputFormat[Row]])
-
-    ParquetOutputFormat.setWriteSupportClass(job, classOf[CatalystWriteSupport])
-
-    // We want to clear this temporary metadata from saving into Parquet file.
-    // This metadata is only useful for detecting optional columns when pushdowning filters.
-    val dataSchemaToWrite = StructType.removeMetadata(
-      StructType.metadataKeyForOptionalField,
-      dataSchema).asInstanceOf[StructType]
-    CatalystWriteSupport.setSchema(dataSchemaToWrite, conf)
-
-    // Sets flags for `CatalystSchemaConverter` (which converts Catalyst schema to Parquet schema)
-    // and `CatalystWriteSupport` (writing actual rows to Parquet files).
-    conf.set(
-      SQLConf.PARQUET_BINARY_AS_STRING.key,
-      sqlConf.isParquetBinaryAsString.toString)
-
-    conf.set(
-      SQLConf.PARQUET_INT96_AS_TIMESTAMP.key,
-      sqlConf.isParquetINT96AsTimestamp.toString)
-
-    conf.set(
-      SQLConf.PARQUET_WRITE_LEGACY_FORMAT.key,
-      sqlConf.writeLegacyParquetFormat.toString)
-
-    // Sets compression scheme
-    conf.set(ParquetOutputFormat.COMPRESSION, parquetOptions.compressionCodec)
-
-    // SPARK-15719: Disables writing Parquet summary files by default.
-    if (conf.get(ParquetOutputFormat.ENABLE_JOB_SUMMARY) == null) {
-      conf.setBoolean(ParquetOutputFormat.ENABLE_JOB_SUMMARY, false)
-    }
-
-    conf
   }
 
   private[parquet] def readSchema(
