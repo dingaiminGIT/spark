@@ -18,6 +18,7 @@
 package org.apache.spark.sql.streaming
 
 import java.io.File
+import java.util.UUID
 
 import org.apache.commons.io.FileUtils
 import org.apache.commons.io.filefilter.{DirectoryFileFilter, RegexFileFilter}
@@ -432,11 +433,13 @@ class FileStreamSinkSuite extends StreamTest {
   private def checkFilesExist(dir: File, expectedFiles: Seq[String], msg: String): Unit = {
     import scala.collection.JavaConverters._
     val files =
+      // To filter out files like '.some_file.txt.gz.crc', but to keep 'some_file.txt.gz'
       FileUtils.listFiles(dir, new RegexFileFilter("[^.].*"), DirectoryFileFilter.DIRECTORY)
         .asScala
         .map(_.getCanonicalPath)
 
     expectedFiles.foreach { f =>
+      // we examine the prefix, but not the extension
       assert(files.map(_.startsWith(f)).reduce(_ || _),
         s"\n$msg\nexpected file:\n\t$f\nfound files:\n${files.mkString("\n\t")}")
     }
@@ -445,29 +448,25 @@ class FileStreamSinkSuite extends StreamTest {
   test("getSinkFileStatusUsingGlob()") {
     val dir = Utils.createTempDir(namePrefix = "streaming").getCanonicalPath
 
-    //  file_1_xxx would be something like "$dir/file_1.fe673e8d-1880-4322-927b-32af3a3f1a78"
-    val file_1_xxx = Utils.tempFileWith(new File(dir, "file_1"))
-    file_1_xxx.createNewFile()
+    val uuid = UUID.randomUUID().toString
+    val file = new File(dir, uuid + ".txt.gz")
+    file.createNewFile()
 
-    val file1SinkFileStatus =
-      FileStreamSink.getSinkFileStatusUsingGlob(Seq(new Path(dir, "file_1")), new Configuration)
-    assert(file1SinkFileStatus != null)
-    assert(file1SinkFileStatus.length == 1)
-    assert(file1SinkFileStatus.head.path == "file://" + file_1_xxx.getAbsoluteFile)
-    assert(file1SinkFileStatus.head.isDir == false)
-    assert(file1SinkFileStatus.head.action == "add")
-    println(file_1_xxx.getAbsoluteFile)
+    val fileSinkFileStatus =
+      FileStreamSink.getSinkFileStatusUsingGlob(Seq(new Path(dir, uuid)), new Configuration)
+    assert(fileSinkFileStatus != null)
+    assert(fileSinkFileStatus.length == 1)
+    assert(fileSinkFileStatus.head.path == "file://" + file.getAbsoluteFile)
+    assert(fileSinkFileStatus.head.isDir == false)
+    assert(fileSinkFileStatus.head.action == "add")
+    println(file.getAbsoluteFile)
 
-    //  file_2_xxx would be something like "$dir/file_2.fe673e8d-1880-4322-927b-32af3a3f1a78"
-    val file_2_xxx = Utils.tempFileWith(new File(dir, "file_2"))
-    file_2_xxx.createNewFile()
-    //  file_2_yyy would be something like "$dir/file_2.8486e440-35ba-4a7f-bb5d-3b0ddac65830"
-    val file_2_yyy = Utils.tempFileWith(new File(dir, "file_2"))
-    file_2_yyy.createNewFile()
+    val file2 = new File(dir, uuid + ".unknown")
+    file2.createNewFile()
 
     // We would expect only one file being matched, so it should fail if more than one file match
     val e = intercept[AssertionError](
-      FileStreamSink.getSinkFileStatusUsingGlob(Seq(new Path(dir, "file_2")), new Configuration))
+      FileStreamSink.getSinkFileStatusUsingGlob(Seq(new Path(dir, uuid)), new Configuration))
     Seq("unexpected number", "starting with").foreach { s =>
       assert(e.getMessage.toLowerCase.contains(s.toLowerCase))
     }
