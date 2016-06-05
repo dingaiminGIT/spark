@@ -35,30 +35,33 @@ import org.apache.spark.sql.execution.datasources.text.TextFileFormat
 import org.apache.spark.sql.execution.streaming._
 import org.apache.spark.sql.functions._
 import org.apache.spark.sql.sources.DataSourceRegister
-import org.apache.spark.sql.test.SharedSQLContext
 import org.apache.spark.sql.types._
 import org.apache.spark.util.Utils
 
 class FileStreamSinkSuite extends StreamTest {
   import testImplicits._
 
-  test("FileStreamSinkWriter - csv - unpartitioned data") {
-    testUnpartitionedData(new CSVFileFormat)
+  val COMPRESSION_CODECS = Seq("none", "gzip")
+
+  test("FileStreamSinkWriter - csv - unpartitioned data - codecs: none/gzip") {
+    COMPRESSION_CODECS.foreach { codec => testUnpartitionedData(new CSVFileFormat, codec) }
   }
 
-  test("FileStreamSinkWriter - json - unpartitioned data") {
-    testUnpartitionedData(new JsonFileFormat)
+  test("FileStreamSinkWriter - json - unpartitioned data - codecs: none/gzip") {
+    COMPRESSION_CODECS.foreach { codec => testUnpartitionedData(new JsonFileFormat, codec) }
   }
 
-  test("FileStreamSinkWriter - parquet - unpartitioned data") {
-    testUnpartitionedData(new ParquetFileFormat)
+  test("FileStreamSinkWriter - parquet - unpartitioned data - codecs: none/gzip") {
+    COMPRESSION_CODECS.foreach { codec => testUnpartitionedData(new ParquetFileFormat, codec) }
   }
 
-  test("FileStreamSinkWriter - text - unpartitioned data") {
-    testUnpartitionedData(new TextFileFormat)
+  test("FileStreamSinkWriter - text - unpartitioned data - codecs: none/gzip") {
+    COMPRESSION_CODECS.foreach { codec => testUnpartitionedData(new TextFileFormat, codec) }
   }
 
-  private def testUnpartitionedData(fileFormat: FileFormat with DataSourceRegister) {
+  private def testUnpartitionedData(
+      fileFormat: FileFormat with DataSourceRegister,
+      codec: String) {
     val path = Utils.createTempDir()
     path.delete()
 
@@ -85,7 +88,12 @@ class FileStreamSinkSuite extends StreamTest {
         }
 
       val writer = new FileStreamSinkWriter(
-        df, fileFormat, path.toString, partitionColumnNames = Nil, hadoopConf, Map.empty)
+        df,
+        fileFormat,
+        path.toString,
+        partitionColumnNames = Nil,
+        hadoopConf,
+        Map("compression" -> codec))
       writer.write().map(_.path.stripPrefix("file://"))
     }
 
@@ -108,23 +116,25 @@ class FileStreamSinkSuite extends StreamTest {
         (0 until 20).map(_.toString).map { if (testingText) Row(_) else Row(_, "foo")} )
   }
 
-  test("FileStreamSinkWriter - csv - partitioned data") {
-    testPartitionedData(new csv.CSVFileFormat())
+  test("FileStreamSinkWriter - csv - partitioned data - codecs: none/gzip") {
+    COMPRESSION_CODECS.foreach { codec => testPartitionedData(new csv.CSVFileFormat(), codec) }
   }
 
-  test("FileStreamSinkWriter - json - partitioned data") {
-    testPartitionedData(new JsonFileFormat)
+  test("FileStreamSinkWriter - json - partitioned data - codecs: none/gzip") {
+    COMPRESSION_CODECS.foreach { codec => testPartitionedData(new JsonFileFormat, codec) }
   }
 
-  test("FileStreamSinkWriter - parquet - partitioned data") {
-    testPartitionedData(new ParquetFileFormat)
+  test("FileStreamSinkWriter - parquet - partitioned data - codecs: none/gzip") {
+    COMPRESSION_CODECS.foreach { codec => testPartitionedData(new ParquetFileFormat, codec) }
   }
 
-  test("FileStreamSinkWriter - text - partitioned data") {
-    testPartitionedData(new TextFileFormat)
+  test("FileStreamSinkWriter - text - partitioned data - codecs: none/gzip") {
+    COMPRESSION_CODECS.foreach { codec => testPartitionedData(new TextFileFormat, codec) }
   }
 
-  private def testPartitionedData(fileFormat: FileFormat with DataSourceRegister) {
+  private def testPartitionedData(
+      fileFormat: FileFormat with DataSourceRegister,
+      codec: String) {
     implicit val e = ExpressionEncoder[java.lang.Long]
     val path = Utils.createTempDir()
     path.delete()
@@ -149,7 +159,12 @@ class FileStreamSinkSuite extends StreamTest {
         }
       require(df.rdd.partitions.size === numPartitions)
       val writer = new FileStreamSinkWriter(
-        df, fileFormat, path.toString, partitionColumnNames = Seq("id"), hadoopConf, Map.empty)
+        df,
+        fileFormat,
+        path.toString,
+        partitionColumnNames = Seq("id"),
+        hadoopConf,
+        Map("compression" -> codec))
       writer.write().map(_.path.stripPrefix("file://"))
     }
 
@@ -195,24 +210,33 @@ class FileStreamSinkSuite extends StreamTest {
         answer1 ++ answer2)
   }
 
-  test("FileStreamSink - csv - unpartitioned writing and batch reading") {
-    testUnpartitionedWritingAndBatchReading(new CSVFileFormat)
+  test("csv - unpartitioned writing and batch reading - codecs: none/gzip") {
+    COMPRESSION_CODECS.foreach { codec =>
+      testUnpartitionedWritingAndBatchReading(new CSVFileFormat, codec)
+    }
   }
 
-  test("FileStreamSink - json - unpartitioned writing and batch reading") {
-    testUnpartitionedWritingAndBatchReading(new JsonFileFormat)
+  test("json - unpartitioned writing and batch reading - codecs: none/gzip") {
+    COMPRESSION_CODECS.foreach { codec =>
+      testUnpartitionedWritingAndBatchReading(new JsonFileFormat, codec)
+    }
   }
 
-  test("FileStreamSink - parquet - unpartitioned writing and batch reading") {
-    testUnpartitionedWritingAndBatchReading(new ParquetFileFormat)
+  test("parquet - unpartitioned writing and batch reading - codecs: none/gzip") {
+    COMPRESSION_CODECS.foreach { codec =>
+      testUnpartitionedWritingAndBatchReading(new ParquetFileFormat, codec)
+    }
   }
 
-  test("FileStreamSink - text - unpartitioned writing and batch reading") {
-    testUnpartitionedWritingAndBatchReading(new TextFileFormat)
+  test("text - unpartitioned writing and batch reading - codecs: none/gzip") {
+    COMPRESSION_CODECS.foreach { codec =>
+      testUnpartitionedWritingAndBatchReading(new TextFileFormat, codec)
+    }
   }
 
   private def testUnpartitionedWritingAndBatchReading(
-      fileFormat: FileFormat with DataSourceRegister) {
+      fileFormat: FileFormat with DataSourceRegister,
+      codec: String) {
 
     val inputData = MemoryStream[String]
     val df = inputData.toDF()
@@ -227,6 +251,7 @@ class FileStreamSinkSuite extends StreamTest {
         df.write
           .format(fileFormat.shortName())
           .option("checkpointLocation", checkpointDir)
+          .option("compression", codec)
           .startStream(outputDir)
 
       inputData.addData("1", "2", "3")
@@ -245,24 +270,33 @@ class FileStreamSinkSuite extends StreamTest {
     }
   }
 
-  test("FileStreamSink - csv - partitioned writing and batch reading") {
-    testPartitionedWritingAndBatchReading(new CSVFileFormat)
+  test("FileStreamSink - csv - partitioned writing and batch reading - codecs: none/gzip") {
+    COMPRESSION_CODECS.foreach { codec =>
+      testPartitionedWritingAndBatchReading(new CSVFileFormat, codec)
+    }
   }
 
-  test("FileStreamSink - json - partitioned writing and batch reading") {
-    testPartitionedWritingAndBatchReading(new JsonFileFormat)
+  test("FileStreamSink - json - partitioned writing and batch reading - codecs: none/gzip") {
+    COMPRESSION_CODECS.foreach { codec =>
+      testPartitionedWritingAndBatchReading(new JsonFileFormat, codec)
+    }
   }
 
-  test("FileStreamSink - parquet - partitioned writing and batch reading") {
-    testPartitionedWritingAndBatchReading(new ParquetFileFormat)
+  test("FileStreamSink - parquet - partitioned writing and batch reading - codecs: none/gzip") {
+    COMPRESSION_CODECS.foreach {
+      codec => testPartitionedWritingAndBatchReading(new ParquetFileFormat, codec)
+    }
   }
 
-  test("FileStreamSink - text - partitioned writing and batch reading") {
-    testPartitionedWritingAndBatchReading(new TextFileFormat)
+  test("FileStreamSink - text - partitioned writing and batch reading - codecs: none/gzip") {
+    COMPRESSION_CODECS.foreach {
+      codec => testPartitionedWritingAndBatchReading(new TextFileFormat, codec)
+    }
   }
 
   private def testPartitionedWritingAndBatchReading(
-      fileFormat: FileFormat with DataSourceRegister) {
+      fileFormat: FileFormat with DataSourceRegister,
+      codec: String) {
 
     val inputData = MemoryStream[Int]
     val ds = inputData.toDS()
@@ -292,6 +326,7 @@ class FileStreamSinkSuite extends StreamTest {
         sqlContext
           .read
           .format(fileFormat.shortName())
+          .option("compression", codec)
           .option("header", "true") // this is only for `cvs` to load column names back from files
           .load(outputDir)
 
@@ -397,13 +432,12 @@ class FileStreamSinkSuite extends StreamTest {
   private def checkFilesExist(dir: File, expectedFiles: Seq[String], msg: String): Unit = {
     import scala.collection.JavaConverters._
     val files =
-      FileUtils.listFiles(dir, new RegexFileFilter("[^.]+"), DirectoryFileFilter.DIRECTORY)
+      FileUtils.listFiles(dir, new RegexFileFilter("[^.].*"), DirectoryFileFilter.DIRECTORY)
         .asScala
         .map(_.getCanonicalPath)
-        .toSet
 
     expectedFiles.foreach { f =>
-      assert(files.contains(f),
+      assert(files.map(_.startsWith(f)).reduce(_ || _),
         s"\n$msg\nexpected file:\n\t$f\nfound files:\n${files.mkString("\n\t")}")
     }
   }
