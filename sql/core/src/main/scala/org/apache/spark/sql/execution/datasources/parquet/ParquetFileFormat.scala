@@ -443,7 +443,7 @@ private[parquet] class BatchParquetOutputWriterFactory extends OutputWriterFacto
       bucketId: Option[Int],
       dataSchema: StructType,
       context: TaskAttemptContext): OutputWriter = {
-    // Return a 'batch' ParquetOutputWriter
+    // Returns a 'batch' ParquetOutputWriter
     new ParquetOutputWriterBase(context) {
       private[parquet] override val recordWriter: RecordWriter[Void, InternalRow] = {
         val outputFormat = {
