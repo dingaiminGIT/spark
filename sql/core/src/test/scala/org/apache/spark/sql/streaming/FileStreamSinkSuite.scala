@@ -459,7 +459,6 @@ class FileStreamSinkSuite extends StreamTest {
     assert(fileSinkFileStatus.head.path == "file://" + file.getAbsoluteFile)
     assert(fileSinkFileStatus.head.isDir == false)
     assert(fileSinkFileStatus.head.action == "add")
-    println(file.getAbsoluteFile)
 
     val file2 = new File(dir, uuid + ".unknown")
     file2.createNewFile()
