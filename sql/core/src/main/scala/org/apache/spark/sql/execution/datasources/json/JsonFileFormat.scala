@@ -246,6 +246,11 @@ private[json] abstract class JsonOutputWriterBase(
 }
 
 private[json] object JsonFileFormat {
+  /**
+   * Setup writing configurations into the given [[Configuration]].
+   * Both continuous-queries writing process and non-continuous-queries writing process will
+   * call this function.
+   */
   private[json] def prepareConfForWriting(
       conf: Configuration,
       options: Map[String, String]): Unit = {

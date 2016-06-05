@@ -147,6 +147,12 @@ object CSVRelation extends Logging {
     }
   }
 
+  /**
+   * Setup writing configurations into the given [[Configuration]], and then return the
+   * wrapped [[CSVOptions]].
+   * Both continuous-queries writing process and non-continuous-queries writing process will
+   * call this function.
+   */
   private[csv] def prepareConfForWriting(
       conf: Configuration,
       options: Map[String, String]): CSVOptions = {

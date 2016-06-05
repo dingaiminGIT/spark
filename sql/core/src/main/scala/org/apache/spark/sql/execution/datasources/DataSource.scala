@@ -247,7 +247,7 @@ case class DataSource(
       case s: StreamSinkProvider =>
         s.createSink(sparkSession.sqlContext, options, partitionColumns, outputMode)
 
-      // TODO: Remove the `isInstanceOf` check when all formats have been ported
+      // TODO: Remove the `isInstanceOf` check when other formats have been ported
       case fileFormat: FileFormat
         if (fileFormat.isInstanceOf[CSVFileFormat]
           || fileFormat.isInstanceOf[JsonFileFormat]

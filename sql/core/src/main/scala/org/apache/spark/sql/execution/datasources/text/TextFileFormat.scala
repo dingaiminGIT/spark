@@ -211,6 +211,11 @@ private[text] class StreamingTextOutputWriterFactory(
 }
 
 private[text] object TextFileFormat {
+  /**
+   * Setup writing configurations into the given [[Configuration]].
+   * Both continuous-queries writing process and non-continuous-queries writing process will
+   * call this function.
+   */
   private[text] def prepareConfForWriting(
       conf: Configuration,
       options: Map[String, String]): Unit = {
