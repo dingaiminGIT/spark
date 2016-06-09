@@ -95,7 +95,10 @@ class FileStreamSinkSuite extends StreamTest {
         partitionColumnNames = Nil,
         hadoopConf,
         Map("compression" -> codec))
-      writer.write().map(_.path.stripPrefix("file://"))
+      // `path` would be like "file:///some/path/..." if run on Hadoop 2.2.0
+      // `path` would be like "file:/some/path/..."   if run on Hadoop 2.3.0 and onwards
+      // so path.stripPrefix("file://").stripPrefix("file:") would give us "/some/path/..."
+      writer.write().map(_.path.stripPrefix("file://").stripPrefix("file:"))
     }
 
     // Write and check whether new files are written correctly
@@ -166,7 +169,10 @@ class FileStreamSinkSuite extends StreamTest {
         partitionColumnNames = Seq("id"),
         hadoopConf,
         Map("compression" -> codec))
-      writer.write().map(_.path.stripPrefix("file://"))
+      // `path` would be like "file:///some/path/..." if run on Hadoop 2.2.0
+      // `path` would be like "file:/some/path/..."   if run on Hadoop 2.3.0 and onwards
+      // so path.stripPrefix("file://").stripPrefix("file:") would give us "/some/path/..."
+      writer.write().map(_.path.stripPrefix("file://").stripPrefix("file:"))
     }
 
     def checkOneFileWrittenPerKey(keys: Seq[Int], filesWritten: Seq[String]): Unit = {
@@ -456,7 +462,12 @@ class FileStreamSinkSuite extends StreamTest {
       FileStreamSink.getSinkFileStatusUsingGlob(Seq(new Path(dir, uuid)), new Configuration)
     assert(fileSinkFileStatus != null)
     assert(fileSinkFileStatus.length == 1)
-    assert(fileSinkFileStatus.head.path == "file://" + file.getAbsoluteFile)
+    assert(
+      // `path` would be like "file:///some/path/..." if run on Hadoop 2.2.0
+      // `path` would be like "file:/some/path/..."   if run on Hadoop 2.3.0 and onwards
+      // so path.stripPrefix("file://").stripPrefix("file:") would give us "/some/path/..."
+      fileSinkFileStatus.head.path.stripPrefix("file://").stripPrefix("file:")
+        == file.getCanonicalPath)
     assert(fileSinkFileStatus.head.isDir == false)
     assert(fileSinkFileStatus.head.action == "add")
 
@@ -466,7 +477,7 @@ class FileStreamSinkSuite extends StreamTest {
     // We would expect only one file being matched, so it should fail if more than one file match
     val e = intercept[AssertionError](
       FileStreamSink.getSinkFileStatusUsingGlob(Seq(new Path(dir, uuid)), new Configuration))
-    Seq("unexpected number", "starting with").foreach { s =>
+    Seq("unexpected number", "matching").foreach { s =>
       assert(e.getMessage.toLowerCase.contains(s.toLowerCase))
     }
   }

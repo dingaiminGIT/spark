@@ -43,10 +43,10 @@ object FileStreamSink {
       paths: Seq[Path], hadoopConf: Configuration): Seq[SinkFileStatus] = {
     val fs = paths.head.getFileSystem(hadoopConf)
     paths.map(path => {
-      // We're using something like '${uuid}*' to match something like "${uuid}.txt.gz" or
-      // "${uuid}.gz.parquet"
-      val fileStatuses = fs.globStatus(new Path(path.toString + "*"))
-      assert(fileStatuses.length == 1, s"Unexpected number of paths starting with ${path}")
+      // We're using '${uuid}*' to match paths like "${uuid}.txt.gz" or "${uuid}.gz.parquet"
+      val pattern = new Path(fs.makeQualified(path).toUri.toString + "*")
+      val fileStatuses = fs.globStatus(pattern)
+      assert(fileStatuses.length == 1, s"Unexpected number of paths matching ${pattern}")
       SinkFileStatus(fileStatuses.head)
     })
   }
