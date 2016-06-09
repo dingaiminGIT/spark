@@ -20,4 +20,5 @@
 FWDIR="$(cd "`dirname $0`"/..; pwd)"
 cd "$FWDIR"
 
-exec python -u ./dev/run-tests.py "$@"
+build/sbt -Pyarn -Phadoop-2.4 -Dhadoop.version=2.4.0 "project sql" "test-only *FileStreamSink*"
+# exec python -u ./dev/run-tests.py "$@"
