@@ -148,7 +148,10 @@ private[spark] class TaskSchedulerImpl(
   override def start() {
     backend.start()
 
+    /* Orig:
     if (!isLocal && conf.getBoolean("spark.speculation", false)) {
+    */
+    if (true) {
       logInfo("Starting speculative execution thread")
       speculationScheduler.scheduleAtFixedRate(new Runnable {
         override def run(): Unit = Utils.tryOrStopSparkContext(sc) {
