@@ -83,8 +83,10 @@ private[spark] class SortShuffleWriter[K, V, C](
       if (success) {
         return Option(mapStatus)
       } else {
+        /*
         // The map task failed, so delete our output data.
         shuffleBlockResolver.removeDataByMap(dep.shuffleId, mapId)
+        */
         return None
       }
     } finally {

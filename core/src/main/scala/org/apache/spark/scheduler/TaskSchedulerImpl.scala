@@ -68,7 +68,7 @@ private[spark] class TaskSchedulerImpl(
   // Duplicate copies of a task will only be launched if the original copy has been running for
   // at least this amount of time. This is to avoid the overhead of launching speculative copies
   // of tasks that are very short.
-  val MIN_TIME_TO_SPECULATION = 100
+  val MIN_TIME_TO_SPECULATION = 1
 
   private val speculationScheduler =
     ThreadUtils.newDaemonSingleThreadScheduledExecutor("task-scheduler-speculation")
@@ -154,7 +154,10 @@ private[spark] class TaskSchedulerImpl(
   override def start() {
     backend.start()
 
+    /* Orig:
     if (!isLocal && conf.getBoolean("spark.speculation", false)) {
+    */
+    if (true) {
       logInfo("Starting speculative execution thread")
       speculationScheduler.scheduleAtFixedRate(new Runnable {
         override def run(): Unit = Utils.tryOrStopSparkContext(sc) {
