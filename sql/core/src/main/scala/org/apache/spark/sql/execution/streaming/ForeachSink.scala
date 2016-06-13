@@ -17,7 +17,7 @@
 
 package org.apache.spark.sql.execution.streaming
 
-import org.apache.spark.TaskContext
+import org.apache.spark.{TaskContext, TaskKilledException}
 import org.apache.spark.sql.{DataFrame, Encoder, ForeachWriter}
 
 /**
@@ -31,22 +31,57 @@ class ForeachSink[T : Encoder](writer: ForeachWriter[T]) extends Sink with Seria
 
   override def addBatch(batchId: Long, data: DataFrame): Unit = {
     data.as[T].foreachPartition { iter =>
-      if (writer.open(TaskContext.getPartitionId(), batchId)) {
-        var isFailed = false
-        try {
-          while (iter.hasNext) {
-            writer.process(iter.next())
+      def normalProcess() =
+        if (writer.open(TaskContext.getPartitionId(), batchId)) {
+          var isFailed = false
+          try {
+            while (iter.hasNext) {
+              writer.process(iter.next())
+            }
+          } catch {
+            case _: InterruptedException if TaskContext.get().isInterrupted() =>
+              isFailed = true
+              writer.close(new TaskKilledException)
+            case e: Throwable =>
+              isFailed = true
+              writer.close(e)
           }
-        } catch {
-          case e: Throwable =>
-            isFailed = true
-            writer.close(e)
-        }
-        if (!isFailed) {
+          if (!isFailed) {
+            writer.close(null)
+          }
+        } else {
           writer.close(null)
         }
-      } else {
-        writer.close(null)
+
+      /*
+       * Below we make sure writer.close() would be called at least once, even if the current `Task`
+       * gets killed by `TaskRunner`.
+       *
+       * An alternative way of doing this is call writer.close() in `TaskContext` callbacks:
+       * ```
+       * // failure callback
+       * TaskContext.get().addTaskFailureListener((con: TaskContext, t: Throwable) => {
+       *   writer.close(t)
+       * })
+       * ```
+       * or
+       * ```
+       * // completion callback
+       * TaskContext.get().addTaskCompletionListener((con: TaskContext) => {
+       *   writer.close(null)
+       * })
+       * ```
+       *
+       * The reason we do this in a try-catch block instead of in the TaskContext callbacks is
+       * that, we want to consume this `InterruptedException` rather than re-throw it and cause the
+       * whole job to fail.
+       */
+      try {
+        normalProcess()
+      }
+      catch {
+        case _: InterruptedException if TaskContext.get().isInterrupted() =>
+          writer.close(new TaskKilledException)
       }
     }
   }

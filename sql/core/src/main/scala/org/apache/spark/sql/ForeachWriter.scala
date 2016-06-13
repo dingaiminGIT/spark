@@ -79,6 +79,10 @@ abstract class ForeachWriter[T] extends Serializable {
    * processed, it can return `false` to skip the further data processing. However, `close` still
    * will be called for cleaning up resources.
    *
+   * Another thing worthy noticing is, when `spark.speculation` (which defaults to `false`) is set
+   * to `true`, more than one writer instance could run simultaneously on different executors for
+   * the same `partitionId` and `version`. Thus open() should take care of such cases.
+   *
    * @param partitionId the partition id.
    * @param version a unique id for data deduplication.
    * @return `true` if the corresponding partition and version id should be processed. `false`
@@ -89,6 +93,10 @@ abstract class ForeachWriter[T] extends Serializable {
   /**
    * Called to process the data in the executor side. This method will be called only when `open`
    * returns `true`.
+   *
+   * One thing worthy noticing is, when `spark.speculation` (which defaults to `false`) is set
+   * to `true`, more than one writer instance could run simultaneously on different executors for
+   * the same `partitionId` and `version`. Thus process() should take care of such cases.
    */
   def process(value: T): Unit
 
@@ -98,6 +106,10 @@ abstract class ForeachWriter[T] extends Serializable {
    * `close` won't be called in the following cases:
    *  - JVM crashes without throwing a `Throwable`
    *  - `open` throws a `Throwable`.
+   *
+   * Another thing worthy noticing is, when `spark.speculation` (which defaults to `false`) is set
+   * to `true`, more than one writer instance could run simultaneously on different executors for
+   * the same `partitionId` and `version`. Thus close() should take care of such cases.
    *
    * @param errorOrNull the error thrown during processing data or null if there was no error.
    */
