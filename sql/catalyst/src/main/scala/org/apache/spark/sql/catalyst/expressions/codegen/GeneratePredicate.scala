@@ -62,7 +62,7 @@ object GeneratePredicate extends CodeGenerator[Expression, (InternalRow) => Bool
       }"""
 
     val code = CodeFormatter.stripOverlappingComments(
-      new CodeAndComment(codeBody, ctx.getPlaceHolderToComments()))
+      new CodeAndComment(codeBody, ctx.getPlaceHolderToComments(), ctx.getFuncToSizeHintMap))
     logDebug(s"Generated predicate '$predicate':\n${CodeFormatter.format(code)}")
 
     val p = CodeGenerator.compile(code).generate(ctx.references.toArray).asInstanceOf[Predicate]

@@ -204,7 +204,8 @@ class CodegenContext {
   def addNewFunction(
       funcName: String,
       funcCode: String,
-      sizeHint: CodegenContext.FunctionSizeHint = CodegenContext.NO_OP): Unit = {
+      sizeHint: CodegenContext.FunctionSizeHint = CodegenContext.ERROR_IF_EXCEEDS_JIT_LIMIT): Unit
+    = {
     addedFunctions += ((funcName, (funcCode, sizeHint)))
   }
 
@@ -819,7 +820,7 @@ abstract class GeneratedClass {
 class CodeAndComment(
     val body: String,
     val comment: collection.Map[String, String],
-    val funcSizeHints: collection.Map[String, CodegenContext.FunctionSizeHint] = Map())
+    val funcSizeHints: collection.Map[String, CodegenContext.FunctionSizeHint])
   extends Serializable {
   override def equals(that: Any): Boolean = that match {
     case t: CodeAndComment if t.body == body => true

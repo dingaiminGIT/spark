@@ -140,7 +140,7 @@ object GenerateOrdering extends CodeGenerator[Seq[SortOrder], Ordering[InternalR
       }"""
 
     val code = CodeFormatter.stripOverlappingComments(
-      new CodeAndComment(codeBody, ctx.getPlaceHolderToComments()))
+      new CodeAndComment(codeBody, ctx.getPlaceHolderToComments(), ctx.getFuncToSizeHintMap))
     logDebug(s"Generated Ordering by ${ordering.mkString(",")}:\n${CodeFormatter.format(code)}")
 
     CodeGenerator.compile(code).generate(ctx.references.toArray).asInstanceOf[BaseOrdering]

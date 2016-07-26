@@ -26,7 +26,7 @@ class CodeFormatterSuite extends SparkFunSuite {
   def testCase(name: String)(
       input: String, comment: Map[String, String] = Map.empty)(expected: String): Unit = {
     test(name) {
-      val sourceCode = new CodeAndComment(input.trim, comment)
+      val sourceCode = new CodeAndComment(input.trim, comment, Map())
       if (CodeFormatter.format(sourceCode).trim !== expected.trim) {
         fail(
           s"""
@@ -47,7 +47,8 @@ class CodeFormatterSuite extends SparkFunSuite {
         "project_c4" -> "// (((input[0, bigint, false] + 1) + 2) + 3))",
         "project_c3" -> "// ((input[0, bigint, false] + 1) + 2)",
         "project_c2" -> "// (input[0, bigint, false] + 1)"
-      ))
+      ),
+      Map())
 
     val reducedCode = CodeFormatter.stripOverlappingComments(code)
     assert(reducedCode.body === "/*project_c4*/")

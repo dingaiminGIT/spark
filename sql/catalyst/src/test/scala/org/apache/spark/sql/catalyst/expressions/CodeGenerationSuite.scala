@@ -76,7 +76,7 @@ class CodeGenerationSuite extends SparkFunSuite with ExpressionEvalHelper {
     val funcSizeHints = Map("inc" -> CodegenContext.ERROR_IF_EXCEEDS_JIT_LIMIT)
 
     // compilation should pass against default empty funcSizeHints
-    val code1 = new CodeAndComment(genCode(20000), emptyComments)
+    val code1 = new CodeAndComment(genCode(20000), emptyComments, Map())
     CodeGenerator.compile(code1)
 
     // compilation should pass because 1000 loc would be compiled to ~3K bytes
