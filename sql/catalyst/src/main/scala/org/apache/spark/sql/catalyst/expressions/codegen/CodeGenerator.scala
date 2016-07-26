@@ -954,6 +954,11 @@ object CodeGenerator extends Logging {
     codeAttrField.setAccessible(true)
     classes.foreach { case (_, classBytes) =>
       CodegenMetrics.METRIC_GENERATED_CLASS_BYTECODE_SIZE.update(classBytes.length)
+      if (false) {
+        val out = new java.io.FileOutputStream(s"../${System.currentTimeMillis()}.class")
+        out.write(classBytes)
+        out.close()
+      }
       val cf = new ClassFile(new ByteArrayInputStream(classBytes))
       cf.methodInfos.asScala.foreach { method =>
         method.getAttributes().foreach { a =>
@@ -961,10 +966,11 @@ object CodeGenerator extends Logging {
             val funcSize = codeAttrField.get(a).asInstanceOf[Array[Byte]].length
             CodegenMetrics.METRIC_GENERATED_METHOD_BYTECODE_SIZE.update(funcSize)
             if (funcSize > CodegenContext.JIT_HUGE_METHOD_LIMIT) {
+              val methodName = method.getName.stripSuffix("$")
               lazy val ce = new CompileException(
-                s"Method ${cf.getThisClassName}.${method.getName} should not exceed 8K size " +
+                s"Method ${cf.getThisClassName}.${methodName} should not exceed 8K size " +
                   s"limit -- observed size is $funcSize.", null)
-              functionSizeHints.getOrElse(method.getName, CodegenContext.NO_OP) match {
+              functionSizeHints.getOrElse(methodName, CodegenContext.NO_OP) match {
                 case CodegenContext.NO_OP => // do nothing
                 case CodegenContext.WARN_IF_EXCEEDS_JIT_LIMIT =>
                   logWarning("You hit a code-gen compilation issue. Please report this warning " +
