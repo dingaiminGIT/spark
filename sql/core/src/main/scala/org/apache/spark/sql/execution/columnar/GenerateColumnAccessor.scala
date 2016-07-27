@@ -225,7 +225,7 @@ object GenerateColumnAccessor extends CodeGenerator[Seq[DataType], ColumnarItera
       }"""
 
     val code = CodeFormatter.stripOverlappingComments(
-      new CodeAndComment(codeBody, ctx.getPlaceHolderToComments()))
+      new CodeAndComment(codeBody, ctx.getPlaceHolderToComments(), ctx.getFuncToSizeHintMap))
     logDebug(s"Generated ColumnarIterator:\n${CodeFormatter.format(code)}")
 
     CodeGenerator.compile(code).generate(Array.empty).asInstanceOf[ColumnarIterator]
