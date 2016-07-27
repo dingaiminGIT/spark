@@ -1,0 +1,5180 @@
+package org.apache.spark.sql.catalyst.expressions;
+
+import org.apache.spark.unsafe.Platform;
+import org.apache.spark.sql.catalyst.InternalRow;
+import org.apache.spark.sql.catalyst.expressions.UnsafeRow;
+import org.apache.spark.unsafe.types.UTF8String;
+import org.apache.spark.sql.types.Decimal;
+import org.apache.spark.unsafe.types.CalendarInterval;
+import org.apache.spark.sql.catalyst.util.ArrayData;
+import org.apache.spark.sql.catalyst.expressions.UnsafeArrayData;
+import org.apache.spark.sql.catalyst.util.MapData;
+import org.apache.spark.sql.catalyst.expressions.UnsafeMapData;
+import org.apache.spark.sql.catalyst.expressions.MutableRow;
+import org.apache.spark.sql.catalyst.expressions.Expression;
+import org.apache.spark.sql.catalyst.expressions.codegen.GeneratedClass;
+
+// [imports] https://github.com/apache/spark/blame/master/sql/catalyst/src/main/scala/org/apache/spark/sql/catalyst/expressions/codegen/CodeGenerator.scala
+
+public class GeneratedClass_ extends GeneratedClass {
+
+  // Error while encoding: java.util.concurrent.ExecutionException: java.lang.Exception: failed to compile: org.codehaus.commons.compiler.CompileException: Method org.apache.spark.sql.catalyst.expressions.GeneratedClass$SpecificUnsafeProjection.apply_0 should not exceed 8K size limit -- observed size is 12423.
+  /* 001 */
+  public java.lang.Object generate(Object[] references) {
+/* 002 */
+    return new SpecificUnsafeProjection(references);
+/* 003 */
+  }
+
+  /* 004 */
+/* 005 */ class SpecificUnsafeProjection
+      extends org.apache.spark.sql.catalyst.expressions.UnsafeProjection {
+
+    /* 006 */
+/* 007 */   private Object[] references;
+    /* 008 */   private java.lang.String errMsg;
+    /* 009 */   private java.lang.String errMsg1;
+    /* 010 */   private boolean MapObjects_loopIsNull43;
+    /* 011 */   private java.lang.Object MapObjects_loopValue42;
+    /* 012 */   private java.lang.String errMsg2;
+    /* 013 */   private java.lang.String errMsg3;
+    /* 014 */   private boolean MapObjects_loopIsNull45;
+    /* 015 */   private java.lang.Object MapObjects_loopValue44;
+    /* 016 */   private java.lang.String errMsg4;
+    /* 017 */   private boolean MapObjects_loopIsNull47;
+    /* 018 */   private java.lang.Object MapObjects_loopValue46;
+    /* 019 */   private java.lang.String errMsg5;
+    /* 020 */   private boolean MapObjects_loopIsNull49;
+    /* 021 */   private java.lang.Object MapObjects_loopValue48;
+    /* 022 */   private java.lang.String errMsg6;
+    /* 023 */   private boolean MapObjects_loopIsNull51;
+    /* 024 */   private java.lang.Object MapObjects_loopValue50;
+    /* 025 */   private java.lang.String errMsg7;
+    /* 026 */   private boolean MapObjects_loopIsNull53;
+    /* 027 */   private java.lang.Object MapObjects_loopValue52;
+    /* 028 */   private java.lang.String errMsg8;
+    /* 029 */   private java.lang.String errMsg9;
+    /* 030 */   private boolean MapObjects_loopIsNull55;
+    /* 031 */   private java.lang.Object MapObjects_loopValue54;
+    /* 032 */   private java.lang.String errMsg10;
+    /* 033 */   private boolean MapObjects_loopIsNull57;
+    /* 034 */   private java.lang.Object MapObjects_loopValue56;
+    /* 035 */   private boolean MapObjects_loopIsNull59;
+    /* 036 */   private java.lang.Object MapObjects_loopValue58;
+    /* 037 */   private java.lang.String errMsg11;
+    /* 038 */   private boolean MapObjects_loopIsNull61;
+    /* 039 */   private java.lang.Object MapObjects_loopValue60;
+    /* 040 */   private java.lang.String errMsg12;
+    /* 041 */   private boolean MapObjects_loopIsNull63;
+    /* 042 */   private java.lang.Object MapObjects_loopValue62;
+    /* 043 */   private java.lang.String errMsg13;
+    /* 044 */   private boolean MapObjects_loopIsNull65;
+    /* 045 */   private java.lang.Object MapObjects_loopValue64;
+    /* 046 */   private java.lang.String errMsg14;
+    /* 047 */   private Object[] values;
+    /* 048 */   private java.lang.String errMsg15;
+    /* 049 */   private boolean MapObjects_loopIsNull67;
+    /* 050 */   private java.lang.Object MapObjects_loopValue66;
+    /* 051 */   private java.lang.String errMsg16;
+    /* 052 */   private Object[] values1;
+    /* 053 */   private boolean MapObjects_loopIsNull69;
+    /* 054 */   private java.lang.Object MapObjects_loopValue68;
+    /* 055 */   private java.lang.String errMsg17;
+    /* 056 */   private java.lang.String errMsg18;
+    /* 057 */   private boolean MapObjects_loopIsNull71;
+    /* 058 */   private java.lang.Object MapObjects_loopValue70;
+    /* 059 */   private java.lang.String errMsg19;
+    /* 060 */   private Object[] values2;
+    /* 061 */   private boolean MapObjects_loopIsNull73;
+    /* 062 */   private java.lang.Object MapObjects_loopValue72;
+    /* 063 */   private java.lang.String errMsg20;
+    /* 064 */   private Object[] values3;
+    /* 065 */   private UnsafeRow result;
+    /* 066 */   private org.apache.spark.sql.catalyst.expressions.codegen.BufferHolder holder;
+    /* 067 */   private org.apache.spark.sql.catalyst.expressions.codegen.UnsafeRowWriter rowWriter;
+    /* 068 */
+    private org.apache.spark.sql.catalyst.expressions.codegen.UnsafeArrayWriter
+        arrayWriter;
+    /* 069 */
+    private org.apache.spark.sql.catalyst.expressions.codegen.UnsafeArrayWriter
+        arrayWriter1;
+    /* 070 */
+    private org.apache.spark.sql.catalyst.expressions.codegen.UnsafeArrayWriter
+        arrayWriter2;
+    /* 071 */
+    private org.apache.spark.sql.catalyst.expressions.codegen.UnsafeArrayWriter
+        arrayWriter3;
+    /* 072 */
+    private org.apache.spark.sql.catalyst.expressions.codegen.UnsafeArrayWriter
+        arrayWriter4;
+    /* 073 */
+    private org.apache.spark.sql.catalyst.expressions.codegen.UnsafeArrayWriter
+        arrayWriter5;
+    /* 074 */
+    private org.apache.spark.sql.catalyst.expressions.codegen.UnsafeArrayWriter
+        arrayWriter6;
+    /* 075 */
+    private org.apache.spark.sql.catalyst.expressions.codegen.UnsafeArrayWriter
+        arrayWriter7;
+    /* 076 */
+    private org.apache.spark.sql.catalyst.expressions.codegen.UnsafeArrayWriter
+        arrayWriter8;
+    /* 077 */
+    private org.apache.spark.sql.catalyst.expressions.codegen.UnsafeArrayWriter
+        arrayWriter9;
+    /* 078 */
+    private org.apache.spark.sql.catalyst.expressions.codegen.UnsafeArrayWriter
+        arrayWriter10;
+    /* 079 */
+    private org.apache.spark.sql.catalyst.expressions.codegen.UnsafeArrayWriter
+        arrayWriter11;
+    /* 080 */
+    private org.apache.spark.sql.catalyst.expressions.codegen.UnsafeArrayWriter
+        arrayWriter12;
+    /* 081 */
+    private org.apache.spark.sql.catalyst.expressions.codegen.UnsafeArrayWriter
+        arrayWriter13;
+    /* 082 */
+    private org.apache.spark.sql.catalyst.expressions.codegen.UnsafeRowWriter
+        rowWriter1;
+    /* 083 */
+    private org.apache.spark.sql.catalyst.expressions.codegen.UnsafeArrayWriter
+        arrayWriter14;
+    /* 084 */
+    private org.apache.spark.sql.catalyst.expressions.codegen.UnsafeRowWriter
+        rowWriter2;
+    /* 085 */
+    private org.apache.spark.sql.catalyst.expressions.codegen.UnsafeArrayWriter
+        arrayWriter15;
+    /* 086 */
+    private org.apache.spark.sql.catalyst.expressions.codegen.UnsafeArrayWriter
+        arrayWriter16;
+    /* 087 */
+    private org.apache.spark.sql.catalyst.expressions.codegen.UnsafeRowWriter
+        rowWriter3;
+    /* 088 */
+    private org.apache.spark.sql.catalyst.expressions.codegen.UnsafeArrayWriter
+        arrayWriter17;
+    /* 089 */
+    private org.apache.spark.sql.catalyst.expressions.codegen.UnsafeRowWriter
+        rowWriter4;
+
+    /* 090 */
+/* 091 */
+    private void apply_1(InternalRow i) {
+/* 092 */
+/* 093 */
+/* 094 */
+      boolean isNull181 = i.isNullAt(0);
+/* 095 */
+      org.apache.spark.sql.Row
+          value181 =
+          isNull181 ? null : ((org.apache.spark.sql.Row) i.get(0, null));
+/* 096 */
+/* 097 */
+      if (isNull181) {
+/* 098 */
+        throw new RuntimeException(errMsg18);
+/* 099 */
+      }
+/* 100 */
+/* 101 */
+      boolean isNull179 = false || false;
+/* 102 */
+      boolean value179 = false;
+/* 103 */
+      if (!isNull179) {
+/* 104 */
+        value179 = value181.isNullAt(6);
+/* 105 */
+      }
+/* 106 */
+      boolean isNull178 = false;
+/* 107 */
+      MapData value178 = null;
+/* 108 */
+      if (!isNull179 && value179) {
+/* 109 */
+/* 110 */
+        final MapData value183 = null;
+/* 111 */
+        isNull178 = true;
+/* 112 */
+        value178 = value183;
+/* 113 */
+      } else {
+/* 114 */
+/* 115 */
+        boolean isNull191 = i.isNullAt(0);
+/* 116 */
+        org.apache.spark.sql.Row
+            value191 =
+            isNull191 ? null : ((org.apache.spark.sql.Row) i.get(0, null));
+/* 117 */
+/* 118 */
+        if (isNull191) {
+/* 119 */
+          throw new RuntimeException(errMsg19);
+/* 120 */
+        }
+/* 121 */
+/* 122 */
+        if (false) {
+/* 123 */
+          throw new RuntimeException("The input external row cannot be null.");
+/* 124 */
+        }
+/* 125 */
+/* 126 */
+        if (value191.isNullAt(6)) {
+/* 127 */
+          throw new RuntimeException("The 6th field 'mapOfStruct' of input row " +
+/* 128 */           "cannot be null.");
+/* 129 */
+        }
+/* 130 */
+/* 131 */
+        final Object value189 = value191.get(6);
+/* 132 */
+        scala.collection.Map value188 = null;
+/* 133 */
+        if (!false) {
+/* 134 */
+          if (value189 instanceof scala.collection.Map) {
+/* 135 */
+            value188 = (scala.collection.Map) value189;
+/* 136 */
+          } else {
+/* 137 */
+            throw new RuntimeException(value189.getClass().getName() + " is not a valid " +
+/* 138 */             "external type for schema of map<struct<str:string>,struct<str:string>>");
+/* 139 */
+          }
+/* 140 */
+        }
+/* 141 */
+/* 142 */
+        boolean isNull187 = false;
+/* 143 */
+        scala.collection.Iterator value187 = null;
+/* 144 */
+        if (!isNull187) {
+/* 145 */
+/* 146 */
+          Object funcResult24 = null;
+/* 147 */
+          funcResult24 = value188.keysIterator();
+/* 148 */
+          if (funcResult24 == null) {
+/* 149 */
+            isNull187 = true;
+/* 150 */
+          } else {
+/* 151 */
+            value187 = (scala.collection.Iterator) funcResult24;
+/* 152 */
+          }
+/* 153 */
+/* 154 */
+        }
+/* 155 */
+        isNull187 = value187 == null;
+/* 156 */
+/* 157 */
+        boolean isNull186 = isNull187;
+/* 158 */
+        scala.collection.Seq value186 = null;
+/* 159 */
+        if (!isNull186) {
+/* 160 */
+/* 161 */
+          Object funcResult25 = null;
+/* 162 */
+          funcResult25 = value187.toSeq();
+/* 163 */
+          if (funcResult25 == null) {
+/* 164 */
+            isNull186 = true;
+/* 165 */
+          } else {
+/* 166 */
+            value186 = (scala.collection.Seq) funcResult25;
+/* 167 */
+          }
+/* 168 */
+/* 169 */
+        }
+/* 170 */
+        isNull186 = value186 == null;
+/* 171 */
+        ArrayData value185 = null;
+/* 172 */
+/* 173 */
+        if (!isNull186) {
+/* 174 */
+/* 175 */
+          InternalRow[] convertedArray14 = null;
+/* 176 */
+          int dataLength14 = value186.size();
+/* 177 */
+          convertedArray14 = new InternalRow[dataLength14];
+/* 178 */
+/* 179 */
+          int loopIndex14 = 0;
+/* 180 */
+          while (loopIndex14 < dataLength14) {
+/* 181 */
+            MapObjects_loopValue70 = (java.lang.Object) (value186.apply(loopIndex14));
+/* 182 */
+            MapObjects_loopIsNull71 = MapObjects_loopValue70 == null;
+/* 183 */
+/* 184 */
+/* 185 */
+            org.apache.spark.sql.Row value194 = null;
+/* 186 */
+            if (!MapObjects_loopIsNull71) {
+/* 187 */
+              if (MapObjects_loopValue70 instanceof org.apache.spark.sql.Row) {
+/* 188 */
+                value194 = (org.apache.spark.sql.Row) MapObjects_loopValue70;
+/* 189 */
+              } else {
+/* 190 */
+                throw new RuntimeException(
+                    MapObjects_loopValue70.getClass().getName() + " is not a valid " +
+/* 191 */                 "external type for schema of struct<str:string>");
+/* 192 */
+              }
+/* 193 */
+            }
+/* 194 */
+            boolean isNull192 = false;
+/* 195 */
+            InternalRow value192 = null;
+/* 196 */
+            if (!false && MapObjects_loopIsNull71) {
+/* 197 */
+/* 198 */
+              final InternalRow value195 = null;
+/* 199 */
+              isNull192 = true;
+/* 200 */
+              value192 = value195;
+/* 201 */
+            } else {
+/* 202 */
+/* 203 */
+              boolean isNull196 = false;
+/* 204 */
+              values2 = new Object[1];
+/* 205 */
+              org.apache.spark.sql.Row value199 = null;
+/* 206 */
+              if (!MapObjects_loopIsNull71) {
+/* 207 */
+                if (MapObjects_loopValue70 instanceof org.apache.spark.sql.Row) {
+/* 208 */
+                  value199 = (org.apache.spark.sql.Row) MapObjects_loopValue70;
+/* 209 */
+                } else {
+/* 210 */
+                  throw new RuntimeException(
+                      MapObjects_loopValue70.getClass().getName() + " is not a valid " +
+/* 211 */                   "external type for schema of struct<str:string>");
+/* 212 */
+                }
+/* 213 */
+              }
+/* 214 */
+/* 215 */
+              boolean isNull198 = MapObjects_loopIsNull71 || false;
+/* 216 */
+              boolean value198 = false;
+/* 217 */
+              if (!isNull198) {
+/* 218 */
+                value198 = value199.isNullAt(0);
+/* 219 */
+              }
+/* 220 */
+              boolean isNull197 = false;
+/* 221 */
+              UTF8String value197 = null;
+/* 222 */
+              if (!isNull198 && value198) {
+/* 223 */
+/* 224 */
+                final UTF8String value201 = null;
+/* 225 */
+                isNull197 = true;
+/* 226 */
+                value197 = value201;
+/* 227 */
+              } else {
+/* 228 */
+/* 229 */
+                org.apache.spark.sql.Row value205 = null;
+/* 230 */
+                if (!MapObjects_loopIsNull71) {
+/* 231 */
+                  if (MapObjects_loopValue70 instanceof org.apache.spark.sql.Row) {
+/* 232 */
+                    value205 = (org.apache.spark.sql.Row) MapObjects_loopValue70;
+/* 233 */
+                  } else {
+/* 234 */
+                    throw new RuntimeException(
+                        MapObjects_loopValue70.getClass().getName() + " is not a valid " +
+/* 235 */                     "external type for schema of struct<str:string>");
+/* 236 */
+                  }
+/* 237 */
+                }
+/* 238 */
+/* 239 */
+                if (MapObjects_loopIsNull71) {
+/* 240 */
+                  throw new RuntimeException("The input external row cannot be null.");
+/* 241 */
+                }
+/* 242 */
+/* 243 */
+                if (value205.isNullAt(0)) {
+/* 244 */
+                  throw new RuntimeException("The 0th field 'str' of input row " +
+/* 245 */                   "cannot be null.");
+/* 246 */
+                }
+/* 247 */
+/* 248 */
+                final Object value204 = value205.get(0);
+/* 249 */
+                java.lang.String value203 = null;
+/* 250 */
+                if (!false) {
+/* 251 */
+                  if (value204 instanceof java.lang.String) {
+/* 252 */
+                    value203 = (java.lang.String) value204;
+/* 253 */
+                  } else {
+/* 254 */
+                    throw new RuntimeException(value204.getClass().getName() + " is not a valid " +
+/* 255 */                     "external type for schema of string");
+/* 256 */
+                  }
+/* 257 */
+                }
+/* 258 */
+                boolean isNull202 = false;
+/* 259 */
+                final UTF8String
+                    value202 =
+                    isNull202 ? null
+                              : org.apache.spark.unsafe.types.UTF8String.fromString(value203);
+/* 260 */
+                isNull202 = value202 == null;
+/* 261 */
+                isNull197 = isNull202;
+/* 262 */
+                value197 = value202;
+/* 263 */
+              }
+/* 264 */
+              if (isNull197) {
+/* 265 */
+                values2[0] = null;
+/* 266 */
+              } else {
+/* 267 */
+                values2[0] = value197;
+/* 268 */
+              }
+/* 269 */
+              final InternalRow
+                  value196 =
+                  new org.apache.spark.sql.catalyst.expressions.GenericInternalRow(values2);
+/* 270 */
+              this.values2 = null;
+/* 271 */
+              isNull192 = isNull196;
+/* 272 */
+              value192 = value196;
+/* 273 */
+            }
+/* 274 */
+            if (isNull192) {
+/* 275 */
+              convertedArray14[loopIndex14] = null;
+/* 276 */
+            } else {
+/* 277 */
+              convertedArray14[loopIndex14] = value192;
+/* 278 */
+            }
+/* 279 */
+/* 280 */
+            loopIndex14 += 1;
+/* 281 */
+          }
+/* 282 */
+/* 283 */
+          value185 = new org.apache.spark.sql.catalyst.util.GenericArrayData(convertedArray14);
+/* 284 */
+        }
+/* 285 */
+/* 286 */
+        boolean isNull212 = i.isNullAt(0);
+/* 287 */
+        org.apache.spark.sql.Row
+            value212 =
+            isNull212 ? null : ((org.apache.spark.sql.Row) i.get(0, null));
+/* 288 */
+/* 289 */
+        if (isNull212) {
+/* 290 */
+          throw new RuntimeException(errMsg20);
+/* 291 */
+        }
+/* 292 */
+/* 293 */
+        if (false) {
+/* 294 */
+          throw new RuntimeException("The input external row cannot be null.");
+/* 295 */
+        }
+/* 296 */
+/* 297 */
+        if (value212.isNullAt(6)) {
+/* 298 */
+          throw new RuntimeException("The 6th field 'mapOfStruct' of input row " +
+/* 299 */           "cannot be null.");
+/* 300 */
+        }
+/* 301 */
+/* 302 */
+        final Object value210 = value212.get(6);
+/* 303 */
+        scala.collection.Map value209 = null;
+/* 304 */
+        if (!false) {
+/* 305 */
+          if (value210 instanceof scala.collection.Map) {
+/* 306 */
+            value209 = (scala.collection.Map) value210;
+/* 307 */
+          } else {
+/* 308 */
+            throw new RuntimeException(value210.getClass().getName() + " is not a valid " +
+/* 309 */             "external type for schema of map<struct<str:string>,struct<str:string>>");
+/* 310 */
+          }
+/* 311 */
+        }
+/* 312 */
+/* 313 */
+        boolean isNull208 = false;
+/* 314 */
+        scala.collection.Iterator value208 = null;
+/* 315 */
+        if (!isNull208) {
+/* 316 */
+/* 317 */
+          Object funcResult26 = null;
+/* 318 */
+          funcResult26 = value209.valuesIterator();
+/* 319 */
+          if (funcResult26 == null) {
+/* 320 */
+            isNull208 = true;
+/* 321 */
+          } else {
+/* 322 */
+            value208 = (scala.collection.Iterator) funcResult26;
+/* 323 */
+          }
+/* 324 */
+/* 325 */
+        }
+/* 326 */
+        isNull208 = value208 == null;
+/* 327 */
+/* 328 */
+        boolean isNull207 = isNull208;
+/* 329 */
+        scala.collection.Seq value207 = null;
+/* 330 */
+        if (!isNull207) {
+/* 331 */
+/* 332 */
+          Object funcResult27 = null;
+/* 333 */
+          funcResult27 = value208.toSeq();
+/* 334 */
+          if (funcResult27 == null) {
+/* 335 */
+            isNull207 = true;
+/* 336 */
+          } else {
+/* 337 */
+            value207 = (scala.collection.Seq) funcResult27;
+/* 338 */
+          }
+/* 339 */
+/* 340 */
+        }
+/* 341 */
+        isNull207 = value207 == null;
+/* 342 */
+        ArrayData value206 = null;
+/* 343 */
+/* 344 */
+        if (!isNull207) {
+/* 345 */
+/* 346 */
+          InternalRow[] convertedArray15 = null;
+/* 347 */
+          int dataLength15 = value207.size();
+/* 348 */
+          convertedArray15 = new InternalRow[dataLength15];
+/* 349 */
+/* 350 */
+          int loopIndex15 = 0;
+/* 351 */
+          while (loopIndex15 < dataLength15) {
+/* 352 */
+            MapObjects_loopValue72 = (java.lang.Object) (value207.apply(loopIndex15));
+/* 353 */
+            MapObjects_loopIsNull73 = MapObjects_loopValue72 == null;
+/* 354 */
+/* 355 */
+/* 356 */
+            org.apache.spark.sql.Row value215 = null;
+/* 357 */
+            if (!MapObjects_loopIsNull73) {
+/* 358 */
+              if (MapObjects_loopValue72 instanceof org.apache.spark.sql.Row) {
+/* 359 */
+                value215 = (org.apache.spark.sql.Row) MapObjects_loopValue72;
+/* 360 */
+              } else {
+/* 361 */
+                throw new RuntimeException(
+                    MapObjects_loopValue72.getClass().getName() + " is not a valid " +
+/* 362 */                 "external type for schema of struct<str:string>");
+/* 363 */
+              }
+/* 364 */
+            }
+/* 365 */
+            boolean isNull213 = false;
+/* 366 */
+            InternalRow value213 = null;
+/* 367 */
+            if (!false && MapObjects_loopIsNull73) {
+/* 368 */
+/* 369 */
+              final InternalRow value216 = null;
+/* 370 */
+              isNull213 = true;
+/* 371 */
+              value213 = value216;
+/* 372 */
+            } else {
+/* 373 */
+/* 374 */
+              boolean isNull217 = false;
+/* 375 */
+              values3 = new Object[1];
+/* 376 */
+              org.apache.spark.sql.Row value220 = null;
+/* 377 */
+              if (!MapObjects_loopIsNull73) {
+/* 378 */
+                if (MapObjects_loopValue72 instanceof org.apache.spark.sql.Row) {
+/* 379 */
+                  value220 = (org.apache.spark.sql.Row) MapObjects_loopValue72;
+/* 380 */
+                } else {
+/* 381 */
+                  throw new RuntimeException(
+                      MapObjects_loopValue72.getClass().getName() + " is not a valid " +
+/* 382 */                   "external type for schema of struct<str:string>");
+/* 383 */
+                }
+/* 384 */
+              }
+/* 385 */
+/* 386 */
+              boolean isNull219 = MapObjects_loopIsNull73 || false;
+/* 387 */
+              boolean value219 = false;
+/* 388 */
+              if (!isNull219) {
+/* 389 */
+                value219 = value220.isNullAt(0);
+/* 390 */
+              }
+/* 391 */
+              boolean isNull218 = false;
+/* 392 */
+              UTF8String value218 = null;
+/* 393 */
+              if (!isNull219 && value219) {
+/* 394 */
+/* 395 */
+                final UTF8String value222 = null;
+/* 396 */
+                isNull218 = true;
+/* 397 */
+                value218 = value222;
+/* 398 */
+              } else {
+/* 399 */
+/* 400 */
+                org.apache.spark.sql.Row value226 = null;
+/* 401 */
+                if (!MapObjects_loopIsNull73) {
+/* 402 */
+                  if (MapObjects_loopValue72 instanceof org.apache.spark.sql.Row) {
+/* 403 */
+                    value226 = (org.apache.spark.sql.Row) MapObjects_loopValue72;
+/* 404 */
+                  } else {
+/* 405 */
+                    throw new RuntimeException(
+                        MapObjects_loopValue72.getClass().getName() + " is not a valid " +
+/* 406 */                     "external type for schema of struct<str:string>");
+/* 407 */
+                  }
+/* 408 */
+                }
+/* 409 */
+/* 410 */
+                if (MapObjects_loopIsNull73) {
+/* 411 */
+                  throw new RuntimeException("The input external row cannot be null.");
+/* 412 */
+                }
+/* 413 */
+/* 414 */
+                if (value226.isNullAt(0)) {
+/* 415 */
+                  throw new RuntimeException("The 0th field 'str' of input row " +
+/* 416 */                   "cannot be null.");
+/* 417 */
+                }
+/* 418 */
+/* 419 */
+                final Object value225 = value226.get(0);
+/* 420 */
+                java.lang.String value224 = null;
+/* 421 */
+                if (!false) {
+/* 422 */
+                  if (value225 instanceof java.lang.String) {
+/* 423 */
+                    value224 = (java.lang.String) value225;
+/* 424 */
+                  } else {
+/* 425 */
+                    throw new RuntimeException(value225.getClass().getName() + " is not a valid " +
+/* 426 */                     "external type for schema of string");
+/* 427 */
+                  }
+/* 428 */
+                }
+/* 429 */
+                boolean isNull223 = false;
+/* 430 */
+                final UTF8String
+                    value223 =
+                    isNull223 ? null
+                              : org.apache.spark.unsafe.types.UTF8String.fromString(value224);
+/* 431 */
+                isNull223 = value223 == null;
+/* 432 */
+                isNull218 = isNull223;
+/* 433 */
+                value218 = value223;
+/* 434 */
+              }
+/* 435 */
+              if (isNull218) {
+/* 436 */
+                values3[0] = null;
+/* 437 */
+              } else {
+/* 438 */
+                values3[0] = value218;
+/* 439 */
+              }
+/* 440 */
+              final InternalRow
+                  value217 =
+                  new org.apache.spark.sql.catalyst.expressions.GenericInternalRow(values3);
+/* 441 */
+              this.values3 = null;
+/* 442 */
+              isNull213 = isNull217;
+/* 443 */
+              value213 = value217;
+/* 444 */
+            }
+/* 445 */
+            if (isNull213) {
+/* 446 */
+              convertedArray15[loopIndex15] = null;
+/* 447 */
+            } else {
+/* 448 */
+              convertedArray15[loopIndex15] = value213;
+/* 449 */
+            }
+/* 450 */
+/* 451 */
+            loopIndex15 += 1;
+/* 452 */
+          }
+/* 453 */
+/* 454 */
+          value206 = new org.apache.spark.sql.catalyst.util.GenericArrayData(convertedArray15);
+/* 455 */
+        }
+/* 456 */
+/* 457 */
+        final boolean isNull184 = isNull186 || isNull207;
+/* 458 */
+        final MapData
+            value184 =
+            isNull184 ? null : new org.apache.spark.sql.catalyst.util.ArrayBasedMapData(value185,
+                                                                                        value206);
+/* 459 */
+        isNull178 = isNull184;
+/* 460 */
+        value178 = value184;
+/* 461 */
+      }
+/* 462 */
+      if (isNull178) {
+/* 463 */
+        rowWriter.setNullAt(6);
+/* 464 */
+      } else {
+/* 465 */       // Remember the current cursor so that we can calculate how many bytes are
+/* 466 */       // written later.
+/* 467 */
+        final int tmpCursor14 = holder.cursor;
+/* 468 */
+/* 469 */
+        if (value178 instanceof UnsafeMapData) {
+/* 470 */
+/* 471 */
+          final int sizeInBytes24 = ((UnsafeMapData) value178).getSizeInBytes();
+/* 472 */         // grow the global buffer before writing data.
+/* 473 */
+          holder.grow(sizeInBytes24);
+/* 474 */
+          ((UnsafeMapData) value178).writeToMemory(holder.buffer, holder.cursor);
+/* 475 */
+          holder.cursor += sizeInBytes24;
+/* 476 */
+/* 477 */
+        } else {
+/* 478 */
+          final ArrayData keys6 = value178.keyArray();
+/* 479 */
+          final ArrayData values10 = value178.valueArray();
+/* 480 */
+/* 481 */         // preserve 4 bytes to write the key array numBytes later.
+/* 482 */
+          holder.grow(4);
+/* 483 */
+          holder.cursor += 4;
+/* 484 */
+/* 485 */         // Remember the current cursor so that we can write numBytes of key array later.
+/* 486 */
+          final int tmpCursor15 = holder.cursor;
+/* 487 */
+/* 488 */
+/* 489 */
+          if (keys6 instanceof UnsafeArrayData) {
+/* 490 */
+/* 491 */
+            final int sizeInBytes26 = ((UnsafeArrayData) keys6).getSizeInBytes();
+/* 492 */           // grow the global buffer before writing data.
+/* 493 */
+            holder.grow(sizeInBytes26);
+/* 494 */
+            ((UnsafeArrayData) keys6).writeToMemory(holder.buffer, holder.cursor);
+/* 495 */
+            holder.cursor += sizeInBytes26;
+/* 496 */
+/* 497 */
+          } else {
+/* 498 */
+            final int numElements16 = keys6.numElements();
+/* 499 */
+            arrayWriter16.initialize(holder, numElements16, 0);
+/* 500 */
+/* 501 */
+            for (int index16 = 0; index16 < numElements16; index16++) {
+/* 502 */
+              if (keys6.isNullAt(index16)) {
+/* 503 */
+                arrayWriter16.setNullAt(index16);
+/* 504 */
+              } else {
+/* 505 */
+                final InternalRow element16 = keys6.getStruct(index16, 1);
+/* 506 */
+/* 507 */
+                arrayWriter16.setOffset(index16);
+/* 508 */
+/* 509 */
+                if (element16 instanceof UnsafeRow) {
+/* 510 */
+/* 511 */
+                  final int sizeInBytes25 = ((UnsafeRow) element16).getSizeInBytes();
+/* 512 */                 // grow the global buffer before writing data.
+/* 513 */
+                  holder.grow(sizeInBytes25);
+/* 514 */
+                  ((UnsafeRow) element16).writeToMemory(holder.buffer, holder.cursor);
+/* 515 */
+                  holder.cursor += sizeInBytes25;
+/* 516 */
+/* 517 */
+                } else {
+/* 518 */
+                  rowWriter3.reset();
+/* 519 */
+/* 520 */
+                  final UTF8String fieldName2 = element16.getUTF8String(0);
+/* 521 */
+                  if (element16.isNullAt(0)) {
+/* 522 */
+                    rowWriter3.setNullAt(0);
+/* 523 */
+                  } else {
+/* 524 */
+                    rowWriter3.write(0, fieldName2);
+/* 525 */
+                  }
+/* 526 */
+                }
+/* 527 */
+/* 528 */
+/* 529 */
+              }
+/* 530 */
+            }
+/* 531 */
+          }
+/* 532 */
+/* 533 */         // Write the numBytes of key array into the first 4 bytes.
+/* 534 */
+          Platform.putInt(holder.buffer, tmpCursor15 - 4, holder.cursor - tmpCursor15);
+/* 535 */
+/* 536 */
+/* 537 */
+          if (values10 instanceof UnsafeArrayData) {
+/* 538 */
+/* 539 */
+            final int sizeInBytes28 = ((UnsafeArrayData) values10).getSizeInBytes();
+/* 540 */           // grow the global buffer before writing data.
+/* 541 */
+            holder.grow(sizeInBytes28);
+/* 542 */
+            ((UnsafeArrayData) values10).writeToMemory(holder.buffer, holder.cursor);
+/* 543 */
+            holder.cursor += sizeInBytes28;
+/* 544 */
+/* 545 */
+          } else {
+/* 546 */
+            final int numElements17 = values10.numElements();
+/* 547 */
+            arrayWriter17.initialize(holder, numElements17, 0);
+/* 548 */
+/* 549 */
+            for (int index17 = 0; index17 < numElements17; index17++) {
+/* 550 */
+              if (values10.isNullAt(index17)) {
+/* 551 */
+                arrayWriter17.setNullAt(index17);
+/* 552 */
+              } else {
+/* 553 */
+                final InternalRow element17 = values10.getStruct(index17, 1);
+/* 554 */
+/* 555 */
+                arrayWriter17.setOffset(index17);
+/* 556 */
+/* 557 */
+                if (element17 instanceof UnsafeRow) {
+/* 558 */
+/* 559 */
+                  final int sizeInBytes27 = ((UnsafeRow) element17).getSizeInBytes();
+/* 560 */                 // grow the global buffer before writing data.
+/* 561 */
+                  holder.grow(sizeInBytes27);
+/* 562 */
+                  ((UnsafeRow) element17).writeToMemory(holder.buffer, holder.cursor);
+/* 563 */
+                  holder.cursor += sizeInBytes27;
+/* 564 */
+/* 565 */
+                } else {
+/* 566 */
+                  rowWriter4.reset();
+/* 567 */
+/* 568 */
+                  final UTF8String fieldName3 = element17.getUTF8String(0);
+/* 569 */
+                  if (element17.isNullAt(0)) {
+/* 570 */
+                    rowWriter4.setNullAt(0);
+/* 571 */
+                  } else {
+/* 572 */
+                    rowWriter4.write(0, fieldName3);
+/* 573 */
+                  }
+/* 574 */
+                }
+/* 575 */
+/* 576 */
+/* 577 */
+              }
+/* 578 */
+            }
+/* 579 */
+          }
+/* 580 */
+/* 581 */
+        }
+/* 582 */
+/* 583 */
+        rowWriter.setOffsetAndSize(6, tmpCursor14, holder.cursor - tmpCursor14);
+/* 584 */
+        rowWriter.alignToWords(holder.cursor - tmpCursor14);
+/* 585 */
+      }
+/* 586 */
+/* 587 */
+    }
+
+    /* 588 */
+/* 589 */
+/* 590 */
+    private void apply_0(InternalRow i) {
+/* 591 */
+/* 592 */
+/* 593 */
+      boolean isNull3 = i.isNullAt(0);
+/* 594 */
+      org.apache.spark.sql.Row
+          value3 =
+          isNull3 ? null : ((org.apache.spark.sql.Row) i.get(0, null));
+/* 595 */
+/* 596 */
+      if (isNull3) {
+/* 597 */
+        throw new RuntimeException(errMsg);
+/* 598 */
+      }
+/* 599 */
+/* 600 */
+      boolean isNull1 = false || false;
+/* 601 */
+      boolean value1 = false;
+/* 602 */
+      if (!isNull1) {
+/* 603 */
+        value1 = value3.isNullAt(0);
+/* 604 */
+      }
+/* 605 */
+      boolean isNull = false;
+/* 606 */
+      MapData value = null;
+/* 607 */
+      if (!isNull1 && value1) {
+/* 608 */
+/* 609 */
+        final MapData value5 = null;
+/* 610 */
+        isNull = true;
+/* 611 */
+        value = value5;
+/* 612 */
+      } else {
+/* 613 */
+/* 614 */
+        boolean isNull13 = i.isNullAt(0);
+/* 615 */
+        org.apache.spark.sql.Row
+            value13 =
+            isNull13 ? null : ((org.apache.spark.sql.Row) i.get(0, null));
+/* 616 */
+/* 617 */
+        if (isNull13) {
+/* 618 */
+          throw new RuntimeException(errMsg1);
+/* 619 */
+        }
+/* 620 */
+/* 621 */
+        if (false) {
+/* 622 */
+          throw new RuntimeException("The input external row cannot be null.");
+/* 623 */
+        }
+/* 624 */
+/* 625 */
+        if (value13.isNullAt(0)) {
+/* 626 */
+          throw new RuntimeException("The 0th field 'mapOfIntAndString' of input row " +
+/* 627 */           "cannot be null.");
+/* 628 */
+        }
+/* 629 */
+/* 630 */
+        final Object value11 = value13.get(0);
+/* 631 */
+        scala.collection.Map value10 = null;
+/* 632 */
+        if (!false) {
+/* 633 */
+          if (value11 instanceof scala.collection.Map) {
+/* 634 */
+            value10 = (scala.collection.Map) value11;
+/* 635 */
+          } else {
+/* 636 */
+            throw new RuntimeException(value11.getClass().getName() + " is not a valid " +
+/* 637 */             "external type for schema of map<int,string>");
+/* 638 */
+          }
+/* 639 */
+        }
+/* 640 */
+/* 641 */
+        boolean isNull9 = false;
+/* 642 */
+        scala.collection.Iterator value9 = null;
+/* 643 */
+        if (!isNull9) {
+/* 644 */
+/* 645 */
+          Object funcResult = null;
+/* 646 */
+          funcResult = value10.keysIterator();
+/* 647 */
+          if (funcResult == null) {
+/* 648 */
+            isNull9 = true;
+/* 649 */
+          } else {
+/* 650 */
+            value9 = (scala.collection.Iterator) funcResult;
+/* 651 */
+          }
+/* 652 */
+/* 653 */
+        }
+/* 654 */
+        isNull9 = value9 == null;
+/* 655 */
+/* 656 */
+        boolean isNull8 = isNull9;
+/* 657 */
+        scala.collection.Seq value8 = null;
+/* 658 */
+        if (!isNull8) {
+/* 659 */
+/* 660 */
+          Object funcResult1 = null;
+/* 661 */
+          funcResult1 = value9.toSeq();
+/* 662 */
+          if (funcResult1 == null) {
+/* 663 */
+            isNull8 = true;
+/* 664 */
+          } else {
+/* 665 */
+            value8 = (scala.collection.Seq) funcResult1;
+/* 666 */
+          }
+/* 667 */
+/* 668 */
+        }
+/* 669 */
+        isNull8 = value8 == null;
+/* 670 */
+/* 671 */
+        final boolean isNull7 = isNull8;
+/* 672 */
+        final ArrayData
+            value7 =
+            isNull7 ? null : new org.apache.spark.sql.catalyst.util.GenericArrayData(value8);
+/* 673 */
+/* 674 */
+        boolean isNull20 = i.isNullAt(0);
+/* 675 */
+        org.apache.spark.sql.Row
+            value20 =
+            isNull20 ? null : ((org.apache.spark.sql.Row) i.get(0, null));
+/* 676 */
+/* 677 */
+        if (isNull20) {
+/* 678 */
+          throw new RuntimeException(errMsg2);
+/* 679 */
+        }
+/* 680 */
+/* 681 */
+        if (false) {
+/* 682 */
+          throw new RuntimeException("The input external row cannot be null.");
+/* 683 */
+        }
+/* 684 */
+/* 685 */
+        if (value20.isNullAt(0)) {
+/* 686 */
+          throw new RuntimeException("The 0th field 'mapOfIntAndString' of input row " +
+/* 687 */           "cannot be null.");
+/* 688 */
+        }
+/* 689 */
+/* 690 */
+        final Object value18 = value20.get(0);
+/* 691 */
+        scala.collection.Map value17 = null;
+/* 692 */
+        if (!false) {
+/* 693 */
+          if (value18 instanceof scala.collection.Map) {
+/* 694 */
+            value17 = (scala.collection.Map) value18;
+/* 695 */
+          } else {
+/* 696 */
+            throw new RuntimeException(value18.getClass().getName() + " is not a valid " +
+/* 697 */             "external type for schema of map<int,string>");
+/* 698 */
+          }
+/* 699 */
+        }
+/* 700 */
+/* 701 */
+        boolean isNull16 = false;
+/* 702 */
+        scala.collection.Iterator value16 = null;
+/* 703 */
+        if (!isNull16) {
+/* 704 */
+/* 705 */
+          Object funcResult2 = null;
+/* 706 */
+          funcResult2 = value17.valuesIterator();
+/* 707 */
+          if (funcResult2 == null) {
+/* 708 */
+            isNull16 = true;
+/* 709 */
+          } else {
+/* 710 */
+            value16 = (scala.collection.Iterator) funcResult2;
+/* 711 */
+          }
+/* 712 */
+/* 713 */
+        }
+/* 714 */
+        isNull16 = value16 == null;
+/* 715 */
+/* 716 */
+        boolean isNull15 = isNull16;
+/* 717 */
+        scala.collection.Seq value15 = null;
+/* 718 */
+        if (!isNull15) {
+/* 719 */
+/* 720 */
+          Object funcResult3 = null;
+/* 721 */
+          funcResult3 = value16.toSeq();
+/* 722 */
+          if (funcResult3 == null) {
+/* 723 */
+            isNull15 = true;
+/* 724 */
+          } else {
+/* 725 */
+            value15 = (scala.collection.Seq) funcResult3;
+/* 726 */
+          }
+/* 727 */
+/* 728 */
+        }
+/* 729 */
+        isNull15 = value15 == null;
+/* 730 */
+        ArrayData value14 = null;
+/* 731 */
+/* 732 */
+        if (!isNull15) {
+/* 733 */
+/* 734 */
+          UTF8String[] convertedArray = null;
+/* 735 */
+          int dataLength = value15.size();
+/* 736 */
+          convertedArray = new UTF8String[dataLength];
+/* 737 */
+/* 738 */
+          int loopIndex = 0;
+/* 739 */
+          while (loopIndex < dataLength) {
+/* 740 */
+            MapObjects_loopValue42 = (java.lang.Object) (value15.apply(loopIndex));
+/* 741 */
+            MapObjects_loopIsNull43 = MapObjects_loopValue42 == null;
+/* 742 */
+/* 743 */
+/* 744 */
+            java.lang.String value22 = null;
+/* 745 */
+            if (!MapObjects_loopIsNull43) {
+/* 746 */
+              if (MapObjects_loopValue42 instanceof java.lang.String) {
+/* 747 */
+                value22 = (java.lang.String) MapObjects_loopValue42;
+/* 748 */
+              } else {
+/* 749 */
+                throw new RuntimeException(
+                    MapObjects_loopValue42.getClass().getName() + " is not a valid " +
+/* 750 */                 "external type for schema of string");
+/* 751 */
+              }
+/* 752 */
+            }
+/* 753 */
+            boolean isNull21 = MapObjects_loopIsNull43;
+/* 754 */
+            final UTF8String
+                value21 =
+                isNull21 ? null : org.apache.spark.unsafe.types.UTF8String.fromString(value22);
+/* 755 */
+            isNull21 = value21 == null;
+/* 756 */
+            if (isNull21) {
+/* 757 */
+              convertedArray[loopIndex] = null;
+/* 758 */
+            } else {
+/* 759 */
+              convertedArray[loopIndex] = value21;
+/* 760 */
+            }
+/* 761 */
+/* 762 */
+            loopIndex += 1;
+/* 763 */
+          }
+/* 764 */
+/* 765 */
+          value14 = new org.apache.spark.sql.catalyst.util.GenericArrayData(convertedArray);
+/* 766 */
+        }
+/* 767 */
+/* 768 */
+        final boolean isNull6 = isNull7 || isNull15;
+/* 769 */
+        final MapData
+            value6 =
+            isNull6 ? null
+                    : new org.apache.spark.sql.catalyst.util.ArrayBasedMapData(value7, value14);
+/* 770 */
+        isNull = isNull6;
+/* 771 */
+        value = value6;
+/* 772 */
+      }
+/* 773 */
+      if (isNull) {
+/* 774 */
+        rowWriter.setNullAt(0);
+/* 775 */
+      } else {
+/* 776 */       // Remember the current cursor so that we can calculate how many bytes are
+/* 777 */       // written later.
+/* 778 */
+        final int tmpCursor = holder.cursor;
+/* 779 */
+/* 780 */
+        if (value instanceof UnsafeMapData) {
+/* 781 */
+/* 782 */
+          final int sizeInBytes = ((UnsafeMapData) value).getSizeInBytes();
+/* 783 */         // grow the global buffer before writing data.
+/* 784 */
+          holder.grow(sizeInBytes);
+/* 785 */
+          ((UnsafeMapData) value).writeToMemory(holder.buffer, holder.cursor);
+/* 786 */
+          holder.cursor += sizeInBytes;
+/* 787 */
+/* 788 */
+        } else {
+/* 789 */
+          final ArrayData keys = value.keyArray();
+/* 790 */
+          final ArrayData values4 = value.valueArray();
+/* 791 */
+/* 792 */         // preserve 4 bytes to write the key array numBytes later.
+/* 793 */
+          holder.grow(4);
+/* 794 */
+          holder.cursor += 4;
+/* 795 */
+/* 796 */         // Remember the current cursor so that we can write numBytes of key array later.
+/* 797 */
+          final int tmpCursor1 = holder.cursor;
+/* 798 */
+/* 799 */
+/* 800 */
+          if (keys instanceof UnsafeArrayData) {
+/* 801 */
+/* 802 */
+            final int sizeInBytes1 = ((UnsafeArrayData) keys).getSizeInBytes();
+/* 803 */           // grow the global buffer before writing data.
+/* 804 */
+            holder.grow(sizeInBytes1);
+/* 805 */
+            ((UnsafeArrayData) keys).writeToMemory(holder.buffer, holder.cursor);
+/* 806 */
+            holder.cursor += sizeInBytes1;
+/* 807 */
+/* 808 */
+          } else {
+/* 809 */
+            final int numElements = keys.numElements();
+/* 810 */
+            arrayWriter.initialize(holder, numElements, 4);
+/* 811 */
+/* 812 */
+            for (int index = 0; index < numElements; index++) {
+/* 813 */
+              if (keys.isNullAt(index)) {
+/* 814 */
+                arrayWriter.setNullAt(index);
+/* 815 */
+              } else {
+/* 816 */
+                final int element = keys.getInt(index);
+/* 817 */
+                arrayWriter.write(index, element);
+/* 818 */
+              }
+/* 819 */
+            }
+/* 820 */
+          }
+/* 821 */
+/* 822 */         // Write the numBytes of key array into the first 4 bytes.
+/* 823 */
+          Platform.putInt(holder.buffer, tmpCursor1 - 4, holder.cursor - tmpCursor1);
+/* 824 */
+/* 825 */
+/* 826 */
+          if (values4 instanceof UnsafeArrayData) {
+/* 827 */
+/* 828 */
+            final int sizeInBytes2 = ((UnsafeArrayData) values4).getSizeInBytes();
+/* 829 */           // grow the global buffer before writing data.
+/* 830 */
+            holder.grow(sizeInBytes2);
+/* 831 */
+            ((UnsafeArrayData) values4).writeToMemory(holder.buffer, holder.cursor);
+/* 832 */
+            holder.cursor += sizeInBytes2;
+/* 833 */
+/* 834 */
+          } else {
+/* 835 */
+            final int numElements1 = values4.numElements();
+/* 836 */
+            arrayWriter1.initialize(holder, numElements1, 0);
+/* 837 */
+/* 838 */
+            for (int index1 = 0; index1 < numElements1; index1++) {
+/* 839 */
+              if (values4.isNullAt(index1)) {
+/* 840 */
+                arrayWriter1.setNullAt(index1);
+/* 841 */
+              } else {
+/* 842 */
+                final UTF8String element1 = values4.getUTF8String(index1);
+/* 843 */
+                arrayWriter1.write(index1, element1);
+/* 844 */
+              }
+/* 845 */
+            }
+/* 846 */
+          }
+/* 847 */
+/* 848 */
+        }
+/* 849 */
+/* 850 */
+        rowWriter.setOffsetAndSize(0, tmpCursor, holder.cursor - tmpCursor);
+/* 851 */
+        rowWriter.alignToWords(holder.cursor - tmpCursor);
+/* 852 */
+      }
+/* 853 */
+/* 854 */
+/* 855 */
+      boolean isNull26 = i.isNullAt(0);
+/* 856 */
+      org.apache.spark.sql.Row
+          value26 =
+          isNull26 ? null : ((org.apache.spark.sql.Row) i.get(0, null));
+/* 857 */
+/* 858 */
+      if (isNull26) {
+/* 859 */
+        throw new RuntimeException(errMsg3);
+/* 860 */
+      }
+/* 861 */
+/* 862 */
+      boolean isNull24 = false || false;
+/* 863 */
+      boolean value24 = false;
+/* 864 */
+      if (!isNull24) {
+/* 865 */
+        value24 = value26.isNullAt(1);
+/* 866 */
+      }
+/* 867 */
+      boolean isNull23 = false;
+/* 868 */
+      MapData value23 = null;
+/* 869 */
+      if (!isNull24 && value24) {
+/* 870 */
+/* 871 */
+        final MapData value28 = null;
+/* 872 */
+        isNull23 = true;
+/* 873 */
+        value23 = value28;
+/* 874 */
+      } else {
+/* 875 */
+/* 876 */
+        boolean isNull36 = i.isNullAt(0);
+/* 877 */
+        org.apache.spark.sql.Row
+            value36 =
+            isNull36 ? null : ((org.apache.spark.sql.Row) i.get(0, null));
+/* 878 */
+/* 879 */
+        if (isNull36) {
+/* 880 */
+          throw new RuntimeException(errMsg4);
+/* 881 */
+        }
+/* 882 */
+/* 883 */
+        if (false) {
+/* 884 */
+          throw new RuntimeException("The input external row cannot be null.");
+/* 885 */
+        }
+/* 886 */
+/* 887 */
+        if (value36.isNullAt(1)) {
+/* 888 */
+          throw new RuntimeException("The 1th field 'mapOfStringAndArray' of input row " +
+/* 889 */           "cannot be null.");
+/* 890 */
+        }
+/* 891 */
+/* 892 */
+        final Object value34 = value36.get(1);
+/* 893 */
+        scala.collection.Map value33 = null;
+/* 894 */
+        if (!false) {
+/* 895 */
+          if (value34 instanceof scala.collection.Map) {
+/* 896 */
+            value33 = (scala.collection.Map) value34;
+/* 897 */
+          } else {
+/* 898 */
+            throw new RuntimeException(value34.getClass().getName() + " is not a valid " +
+/* 899 */             "external type for schema of map<string,array<string>>");
+/* 900 */
+          }
+/* 901 */
+        }
+/* 902 */
+/* 903 */
+        boolean isNull32 = false;
+/* 904 */
+        scala.collection.Iterator value32 = null;
+/* 905 */
+        if (!isNull32) {
+/* 906 */
+/* 907 */
+          Object funcResult4 = null;
+/* 908 */
+          funcResult4 = value33.keysIterator();
+/* 909 */
+          if (funcResult4 == null) {
+/* 910 */
+            isNull32 = true;
+/* 911 */
+          } else {
+/* 912 */
+            value32 = (scala.collection.Iterator) funcResult4;
+/* 913 */
+          }
+/* 914 */
+/* 915 */
+        }
+/* 916 */
+        isNull32 = value32 == null;
+/* 917 */
+/* 918 */
+        boolean isNull31 = isNull32;
+/* 919 */
+        scala.collection.Seq value31 = null;
+/* 920 */
+        if (!isNull31) {
+/* 921 */
+/* 922 */
+          Object funcResult5 = null;
+/* 923 */
+          funcResult5 = value32.toSeq();
+/* 924 */
+          if (funcResult5 == null) {
+/* 925 */
+            isNull31 = true;
+/* 926 */
+          } else {
+/* 927 */
+            value31 = (scala.collection.Seq) funcResult5;
+/* 928 */
+          }
+/* 929 */
+/* 930 */
+        }
+/* 931 */
+        isNull31 = value31 == null;
+/* 932 */
+        ArrayData value30 = null;
+/* 933 */
+/* 934 */
+        if (!isNull31) {
+/* 935 */
+/* 936 */
+          UTF8String[] convertedArray1 = null;
+/* 937 */
+          int dataLength1 = value31.size();
+/* 938 */
+          convertedArray1 = new UTF8String[dataLength1];
+/* 939 */
+/* 940 */
+          int loopIndex1 = 0;
+/* 941 */
+          while (loopIndex1 < dataLength1) {
+/* 942 */
+            MapObjects_loopValue44 = (java.lang.Object) (value31.apply(loopIndex1));
+/* 943 */
+            MapObjects_loopIsNull45 = MapObjects_loopValue44 == null;
+/* 944 */
+/* 945 */
+/* 946 */
+            java.lang.String value38 = null;
+/* 947 */
+            if (!MapObjects_loopIsNull45) {
+/* 948 */
+              if (MapObjects_loopValue44 instanceof java.lang.String) {
+/* 949 */
+                value38 = (java.lang.String) MapObjects_loopValue44;
+/* 950 */
+              } else {
+/* 951 */
+                throw new RuntimeException(
+                    MapObjects_loopValue44.getClass().getName() + " is not a valid " +
+/* 952 */                 "external type for schema of string");
+/* 953 */
+              }
+/* 954 */
+            }
+/* 955 */
+            boolean isNull37 = MapObjects_loopIsNull45;
+/* 956 */
+            final UTF8String
+                value37 =
+                isNull37 ? null : org.apache.spark.unsafe.types.UTF8String.fromString(value38);
+/* 957 */
+            isNull37 = value37 == null;
+/* 958 */
+            if (isNull37) {
+/* 959 */
+              convertedArray1[loopIndex1] = null;
+/* 960 */
+            } else {
+/* 961 */
+              convertedArray1[loopIndex1] = value37;
+/* 962 */
+            }
+/* 963 */
+/* 964 */
+            loopIndex1 += 1;
+/* 965 */
+          }
+/* 966 */
+/* 967 */
+          value30 = new org.apache.spark.sql.catalyst.util.GenericArrayData(convertedArray1);
+/* 968 */
+        }
+/* 969 */
+/* 970 */
+        boolean isNull45 = i.isNullAt(0);
+/* 971 */
+        org.apache.spark.sql.Row
+            value45 =
+            isNull45 ? null : ((org.apache.spark.sql.Row) i.get(0, null));
+/* 972 */
+/* 973 */
+        if (isNull45) {
+/* 974 */
+          throw new RuntimeException(errMsg5);
+/* 975 */
+        }
+/* 976 */
+/* 977 */
+        if (false) {
+/* 978 */
+          throw new RuntimeException("The input external row cannot be null.");
+/* 979 */
+        }
+/* 980 */
+/* 981 */
+        if (value45.isNullAt(1)) {
+/* 982 */
+          throw new RuntimeException("The 1th field 'mapOfStringAndArray' of input row " +
+/* 983 */           "cannot be null.");
+/* 984 */
+        }
+/* 985 */
+/* 986 */
+        final Object value43 = value45.get(1);
+/* 987 */
+        scala.collection.Map value42 = null;
+/* 988 */
+        if (!false) {
+/* 989 */
+          if (value43 instanceof scala.collection.Map) {
+/* 990 */
+            value42 = (scala.collection.Map) value43;
+/* 991 */
+          } else {
+/* 992 */
+            throw new RuntimeException(value43.getClass().getName() + " is not a valid " +
+/* 993 */             "external type for schema of map<string,array<string>>");
+/* 994 */
+          }
+/* 995 */
+        }
+/* 996 */
+/* 997 */
+        boolean isNull41 = false;
+/* 998 */
+        scala.collection.Iterator value41 = null;
+/* 999 */
+        if (!isNull41) {
+/* 1000 */
+/* 1001 */
+          Object funcResult6 = null;
+/* 1002 */
+          funcResult6 = value42.valuesIterator();
+/* 1003 */
+          if (funcResult6 == null) {
+/* 1004 */
+            isNull41 = true;
+/* 1005 */
+          } else {
+/* 1006 */
+            value41 = (scala.collection.Iterator) funcResult6;
+/* 1007 */
+          }
+/* 1008 */
+/* 1009 */
+        }
+/* 1010 */
+        isNull41 = value41 == null;
+/* 1011 */
+/* 1012 */
+        boolean isNull40 = isNull41;
+/* 1013 */
+        scala.collection.Seq value40 = null;
+/* 1014 */
+        if (!isNull40) {
+/* 1015 */
+/* 1016 */
+          Object funcResult7 = null;
+/* 1017 */
+          funcResult7 = value41.toSeq();
+/* 1018 */
+          if (funcResult7 == null) {
+/* 1019 */
+            isNull40 = true;
+/* 1020 */
+          } else {
+/* 1021 */
+            value40 = (scala.collection.Seq) funcResult7;
+/* 1022 */
+          }
+/* 1023 */
+/* 1024 */
+        }
+/* 1025 */
+        isNull40 = value40 == null;
+/* 1026 */
+        ArrayData value39 = null;
+/* 1027 */
+/* 1028 */
+        if (!isNull40) {
+/* 1029 */
+/* 1030 */
+          ArrayData[] convertedArray3 = null;
+/* 1031 */
+          int dataLength3 = value40.size();
+/* 1032 */
+          convertedArray3 = new ArrayData[dataLength3];
+/* 1033 */
+/* 1034 */
+          int loopIndex3 = 0;
+/* 1035 */
+          while (loopIndex3 < dataLength3) {
+/* 1036 */
+            MapObjects_loopValue46 = (java.lang.Object) (value40.apply(loopIndex3));
+/* 1037 */
+            MapObjects_loopIsNull47 = MapObjects_loopValue46 == null;
+/* 1038 */
+/* 1039 */
+/* 1040 */
+            java.lang.Object value47 = null;
+/* 1041 */
+            if (!MapObjects_loopIsNull47) {
+/* 1042 */
+              if (MapObjects_loopValue46 instanceof scala.collection.Seq || MapObjects_loopValue46
+                  .getClass().isArray()) {
+/* 1043 */
+                value47 = (java.lang.Object) MapObjects_loopValue46;
+/* 1044 */
+              } else {
+/* 1045 */
+                throw new RuntimeException(
+                    MapObjects_loopValue46.getClass().getName() + " is not a valid " +
+/* 1046 */                 "external type for schema of array<string>");
+/* 1047 */
+              }
+/* 1048 */
+            }
+/* 1049 */
+            ArrayData value46 = null;
+/* 1050 */
+/* 1051 */
+            if (!MapObjects_loopIsNull47) {
+/* 1052 */
+/* 1053 */
+              scala.collection.Seq seq2 = null;
+/* 1054 */
+              java.lang.Object[] array2 = null;
+/* 1055 */
+              if (value47.getClass().isArray()) {
+/* 1056 */
+                array2 = (java.lang.Object[]) value47;
+/* 1057 */
+              } else {
+/* 1058 */
+                seq2 = (scala.collection.Seq) value47;
+/* 1059 */
+              }
+/* 1060 */
+/* 1061 */
+              UTF8String[] convertedArray2 = null;
+/* 1062 */
+              int dataLength2 = seq2 == null ? array2.length : seq2.size();
+/* 1063 */
+              convertedArray2 = new UTF8String[dataLength2];
+/* 1064 */
+/* 1065 */
+              int loopIndex2 = 0;
+/* 1066 */
+              while (loopIndex2 < dataLength2) {
+/* 1067 */
+                MapObjects_loopValue48 =
+                    (java.lang.Object) (seq2 == null ? array2[loopIndex2] : seq2.apply(loopIndex2));
+/* 1068 */
+                MapObjects_loopIsNull49 = MapObjects_loopValue48 == null;
+/* 1069 */
+/* 1070 */
+/* 1071 */
+                java.lang.String value49 = null;
+/* 1072 */
+                if (!MapObjects_loopIsNull49) {
+/* 1073 */
+                  if (MapObjects_loopValue48 instanceof java.lang.String) {
+/* 1074 */
+                    value49 = (java.lang.String) MapObjects_loopValue48;
+/* 1075 */
+                  } else {
+/* 1076 */
+                    throw new RuntimeException(
+                        MapObjects_loopValue48.getClass().getName() + " is not a valid " +
+/* 1077 */                     "external type for schema of string");
+/* 1078 */
+                  }
+/* 1079 */
+                }
+/* 1080 */
+                boolean isNull48 = MapObjects_loopIsNull49;
+/* 1081 */
+                final UTF8String
+                    value48 =
+                    isNull48 ? null : org.apache.spark.unsafe.types.UTF8String.fromString(value49);
+/* 1082 */
+                isNull48 = value48 == null;
+/* 1083 */
+                if (isNull48) {
+/* 1084 */
+                  convertedArray2[loopIndex2] = null;
+/* 1085 */
+                } else {
+/* 1086 */
+                  convertedArray2[loopIndex2] = value48;
+/* 1087 */
+                }
+/* 1088 */
+/* 1089 */
+                loopIndex2 += 1;
+/* 1090 */
+              }
+/* 1091 */
+/* 1092 */
+              value46 = new org.apache.spark.sql.catalyst.util.GenericArrayData(convertedArray2);
+/* 1093 */
+            }
+/* 1094 */
+            if (MapObjects_loopIsNull47) {
+/* 1095 */
+              convertedArray3[loopIndex3] = null;
+/* 1096 */
+            } else {
+/* 1097 */
+              convertedArray3[loopIndex3] = value46;
+/* 1098 */
+            }
+/* 1099 */
+/* 1100 */
+            loopIndex3 += 1;
+/* 1101 */
+          }
+/* 1102 */
+/* 1103 */
+          value39 = new org.apache.spark.sql.catalyst.util.GenericArrayData(convertedArray3);
+/* 1104 */
+        }
+/* 1105 */
+/* 1106 */
+        final boolean isNull29 = isNull31 || isNull40;
+/* 1107 */
+        final MapData
+            value29 =
+            isNull29 ? null
+                     : new org.apache.spark.sql.catalyst.util.ArrayBasedMapData(value30, value39);
+/* 1108 */
+        isNull23 = isNull29;
+/* 1109 */
+        value23 = value29;
+/* 1110 */
+      }
+/* 1111 */
+      if (isNull23) {
+/* 1112 */
+        rowWriter.setNullAt(1);
+/* 1113 */
+      } else {
+/* 1114 */       // Remember the current cursor so that we can calculate how many bytes are
+/* 1115 */       // written later.
+/* 1116 */
+        final int tmpCursor2 = holder.cursor;
+/* 1117 */
+/* 1118 */
+        if (value23 instanceof UnsafeMapData) {
+/* 1119 */
+/* 1120 */
+          final int sizeInBytes3 = ((UnsafeMapData) value23).getSizeInBytes();
+/* 1121 */         // grow the global buffer before writing data.
+/* 1122 */
+          holder.grow(sizeInBytes3);
+/* 1123 */
+          ((UnsafeMapData) value23).writeToMemory(holder.buffer, holder.cursor);
+/* 1124 */
+          holder.cursor += sizeInBytes3;
+/* 1125 */
+/* 1126 */
+        } else {
+/* 1127 */
+          final ArrayData keys1 = value23.keyArray();
+/* 1128 */
+          final ArrayData values5 = value23.valueArray();
+/* 1129 */
+/* 1130 */         // preserve 4 bytes to write the key array numBytes later.
+/* 1131 */
+          holder.grow(4);
+/* 1132 */
+          holder.cursor += 4;
+/* 1133 */
+/* 1134 */         // Remember the current cursor so that we can write numBytes of key array later.
+/* 1135 */
+          final int tmpCursor3 = holder.cursor;
+/* 1136 */
+/* 1137 */
+/* 1138 */
+          if (keys1 instanceof UnsafeArrayData) {
+/* 1139 */
+/* 1140 */
+            final int sizeInBytes4 = ((UnsafeArrayData) keys1).getSizeInBytes();
+/* 1141 */           // grow the global buffer before writing data.
+/* 1142 */
+            holder.grow(sizeInBytes4);
+/* 1143 */
+            ((UnsafeArrayData) keys1).writeToMemory(holder.buffer, holder.cursor);
+/* 1144 */
+            holder.cursor += sizeInBytes4;
+/* 1145 */
+/* 1146 */
+          } else {
+/* 1147 */
+            final int numElements2 = keys1.numElements();
+/* 1148 */
+            arrayWriter2.initialize(holder, numElements2, 0);
+/* 1149 */
+/* 1150 */
+            for (int index2 = 0; index2 < numElements2; index2++) {
+/* 1151 */
+              if (keys1.isNullAt(index2)) {
+/* 1152 */
+                arrayWriter2.setNullAt(index2);
+/* 1153 */
+              } else {
+/* 1154 */
+                final UTF8String element2 = keys1.getUTF8String(index2);
+/* 1155 */
+                arrayWriter2.write(index2, element2);
+/* 1156 */
+              }
+/* 1157 */
+            }
+/* 1158 */
+          }
+/* 1159 */
+/* 1160 */         // Write the numBytes of key array into the first 4 bytes.
+/* 1161 */
+          Platform.putInt(holder.buffer, tmpCursor3 - 4, holder.cursor - tmpCursor3);
+/* 1162 */
+/* 1163 */
+/* 1164 */
+          if (values5 instanceof UnsafeArrayData) {
+/* 1165 */
+/* 1166 */
+            final int sizeInBytes6 = ((UnsafeArrayData) values5).getSizeInBytes();
+/* 1167 */           // grow the global buffer before writing data.
+/* 1168 */
+            holder.grow(sizeInBytes6);
+/* 1169 */
+            ((UnsafeArrayData) values5).writeToMemory(holder.buffer, holder.cursor);
+/* 1170 */
+            holder.cursor += sizeInBytes6;
+/* 1171 */
+/* 1172 */
+          } else {
+/* 1173 */
+            final int numElements3 = values5.numElements();
+/* 1174 */
+            arrayWriter3.initialize(holder, numElements3, 0);
+/* 1175 */
+/* 1176 */
+            for (int index3 = 0; index3 < numElements3; index3++) {
+/* 1177 */
+              if (values5.isNullAt(index3)) {
+/* 1178 */
+                arrayWriter3.setNullAt(index3);
+/* 1179 */
+              } else {
+/* 1180 */
+                final ArrayData element3 = values5.getArray(index3);
+/* 1181 */
+/* 1182 */
+                arrayWriter3.setOffset(index3);
+/* 1183 */
+/* 1184 */
+                if (element3 instanceof UnsafeArrayData) {
+/* 1185 */
+/* 1186 */
+                  final int sizeInBytes5 = ((UnsafeArrayData) element3).getSizeInBytes();
+/* 1187 */                 // grow the global buffer before writing data.
+/* 1188 */
+                  holder.grow(sizeInBytes5);
+/* 1189 */
+                  ((UnsafeArrayData) element3).writeToMemory(holder.buffer, holder.cursor);
+/* 1190 */
+                  holder.cursor += sizeInBytes5;
+/* 1191 */
+/* 1192 */
+                } else {
+/* 1193 */
+                  final int numElements4 = element3.numElements();
+/* 1194 */
+                  arrayWriter4.initialize(holder, numElements4, 0);
+/* 1195 */
+/* 1196 */
+                  for (int index4 = 0; index4 < numElements4; index4++) {
+/* 1197 */
+                    if (element3.isNullAt(index4)) {
+/* 1198 */
+                      arrayWriter4.setNullAt(index4);
+/* 1199 */
+                    } else {
+/* 1200 */
+                      final UTF8String element4 = element3.getUTF8String(index4);
+/* 1201 */
+                      arrayWriter4.write(index4, element4);
+/* 1202 */
+                    }
+/* 1203 */
+                  }
+/* 1204 */
+                }
+/* 1205 */
+/* 1206 */
+/* 1207 */
+              }
+/* 1208 */
+            }
+/* 1209 */
+          }
+/* 1210 */
+/* 1211 */
+        }
+/* 1212 */
+/* 1213 */
+        rowWriter.setOffsetAndSize(1, tmpCursor2, holder.cursor - tmpCursor2);
+/* 1214 */
+        rowWriter.alignToWords(holder.cursor - tmpCursor2);
+/* 1215 */
+      }
+/* 1216 */
+/* 1217 */
+/* 1218 */
+      boolean isNull53 = i.isNullAt(0);
+/* 1219 */
+      org.apache.spark.sql.Row
+          value53 =
+          isNull53 ? null : ((org.apache.spark.sql.Row) i.get(0, null));
+/* 1220 */
+/* 1221 */
+      if (isNull53) {
+/* 1222 */
+        throw new RuntimeException(errMsg6);
+/* 1223 */
+      }
+/* 1224 */
+/* 1225 */
+      boolean isNull51 = false || false;
+/* 1226 */
+      boolean value51 = false;
+/* 1227 */
+      if (!isNull51) {
+/* 1228 */
+        value51 = value53.isNullAt(2);
+/* 1229 */
+      }
+/* 1230 */
+      boolean isNull50 = false;
+/* 1231 */
+      MapData value50 = null;
+/* 1232 */
+      if (!isNull51 && value51) {
+/* 1233 */
+/* 1234 */
+        final MapData value55 = null;
+/* 1235 */
+        isNull50 = true;
+/* 1236 */
+        value50 = value55;
+/* 1237 */
+      } else {
+/* 1238 */
+/* 1239 */
+        boolean isNull63 = i.isNullAt(0);
+/* 1240 */
+        org.apache.spark.sql.Row
+            value63 =
+            isNull63 ? null : ((org.apache.spark.sql.Row) i.get(0, null));
+/* 1241 */
+/* 1242 */
+        if (isNull63) {
+/* 1243 */
+          throw new RuntimeException(errMsg7);
+/* 1244 */
+        }
+/* 1245 */
+/* 1246 */
+        if (false) {
+/* 1247 */
+          throw new RuntimeException("The input external row cannot be null.");
+/* 1248 */
+        }
+/* 1249 */
+/* 1250 */
+        if (value63.isNullAt(2)) {
+/* 1251 */
+          throw new RuntimeException("The 2th field 'mapOfArrayAndInt' of input row " +
+/* 1252 */           "cannot be null.");
+/* 1253 */
+        }
+/* 1254 */
+/* 1255 */
+        final Object value61 = value63.get(2);
+/* 1256 */
+        scala.collection.Map value60 = null;
+/* 1257 */
+        if (!false) {
+/* 1258 */
+          if (value61 instanceof scala.collection.Map) {
+/* 1259 */
+            value60 = (scala.collection.Map) value61;
+/* 1260 */
+          } else {
+/* 1261 */
+            throw new RuntimeException(value61.getClass().getName() + " is not a valid " +
+/* 1262 */             "external type for schema of map<array<string>,int>");
+/* 1263 */
+          }
+/* 1264 */
+        }
+/* 1265 */
+/* 1266 */
+        boolean isNull59 = false;
+/* 1267 */
+        scala.collection.Iterator value59 = null;
+/* 1268 */
+        if (!isNull59) {
+/* 1269 */
+/* 1270 */
+          Object funcResult8 = null;
+/* 1271 */
+          funcResult8 = value60.keysIterator();
+/* 1272 */
+          if (funcResult8 == null) {
+/* 1273 */
+            isNull59 = true;
+/* 1274 */
+          } else {
+/* 1275 */
+            value59 = (scala.collection.Iterator) funcResult8;
+/* 1276 */
+          }
+/* 1277 */
+/* 1278 */
+        }
+/* 1279 */
+        isNull59 = value59 == null;
+/* 1280 */
+/* 1281 */
+        boolean isNull58 = isNull59;
+/* 1282 */
+        scala.collection.Seq value58 = null;
+/* 1283 */
+        if (!isNull58) {
+/* 1284 */
+/* 1285 */
+          Object funcResult9 = null;
+/* 1286 */
+          funcResult9 = value59.toSeq();
+/* 1287 */
+          if (funcResult9 == null) {
+/* 1288 */
+            isNull58 = true;
+/* 1289 */
+          } else {
+/* 1290 */
+            value58 = (scala.collection.Seq) funcResult9;
+/* 1291 */
+          }
+/* 1292 */
+/* 1293 */
+        }
+/* 1294 */
+        isNull58 = value58 == null;
+/* 1295 */
+        ArrayData value57 = null;
+/* 1296 */
+/* 1297 */
+        if (!isNull58) {
+/* 1298 */
+/* 1299 */
+          ArrayData[] convertedArray5 = null;
+/* 1300 */
+          int dataLength5 = value58.size();
+/* 1301 */
+          convertedArray5 = new ArrayData[dataLength5];
+/* 1302 */
+/* 1303 */
+          int loopIndex5 = 0;
+/* 1304 */
+          while (loopIndex5 < dataLength5) {
+/* 1305 */
+            MapObjects_loopValue50 = (java.lang.Object) (value58.apply(loopIndex5));
+/* 1306 */
+            MapObjects_loopIsNull51 = MapObjects_loopValue50 == null;
+/* 1307 */
+/* 1308 */
+/* 1309 */
+            java.lang.Object value65 = null;
+/* 1310 */
+            if (!MapObjects_loopIsNull51) {
+/* 1311 */
+              if (MapObjects_loopValue50 instanceof scala.collection.Seq || MapObjects_loopValue50
+                  .getClass().isArray()) {
+/* 1312 */
+                value65 = (java.lang.Object) MapObjects_loopValue50;
+/* 1313 */
+              } else {
+/* 1314 */
+                throw new RuntimeException(
+                    MapObjects_loopValue50.getClass().getName() + " is not a valid " +
+/* 1315 */                 "external type for schema of array<string>");
+/* 1316 */
+              }
+/* 1317 */
+            }
+/* 1318 */
+            ArrayData value64 = null;
+/* 1319 */
+/* 1320 */
+            if (!MapObjects_loopIsNull51) {
+/* 1321 */
+/* 1322 */
+              scala.collection.Seq seq4 = null;
+/* 1323 */
+              java.lang.Object[] array4 = null;
+/* 1324 */
+              if (value65.getClass().isArray()) {
+/* 1325 */
+                array4 = (java.lang.Object[]) value65;
+/* 1326 */
+              } else {
+/* 1327 */
+                seq4 = (scala.collection.Seq) value65;
+/* 1328 */
+              }
+/* 1329 */
+/* 1330 */
+              UTF8String[] convertedArray4 = null;
+/* 1331 */
+              int dataLength4 = seq4 == null ? array4.length : seq4.size();
+/* 1332 */
+              convertedArray4 = new UTF8String[dataLength4];
+/* 1333 */
+/* 1334 */
+              int loopIndex4 = 0;
+/* 1335 */
+              while (loopIndex4 < dataLength4) {
+/* 1336 */
+                MapObjects_loopValue52 =
+                    (java.lang.Object) (seq4 == null ? array4[loopIndex4] : seq4.apply(loopIndex4));
+/* 1337 */
+                MapObjects_loopIsNull53 = MapObjects_loopValue52 == null;
+/* 1338 */
+/* 1339 */
+/* 1340 */
+                java.lang.String value67 = null;
+/* 1341 */
+                if (!MapObjects_loopIsNull53) {
+/* 1342 */
+                  if (MapObjects_loopValue52 instanceof java.lang.String) {
+/* 1343 */
+                    value67 = (java.lang.String) MapObjects_loopValue52;
+/* 1344 */
+                  } else {
+/* 1345 */
+                    throw new RuntimeException(
+                        MapObjects_loopValue52.getClass().getName() + " is not a valid " +
+/* 1346 */                     "external type for schema of string");
+/* 1347 */
+                  }
+/* 1348 */
+                }
+/* 1349 */
+                boolean isNull66 = MapObjects_loopIsNull53;
+/* 1350 */
+                final UTF8String
+                    value66 =
+                    isNull66 ? null : org.apache.spark.unsafe.types.UTF8String.fromString(value67);
+/* 1351 */
+                isNull66 = value66 == null;
+/* 1352 */
+                if (isNull66) {
+/* 1353 */
+                  convertedArray4[loopIndex4] = null;
+/* 1354 */
+                } else {
+/* 1355 */
+                  convertedArray4[loopIndex4] = value66;
+/* 1356 */
+                }
+/* 1357 */
+/* 1358 */
+                loopIndex4 += 1;
+/* 1359 */
+              }
+/* 1360 */
+/* 1361 */
+              value64 = new org.apache.spark.sql.catalyst.util.GenericArrayData(convertedArray4);
+/* 1362 */
+            }
+/* 1363 */
+            if (MapObjects_loopIsNull51) {
+/* 1364 */
+              convertedArray5[loopIndex5] = null;
+/* 1365 */
+            } else {
+/* 1366 */
+              convertedArray5[loopIndex5] = value64;
+/* 1367 */
+            }
+/* 1368 */
+/* 1369 */
+            loopIndex5 += 1;
+/* 1370 */
+          }
+/* 1371 */
+/* 1372 */
+          value57 = new org.apache.spark.sql.catalyst.util.GenericArrayData(convertedArray5);
+/* 1373 */
+        }
+/* 1374 */
+/* 1375 */
+        boolean isNull74 = i.isNullAt(0);
+/* 1376 */
+        org.apache.spark.sql.Row
+            value74 =
+            isNull74 ? null : ((org.apache.spark.sql.Row) i.get(0, null));
+/* 1377 */
+/* 1378 */
+        if (isNull74) {
+/* 1379 */
+          throw new RuntimeException(errMsg8);
+/* 1380 */
+        }
+/* 1381 */
+/* 1382 */
+        if (false) {
+/* 1383 */
+          throw new RuntimeException("The input external row cannot be null.");
+/* 1384 */
+        }
+/* 1385 */
+/* 1386 */
+        if (value74.isNullAt(2)) {
+/* 1387 */
+          throw new RuntimeException("The 2th field 'mapOfArrayAndInt' of input row " +
+/* 1388 */           "cannot be null.");
+/* 1389 */
+        }
+/* 1390 */
+/* 1391 */
+        final Object value72 = value74.get(2);
+/* 1392 */
+        scala.collection.Map value71 = null;
+/* 1393 */
+        if (!false) {
+/* 1394 */
+          if (value72 instanceof scala.collection.Map) {
+/* 1395 */
+            value71 = (scala.collection.Map) value72;
+/* 1396 */
+          } else {
+/* 1397 */
+            throw new RuntimeException(value72.getClass().getName() + " is not a valid " +
+/* 1398 */             "external type for schema of map<array<string>,int>");
+/* 1399 */
+          }
+/* 1400 */
+        }
+/* 1401 */
+/* 1402 */
+        boolean isNull70 = false;
+/* 1403 */
+        scala.collection.Iterator value70 = null;
+/* 1404 */
+        if (!isNull70) {
+/* 1405 */
+/* 1406 */
+          Object funcResult10 = null;
+/* 1407 */
+          funcResult10 = value71.valuesIterator();
+/* 1408 */
+          if (funcResult10 == null) {
+/* 1409 */
+            isNull70 = true;
+/* 1410 */
+          } else {
+/* 1411 */
+            value70 = (scala.collection.Iterator) funcResult10;
+/* 1412 */
+          }
+/* 1413 */
+/* 1414 */
+        }
+/* 1415 */
+        isNull70 = value70 == null;
+/* 1416 */
+/* 1417 */
+        boolean isNull69 = isNull70;
+/* 1418 */
+        scala.collection.Seq value69 = null;
+/* 1419 */
+        if (!isNull69) {
+/* 1420 */
+/* 1421 */
+          Object funcResult11 = null;
+/* 1422 */
+          funcResult11 = value70.toSeq();
+/* 1423 */
+          if (funcResult11 == null) {
+/* 1424 */
+            isNull69 = true;
+/* 1425 */
+          } else {
+/* 1426 */
+            value69 = (scala.collection.Seq) funcResult11;
+/* 1427 */
+          }
+/* 1428 */
+/* 1429 */
+        }
+/* 1430 */
+        isNull69 = value69 == null;
+/* 1431 */
+/* 1432 */
+        final boolean isNull68 = isNull69;
+/* 1433 */
+        final ArrayData
+            value68 =
+            isNull68 ? null : new org.apache.spark.sql.catalyst.util.GenericArrayData(value69);
+/* 1434 */
+/* 1435 */
+        final boolean isNull56 = isNull58 || isNull68;
+/* 1436 */
+        final MapData
+            value56 =
+            isNull56 ? null
+                     : new org.apache.spark.sql.catalyst.util.ArrayBasedMapData(value57, value68);
+/* 1437 */
+        isNull50 = isNull56;
+/* 1438 */
+        value50 = value56;
+/* 1439 */
+      }
+/* 1440 */
+      if (isNull50) {
+/* 1441 */
+        rowWriter.setNullAt(2);
+/* 1442 */
+      } else {
+/* 1443 */       // Remember the current cursor so that we can calculate how many bytes are
+/* 1444 */       // written later.
+/* 1445 */
+        final int tmpCursor4 = holder.cursor;
+/* 1446 */
+/* 1447 */
+        if (value50 instanceof UnsafeMapData) {
+/* 1448 */
+/* 1449 */
+          final int sizeInBytes7 = ((UnsafeMapData) value50).getSizeInBytes();
+/* 1450 */         // grow the global buffer before writing data.
+/* 1451 */
+          holder.grow(sizeInBytes7);
+/* 1452 */
+          ((UnsafeMapData) value50).writeToMemory(holder.buffer, holder.cursor);
+/* 1453 */
+          holder.cursor += sizeInBytes7;
+/* 1454 */
+/* 1455 */
+        } else {
+/* 1456 */
+          final ArrayData keys2 = value50.keyArray();
+/* 1457 */
+          final ArrayData values6 = value50.valueArray();
+/* 1458 */
+/* 1459 */         // preserve 4 bytes to write the key array numBytes later.
+/* 1460 */
+          holder.grow(4);
+/* 1461 */
+          holder.cursor += 4;
+/* 1462 */
+/* 1463 */         // Remember the current cursor so that we can write numBytes of key array later.
+/* 1464 */
+          final int tmpCursor5 = holder.cursor;
+/* 1465 */
+/* 1466 */
+/* 1467 */
+          if (keys2 instanceof UnsafeArrayData) {
+/* 1468 */
+/* 1469 */
+            final int sizeInBytes9 = ((UnsafeArrayData) keys2).getSizeInBytes();
+/* 1470 */           // grow the global buffer before writing data.
+/* 1471 */
+            holder.grow(sizeInBytes9);
+/* 1472 */
+            ((UnsafeArrayData) keys2).writeToMemory(holder.buffer, holder.cursor);
+/* 1473 */
+            holder.cursor += sizeInBytes9;
+/* 1474 */
+/* 1475 */
+          } else {
+/* 1476 */
+            final int numElements5 = keys2.numElements();
+/* 1477 */
+            arrayWriter5.initialize(holder, numElements5, 0);
+/* 1478 */
+/* 1479 */
+            for (int index5 = 0; index5 < numElements5; index5++) {
+/* 1480 */
+              if (keys2.isNullAt(index5)) {
+/* 1481 */
+                arrayWriter5.setNullAt(index5);
+/* 1482 */
+              } else {
+/* 1483 */
+                final ArrayData element5 = keys2.getArray(index5);
+/* 1484 */
+/* 1485 */
+                arrayWriter5.setOffset(index5);
+/* 1486 */
+/* 1487 */
+                if (element5 instanceof UnsafeArrayData) {
+/* 1488 */
+/* 1489 */
+                  final int sizeInBytes8 = ((UnsafeArrayData) element5).getSizeInBytes();
+/* 1490 */                 // grow the global buffer before writing data.
+/* 1491 */
+                  holder.grow(sizeInBytes8);
+/* 1492 */
+                  ((UnsafeArrayData) element5).writeToMemory(holder.buffer, holder.cursor);
+/* 1493 */
+                  holder.cursor += sizeInBytes8;
+/* 1494 */
+/* 1495 */
+                } else {
+/* 1496 */
+                  final int numElements6 = element5.numElements();
+/* 1497 */
+                  arrayWriter6.initialize(holder, numElements6, 0);
+/* 1498 */
+/* 1499 */
+                  for (int index6 = 0; index6 < numElements6; index6++) {
+/* 1500 */
+                    if (element5.isNullAt(index6)) {
+/* 1501 */
+                      arrayWriter6.setNullAt(index6);
+/* 1502 */
+                    } else {
+/* 1503 */
+                      final UTF8String element6 = element5.getUTF8String(index6);
+/* 1504 */
+                      arrayWriter6.write(index6, element6);
+/* 1505 */
+                    }
+/* 1506 */
+                  }
+/* 1507 */
+                }
+/* 1508 */
+/* 1509 */
+/* 1510 */
+              }
+/* 1511 */
+            }
+/* 1512 */
+          }
+/* 1513 */
+/* 1514 */         // Write the numBytes of key array into the first 4 bytes.
+/* 1515 */
+          Platform.putInt(holder.buffer, tmpCursor5 - 4, holder.cursor - tmpCursor5);
+/* 1516 */
+/* 1517 */
+/* 1518 */
+          if (values6 instanceof UnsafeArrayData) {
+/* 1519 */
+/* 1520 */
+            final int sizeInBytes10 = ((UnsafeArrayData) values6).getSizeInBytes();
+/* 1521 */           // grow the global buffer before writing data.
+/* 1522 */
+            holder.grow(sizeInBytes10);
+/* 1523 */
+            ((UnsafeArrayData) values6).writeToMemory(holder.buffer, holder.cursor);
+/* 1524 */
+            holder.cursor += sizeInBytes10;
+/* 1525 */
+/* 1526 */
+          } else {
+/* 1527 */
+            final int numElements7 = values6.numElements();
+/* 1528 */
+            arrayWriter7.initialize(holder, numElements7, 4);
+/* 1529 */
+/* 1530 */
+            for (int index7 = 0; index7 < numElements7; index7++) {
+/* 1531 */
+              if (values6.isNullAt(index7)) {
+/* 1532 */
+                arrayWriter7.setNullAt(index7);
+/* 1533 */
+              } else {
+/* 1534 */
+                final int element7 = values6.getInt(index7);
+/* 1535 */
+                arrayWriter7.write(index7, element7);
+/* 1536 */
+              }
+/* 1537 */
+            }
+/* 1538 */
+          }
+/* 1539 */
+/* 1540 */
+        }
+/* 1541 */
+/* 1542 */
+        rowWriter.setOffsetAndSize(2, tmpCursor4, holder.cursor - tmpCursor4);
+/* 1543 */
+        rowWriter.alignToWords(holder.cursor - tmpCursor4);
+/* 1544 */
+      }
+/* 1545 */
+/* 1546 */
+/* 1547 */
+      boolean isNull78 = i.isNullAt(0);
+/* 1548 */
+      org.apache.spark.sql.Row
+          value78 =
+          isNull78 ? null : ((org.apache.spark.sql.Row) i.get(0, null));
+/* 1549 */
+/* 1550 */
+      if (isNull78) {
+/* 1551 */
+        throw new RuntimeException(errMsg9);
+/* 1552 */
+      }
+/* 1553 */
+/* 1554 */
+      boolean isNull76 = false || false;
+/* 1555 */
+      boolean value76 = false;
+/* 1556 */
+      if (!isNull76) {
+/* 1557 */
+        value76 = value78.isNullAt(3);
+/* 1558 */
+      }
+/* 1559 */
+      boolean isNull75 = false;
+/* 1560 */
+      MapData value75 = null;
+/* 1561 */
+      if (!isNull76 && value76) {
+/* 1562 */
+/* 1563 */
+        final MapData value80 = null;
+/* 1564 */
+        isNull75 = true;
+/* 1565 */
+        value75 = value80;
+/* 1566 */
+      } else {
+/* 1567 */
+/* 1568 */
+        boolean isNull88 = i.isNullAt(0);
+/* 1569 */
+        org.apache.spark.sql.Row
+            value88 =
+            isNull88 ? null : ((org.apache.spark.sql.Row) i.get(0, null));
+/* 1570 */
+/* 1571 */
+        if (isNull88) {
+/* 1572 */
+          throw new RuntimeException(errMsg10);
+/* 1573 */
+        }
+/* 1574 */
+/* 1575 */
+        if (false) {
+/* 1576 */
+          throw new RuntimeException("The input external row cannot be null.");
+/* 1577 */
+        }
+/* 1578 */
+/* 1579 */
+        if (value88.isNullAt(3)) {
+/* 1580 */
+          throw new RuntimeException("The 3th field 'mapOfArray' of input row " +
+/* 1581 */           "cannot be null.");
+/* 1582 */
+        }
+/* 1583 */
+/* 1584 */
+        final Object value86 = value88.get(3);
+/* 1585 */
+        scala.collection.Map value85 = null;
+/* 1586 */
+        if (!false) {
+/* 1587 */
+          if (value86 instanceof scala.collection.Map) {
+/* 1588 */
+            value85 = (scala.collection.Map) value86;
+/* 1589 */
+          } else {
+/* 1590 */
+            throw new RuntimeException(value86.getClass().getName() + " is not a valid " +
+/* 1591 */             "external type for schema of map<array<string>,array<string>>");
+/* 1592 */
+          }
+/* 1593 */
+        }
+/* 1594 */
+/* 1595 */
+        boolean isNull84 = false;
+/* 1596 */
+        scala.collection.Iterator value84 = null;
+/* 1597 */
+        if (!isNull84) {
+/* 1598 */
+/* 1599 */
+          Object funcResult12 = null;
+/* 1600 */
+          funcResult12 = value85.keysIterator();
+/* 1601 */
+          if (funcResult12 == null) {
+/* 1602 */
+            isNull84 = true;
+/* 1603 */
+          } else {
+/* 1604 */
+            value84 = (scala.collection.Iterator) funcResult12;
+/* 1605 */
+          }
+/* 1606 */
+/* 1607 */
+        }
+/* 1608 */
+        isNull84 = value84 == null;
+/* 1609 */
+/* 1610 */
+        boolean isNull83 = isNull84;
+/* 1611 */
+        scala.collection.Seq value83 = null;
+/* 1612 */
+        if (!isNull83) {
+/* 1613 */
+/* 1614 */
+          Object funcResult13 = null;
+/* 1615 */
+          funcResult13 = value84.toSeq();
+/* 1616 */
+          if (funcResult13 == null) {
+/* 1617 */
+            isNull83 = true;
+/* 1618 */
+          } else {
+/* 1619 */
+            value83 = (scala.collection.Seq) funcResult13;
+/* 1620 */
+          }
+/* 1621 */
+/* 1622 */
+        }
+/* 1623 */
+        isNull83 = value83 == null;
+/* 1624 */
+        ArrayData value82 = null;
+/* 1625 */
+/* 1626 */
+        if (!isNull83) {
+/* 1627 */
+/* 1628 */
+          ArrayData[] convertedArray7 = null;
+/* 1629 */
+          int dataLength7 = value83.size();
+/* 1630 */
+          convertedArray7 = new ArrayData[dataLength7];
+/* 1631 */
+/* 1632 */
+          int loopIndex7 = 0;
+/* 1633 */
+          while (loopIndex7 < dataLength7) {
+/* 1634 */
+            MapObjects_loopValue54 = (java.lang.Object) (value83.apply(loopIndex7));
+/* 1635 */
+            MapObjects_loopIsNull55 = MapObjects_loopValue54 == null;
+/* 1636 */
+/* 1637 */
+/* 1638 */
+            java.lang.Object value90 = null;
+/* 1639 */
+            if (!MapObjects_loopIsNull55) {
+/* 1640 */
+              if (MapObjects_loopValue54 instanceof scala.collection.Seq || MapObjects_loopValue54
+                  .getClass().isArray()) {
+/* 1641 */
+                value90 = (java.lang.Object) MapObjects_loopValue54;
+/* 1642 */
+              } else {
+/* 1643 */
+                throw new RuntimeException(
+                    MapObjects_loopValue54.getClass().getName() + " is not a valid " +
+/* 1644 */                 "external type for schema of array<string>");
+/* 1645 */
+              }
+/* 1646 */
+            }
+/* 1647 */
+            ArrayData value89 = null;
+/* 1648 */
+/* 1649 */
+            if (!MapObjects_loopIsNull55) {
+/* 1650 */
+/* 1651 */
+              scala.collection.Seq seq6 = null;
+/* 1652 */
+              java.lang.Object[] array6 = null;
+/* 1653 */
+              if (value90.getClass().isArray()) {
+/* 1654 */
+                array6 = (java.lang.Object[]) value90;
+/* 1655 */
+              } else {
+/* 1656 */
+                seq6 = (scala.collection.Seq) value90;
+/* 1657 */
+              }
+/* 1658 */
+/* 1659 */
+              UTF8String[] convertedArray6 = null;
+/* 1660 */
+              int dataLength6 = seq6 == null ? array6.length : seq6.size();
+/* 1661 */
+              convertedArray6 = new UTF8String[dataLength6];
+/* 1662 */
+/* 1663 */
+              int loopIndex6 = 0;
+/* 1664 */
+              while (loopIndex6 < dataLength6) {
+/* 1665 */
+                MapObjects_loopValue56 =
+                    (java.lang.Object) (seq6 == null ? array6[loopIndex6] : seq6.apply(loopIndex6));
+/* 1666 */
+                MapObjects_loopIsNull57 = MapObjects_loopValue56 == null;
+/* 1667 */
+/* 1668 */
+/* 1669 */
+                java.lang.String value92 = null;
+/* 1670 */
+                if (!MapObjects_loopIsNull57) {
+/* 1671 */
+                  if (MapObjects_loopValue56 instanceof java.lang.String) {
+/* 1672 */
+                    value92 = (java.lang.String) MapObjects_loopValue56;
+/* 1673 */
+                  } else {
+/* 1674 */
+                    throw new RuntimeException(
+                        MapObjects_loopValue56.getClass().getName() + " is not a valid " +
+/* 1675 */                     "external type for schema of string");
+/* 1676 */
+                  }
+/* 1677 */
+                }
+/* 1678 */
+                boolean isNull91 = MapObjects_loopIsNull57;
+/* 1679 */
+                final UTF8String
+                    value91 =
+                    isNull91 ? null : org.apache.spark.unsafe.types.UTF8String.fromString(value92);
+/* 1680 */
+                isNull91 = value91 == null;
+/* 1681 */
+                if (isNull91) {
+/* 1682 */
+                  convertedArray6[loopIndex6] = null;
+/* 1683 */
+                } else {
+/* 1684 */
+                  convertedArray6[loopIndex6] = value91;
+/* 1685 */
+                }
+/* 1686 */
+/* 1687 */
+                loopIndex6 += 1;
+/* 1688 */
+              }
+/* 1689 */
+/* 1690 */
+              value89 = new org.apache.spark.sql.catalyst.util.GenericArrayData(convertedArray6);
+/* 1691 */
+            }
+/* 1692 */
+            if (MapObjects_loopIsNull55) {
+/* 1693 */
+              convertedArray7[loopIndex7] = null;
+/* 1694 */
+            } else {
+/* 1695 */
+              convertedArray7[loopIndex7] = value89;
+/* 1696 */
+            }
+/* 1697 */
+/* 1698 */
+            loopIndex7 += 1;
+/* 1699 */
+          }
+/* 1700 */
+/* 1701 */
+          value82 = new org.apache.spark.sql.catalyst.util.GenericArrayData(convertedArray7);
+/* 1702 */
+        }
+/* 1703 */
+/* 1704 */
+        boolean isNull99 = i.isNullAt(0);
+/* 1705 */
+        org.apache.spark.sql.Row
+            value99 =
+            isNull99 ? null : ((org.apache.spark.sql.Row) i.get(0, null));
+/* 1706 */
+/* 1707 */
+        if (isNull99) {
+/* 1708 */
+          throw new RuntimeException(errMsg11);
+/* 1709 */
+        }
+/* 1710 */
+/* 1711 */
+        if (false) {
+/* 1712 */
+          throw new RuntimeException("The input external row cannot be null.");
+/* 1713 */
+        }
+/* 1714 */
+/* 1715 */
+        if (value99.isNullAt(3)) {
+/* 1716 */
+          throw new RuntimeException("The 3th field 'mapOfArray' of input row " +
+/* 1717 */           "cannot be null.");
+/* 1718 */
+        }
+/* 1719 */
+/* 1720 */
+        final Object value97 = value99.get(3);
+/* 1721 */
+        scala.collection.Map value96 = null;
+/* 1722 */
+        if (!false) {
+/* 1723 */
+          if (value97 instanceof scala.collection.Map) {
+/* 1724 */
+            value96 = (scala.collection.Map) value97;
+/* 1725 */
+          } else {
+/* 1726 */
+            throw new RuntimeException(value97.getClass().getName() + " is not a valid " +
+/* 1727 */             "external type for schema of map<array<string>,array<string>>");
+/* 1728 */
+          }
+/* 1729 */
+        }
+/* 1730 */
+/* 1731 */
+        boolean isNull95 = false;
+/* 1732 */
+        scala.collection.Iterator value95 = null;
+/* 1733 */
+        if (!isNull95) {
+/* 1734 */
+/* 1735 */
+          Object funcResult14 = null;
+/* 1736 */
+          funcResult14 = value96.valuesIterator();
+/* 1737 */
+          if (funcResult14 == null) {
+/* 1738 */
+            isNull95 = true;
+/* 1739 */
+          } else {
+/* 1740 */
+            value95 = (scala.collection.Iterator) funcResult14;
+/* 1741 */
+          }
+/* 1742 */
+/* 1743 */
+        }
+/* 1744 */
+        isNull95 = value95 == null;
+/* 1745 */
+/* 1746 */
+        boolean isNull94 = isNull95;
+/* 1747 */
+        scala.collection.Seq value94 = null;
+/* 1748 */
+        if (!isNull94) {
+/* 1749 */
+/* 1750 */
+          Object funcResult15 = null;
+/* 1751 */
+          funcResult15 = value95.toSeq();
+/* 1752 */
+          if (funcResult15 == null) {
+/* 1753 */
+            isNull94 = true;
+/* 1754 */
+          } else {
+/* 1755 */
+            value94 = (scala.collection.Seq) funcResult15;
+/* 1756 */
+          }
+/* 1757 */
+/* 1758 */
+        }
+/* 1759 */
+        isNull94 = value94 == null;
+/* 1760 */
+        ArrayData value93 = null;
+/* 1761 */
+/* 1762 */
+        if (!isNull94) {
+/* 1763 */
+/* 1764 */
+          ArrayData[] convertedArray9 = null;
+/* 1765 */
+          int dataLength9 = value94.size();
+/* 1766 */
+          convertedArray9 = new ArrayData[dataLength9];
+/* 1767 */
+/* 1768 */
+          int loopIndex9 = 0;
+/* 1769 */
+          while (loopIndex9 < dataLength9) {
+/* 1770 */
+            MapObjects_loopValue58 = (java.lang.Object) (value94.apply(loopIndex9));
+/* 1771 */
+            MapObjects_loopIsNull59 = MapObjects_loopValue58 == null;
+/* 1772 */
+/* 1773 */
+/* 1774 */
+            java.lang.Object value101 = null;
+/* 1775 */
+            if (!MapObjects_loopIsNull59) {
+/* 1776 */
+              if (MapObjects_loopValue58 instanceof scala.collection.Seq || MapObjects_loopValue58
+                  .getClass().isArray()) {
+/* 1777 */
+                value101 = (java.lang.Object) MapObjects_loopValue58;
+/* 1778 */
+              } else {
+/* 1779 */
+                throw new RuntimeException(
+                    MapObjects_loopValue58.getClass().getName() + " is not a valid " +
+/* 1780 */                 "external type for schema of array<string>");
+/* 1781 */
+              }
+/* 1782 */
+            }
+/* 1783 */
+            ArrayData value100 = null;
+/* 1784 */
+/* 1785 */
+            if (!MapObjects_loopIsNull59) {
+/* 1786 */
+/* 1787 */
+              scala.collection.Seq seq8 = null;
+/* 1788 */
+              java.lang.Object[] array8 = null;
+/* 1789 */
+              if (value101.getClass().isArray()) {
+/* 1790 */
+                array8 = (java.lang.Object[]) value101;
+/* 1791 */
+              } else {
+/* 1792 */
+                seq8 = (scala.collection.Seq) value101;
+/* 1793 */
+              }
+/* 1794 */
+/* 1795 */
+              UTF8String[] convertedArray8 = null;
+/* 1796 */
+              int dataLength8 = seq8 == null ? array8.length : seq8.size();
+/* 1797 */
+              convertedArray8 = new UTF8String[dataLength8];
+/* 1798 */
+/* 1799 */
+              int loopIndex8 = 0;
+/* 1800 */
+              while (loopIndex8 < dataLength8) {
+/* 1801 */
+                MapObjects_loopValue60 =
+                    (java.lang.Object) (seq8 == null ? array8[loopIndex8] : seq8.apply(loopIndex8));
+/* 1802 */
+                MapObjects_loopIsNull61 = MapObjects_loopValue60 == null;
+/* 1803 */
+/* 1804 */
+/* 1805 */
+                java.lang.String value103 = null;
+/* 1806 */
+                if (!MapObjects_loopIsNull61) {
+/* 1807 */
+                  if (MapObjects_loopValue60 instanceof java.lang.String) {
+/* 1808 */
+                    value103 = (java.lang.String) MapObjects_loopValue60;
+/* 1809 */
+                  } else {
+/* 1810 */
+                    throw new RuntimeException(
+                        MapObjects_loopValue60.getClass().getName() + " is not a valid " +
+/* 1811 */                     "external type for schema of string");
+/* 1812 */
+                  }
+/* 1813 */
+                }
+/* 1814 */
+                boolean isNull102 = MapObjects_loopIsNull61;
+/* 1815 */
+                final UTF8String
+                    value102 =
+                    isNull102 ? null
+                              : org.apache.spark.unsafe.types.UTF8String.fromString(value103);
+/* 1816 */
+                isNull102 = value102 == null;
+/* 1817 */
+                if (isNull102) {
+/* 1818 */
+                  convertedArray8[loopIndex8] = null;
+/* 1819 */
+                } else {
+/* 1820 */
+                  convertedArray8[loopIndex8] = value102;
+/* 1821 */
+                }
+/* 1822 */
+/* 1823 */
+                loopIndex8 += 1;
+/* 1824 */
+              }
+/* 1825 */
+/* 1826 */
+              value100 = new org.apache.spark.sql.catalyst.util.GenericArrayData(convertedArray8);
+/* 1827 */
+            }
+/* 1828 */
+            if (MapObjects_loopIsNull59) {
+/* 1829 */
+              convertedArray9[loopIndex9] = null;
+/* 1830 */
+            } else {
+/* 1831 */
+              convertedArray9[loopIndex9] = value100;
+/* 1832 */
+            }
+/* 1833 */
+/* 1834 */
+            loopIndex9 += 1;
+/* 1835 */
+          }
+/* 1836 */
+/* 1837 */
+          value93 = new org.apache.spark.sql.catalyst.util.GenericArrayData(convertedArray9);
+/* 1838 */
+        }
+/* 1839 */
+/* 1840 */
+        final boolean isNull81 = isNull83 || isNull94;
+/* 1841 */
+        final MapData
+            value81 =
+            isNull81 ? null
+                     : new org.apache.spark.sql.catalyst.util.ArrayBasedMapData(value82, value93);
+/* 1842 */
+        isNull75 = isNull81;
+/* 1843 */
+        value75 = value81;
+/* 1844 */
+      }
+/* 1845 */
+      if (isNull75) {
+/* 1846 */
+        rowWriter.setNullAt(3);
+/* 1847 */
+      } else {
+/* 1848 */       // Remember the current cursor so that we can calculate how many bytes are
+/* 1849 */       // written later.
+/* 1850 */
+        final int tmpCursor6 = holder.cursor;
+/* 1851 */
+/* 1852 */
+        if (value75 instanceof UnsafeMapData) {
+/* 1853 */
+/* 1854 */
+          final int sizeInBytes11 = ((UnsafeMapData) value75).getSizeInBytes();
+/* 1855 */         // grow the global buffer before writing data.
+/* 1856 */
+          holder.grow(sizeInBytes11);
+/* 1857 */
+          ((UnsafeMapData) value75).writeToMemory(holder.buffer, holder.cursor);
+/* 1858 */
+          holder.cursor += sizeInBytes11;
+/* 1859 */
+/* 1860 */
+        } else {
+/* 1861 */
+          final ArrayData keys3 = value75.keyArray();
+/* 1862 */
+          final ArrayData values7 = value75.valueArray();
+/* 1863 */
+/* 1864 */         // preserve 4 bytes to write the key array numBytes later.
+/* 1865 */
+          holder.grow(4);
+/* 1866 */
+          holder.cursor += 4;
+/* 1867 */
+/* 1868 */         // Remember the current cursor so that we can write numBytes of key array later.
+/* 1869 */
+          final int tmpCursor7 = holder.cursor;
+/* 1870 */
+/* 1871 */
+/* 1872 */
+          if (keys3 instanceof UnsafeArrayData) {
+/* 1873 */
+/* 1874 */
+            final int sizeInBytes13 = ((UnsafeArrayData) keys3).getSizeInBytes();
+/* 1875 */           // grow the global buffer before writing data.
+/* 1876 */
+            holder.grow(sizeInBytes13);
+/* 1877 */
+            ((UnsafeArrayData) keys3).writeToMemory(holder.buffer, holder.cursor);
+/* 1878 */
+            holder.cursor += sizeInBytes13;
+/* 1879 */
+/* 1880 */
+          } else {
+/* 1881 */
+            final int numElements8 = keys3.numElements();
+/* 1882 */
+            arrayWriter8.initialize(holder, numElements8, 0);
+/* 1883 */
+/* 1884 */
+            for (int index8 = 0; index8 < numElements8; index8++) {
+/* 1885 */
+              if (keys3.isNullAt(index8)) {
+/* 1886 */
+                arrayWriter8.setNullAt(index8);
+/* 1887 */
+              } else {
+/* 1888 */
+                final ArrayData element8 = keys3.getArray(index8);
+/* 1889 */
+/* 1890 */
+                arrayWriter8.setOffset(index8);
+/* 1891 */
+/* 1892 */
+                if (element8 instanceof UnsafeArrayData) {
+/* 1893 */
+/* 1894 */
+                  final int sizeInBytes12 = ((UnsafeArrayData) element8).getSizeInBytes();
+/* 1895 */                 // grow the global buffer before writing data.
+/* 1896 */
+                  holder.grow(sizeInBytes12);
+/* 1897 */
+                  ((UnsafeArrayData) element8).writeToMemory(holder.buffer, holder.cursor);
+/* 1898 */
+                  holder.cursor += sizeInBytes12;
+/* 1899 */
+/* 1900 */
+                } else {
+/* 1901 */
+                  final int numElements9 = element8.numElements();
+/* 1902 */
+                  arrayWriter9.initialize(holder, numElements9, 0);
+/* 1903 */
+/* 1904 */
+                  for (int index9 = 0; index9 < numElements9; index9++) {
+/* 1905 */
+                    if (element8.isNullAt(index9)) {
+/* 1906 */
+                      arrayWriter9.setNullAt(index9);
+/* 1907 */
+                    } else {
+/* 1908 */
+                      final UTF8String element9 = element8.getUTF8String(index9);
+/* 1909 */
+                      arrayWriter9.write(index9, element9);
+/* 1910 */
+                    }
+/* 1911 */
+                  }
+/* 1912 */
+                }
+/* 1913 */
+/* 1914 */
+/* 1915 */
+              }
+/* 1916 */
+            }
+/* 1917 */
+          }
+/* 1918 */
+/* 1919 */         // Write the numBytes of key array into the first 4 bytes.
+/* 1920 */
+          Platform.putInt(holder.buffer, tmpCursor7 - 4, holder.cursor - tmpCursor7);
+/* 1921 */
+/* 1922 */
+/* 1923 */
+          if (values7 instanceof UnsafeArrayData) {
+/* 1924 */
+/* 1925 */
+            final int sizeInBytes15 = ((UnsafeArrayData) values7).getSizeInBytes();
+/* 1926 */           // grow the global buffer before writing data.
+/* 1927 */
+            holder.grow(sizeInBytes15);
+/* 1928 */
+            ((UnsafeArrayData) values7).writeToMemory(holder.buffer, holder.cursor);
+/* 1929 */
+            holder.cursor += sizeInBytes15;
+/* 1930 */
+/* 1931 */
+          } else {
+/* 1932 */
+            final int numElements10 = values7.numElements();
+/* 1933 */
+            arrayWriter10.initialize(holder, numElements10, 0);
+/* 1934 */
+/* 1935 */
+            for (int index10 = 0; index10 < numElements10; index10++) {
+/* 1936 */
+              if (values7.isNullAt(index10)) {
+/* 1937 */
+                arrayWriter10.setNullAt(index10);
+/* 1938 */
+              } else {
+/* 1939 */
+                final ArrayData element10 = values7.getArray(index10);
+/* 1940 */
+/* 1941 */
+                arrayWriter10.setOffset(index10);
+/* 1942 */
+/* 1943 */
+                if (element10 instanceof UnsafeArrayData) {
+/* 1944 */
+/* 1945 */
+                  final int sizeInBytes14 = ((UnsafeArrayData) element10).getSizeInBytes();
+/* 1946 */                 // grow the global buffer before writing data.
+/* 1947 */
+                  holder.grow(sizeInBytes14);
+/* 1948 */
+                  ((UnsafeArrayData) element10).writeToMemory(holder.buffer, holder.cursor);
+/* 1949 */
+                  holder.cursor += sizeInBytes14;
+/* 1950 */
+/* 1951 */
+                } else {
+/* 1952 */
+                  final int numElements11 = element10.numElements();
+/* 1953 */
+                  arrayWriter11.initialize(holder, numElements11, 0);
+/* 1954 */
+/* 1955 */
+                  for (int index11 = 0; index11 < numElements11; index11++) {
+/* 1956 */
+                    if (element10.isNullAt(index11)) {
+/* 1957 */
+                      arrayWriter11.setNullAt(index11);
+/* 1958 */
+                    } else {
+/* 1959 */
+                      final UTF8String element11 = element10.getUTF8String(index11);
+/* 1960 */
+                      arrayWriter11.write(index11, element11);
+/* 1961 */
+                    }
+/* 1962 */
+                  }
+/* 1963 */
+                }
+/* 1964 */
+/* 1965 */
+/* 1966 */
+              }
+/* 1967 */
+            }
+/* 1968 */
+          }
+/* 1969 */
+/* 1970 */
+        }
+/* 1971 */
+/* 1972 */
+        rowWriter.setOffsetAndSize(3, tmpCursor6, holder.cursor - tmpCursor6);
+/* 1973 */
+        rowWriter.alignToWords(holder.cursor - tmpCursor6);
+/* 1974 */
+      }
+/* 1975 */
+/* 1976 */
+/* 1977 */
+      boolean isNull107 = i.isNullAt(0);
+/* 1978 */
+      org.apache.spark.sql.Row
+          value107 =
+          isNull107 ? null : ((org.apache.spark.sql.Row) i.get(0, null));
+/* 1979 */
+/* 1980 */
+      if (isNull107) {
+/* 1981 */
+        throw new RuntimeException(errMsg12);
+/* 1982 */
+      }
+/* 1983 */
+/* 1984 */
+      boolean isNull105 = false || false;
+/* 1985 */
+      boolean value105 = false;
+/* 1986 */
+      if (!isNull105) {
+/* 1987 */
+        value105 = value107.isNullAt(4);
+/* 1988 */
+      }
+/* 1989 */
+      boolean isNull104 = false;
+/* 1990 */
+      MapData value104 = null;
+/* 1991 */
+      if (!isNull105 && value105) {
+/* 1992 */
+/* 1993 */
+        final MapData value109 = null;
+/* 1994 */
+        isNull104 = true;
+/* 1995 */
+        value104 = value109;
+/* 1996 */
+      } else {
+/* 1997 */
+/* 1998 */
+        boolean isNull117 = i.isNullAt(0);
+/* 1999 */
+        org.apache.spark.sql.Row
+            value117 =
+            isNull117 ? null : ((org.apache.spark.sql.Row) i.get(0, null));
+/* 2000 */
+/* 2001 */
+        if (isNull117) {
+/* 2002 */
+          throw new RuntimeException(errMsg13);
+/* 2003 */
+        }
+/* 2004 */
+/* 2005 */
+        if (false) {
+/* 2006 */
+          throw new RuntimeException("The input external row cannot be null.");
+/* 2007 */
+        }
+/* 2008 */
+/* 2009 */
+        if (value117.isNullAt(4)) {
+/* 2010 */
+          throw new RuntimeException("The 4th field 'mapOfStringAndStruct' of input row " +
+/* 2011 */           "cannot be null.");
+/* 2012 */
+        }
+/* 2013 */
+/* 2014 */
+        final Object value115 = value117.get(4);
+/* 2015 */
+        scala.collection.Map value114 = null;
+/* 2016 */
+        if (!false) {
+/* 2017 */
+          if (value115 instanceof scala.collection.Map) {
+/* 2018 */
+            value114 = (scala.collection.Map) value115;
+/* 2019 */
+          } else {
+/* 2020 */
+            throw new RuntimeException(value115.getClass().getName() + " is not a valid " +
+/* 2021 */             "external type for schema of map<string,struct<str:string>>");
+/* 2022 */
+          }
+/* 2023 */
+        }
+/* 2024 */
+/* 2025 */
+        boolean isNull113 = false;
+/* 2026 */
+        scala.collection.Iterator value113 = null;
+/* 2027 */
+        if (!isNull113) {
+/* 2028 */
+/* 2029 */
+          Object funcResult16 = null;
+/* 2030 */
+          funcResult16 = value114.keysIterator();
+/* 2031 */
+          if (funcResult16 == null) {
+/* 2032 */
+            isNull113 = true;
+/* 2033 */
+          } else {
+/* 2034 */
+            value113 = (scala.collection.Iterator) funcResult16;
+/* 2035 */
+          }
+/* 2036 */
+/* 2037 */
+        }
+/* 2038 */
+        isNull113 = value113 == null;
+/* 2039 */
+/* 2040 */
+        boolean isNull112 = isNull113;
+/* 2041 */
+        scala.collection.Seq value112 = null;
+/* 2042 */
+        if (!isNull112) {
+/* 2043 */
+/* 2044 */
+          Object funcResult17 = null;
+/* 2045 */
+          funcResult17 = value113.toSeq();
+/* 2046 */
+          if (funcResult17 == null) {
+/* 2047 */
+            isNull112 = true;
+/* 2048 */
+          } else {
+/* 2049 */
+            value112 = (scala.collection.Seq) funcResult17;
+/* 2050 */
+          }
+/* 2051 */
+/* 2052 */
+        }
+/* 2053 */
+        isNull112 = value112 == null;
+/* 2054 */
+        ArrayData value111 = null;
+/* 2055 */
+/* 2056 */
+        if (!isNull112) {
+/* 2057 */
+/* 2058 */
+          UTF8String[] convertedArray10 = null;
+/* 2059 */
+          int dataLength10 = value112.size();
+/* 2060 */
+          convertedArray10 = new UTF8String[dataLength10];
+/* 2061 */
+/* 2062 */
+          int loopIndex10 = 0;
+/* 2063 */
+          while (loopIndex10 < dataLength10) {
+/* 2064 */
+            MapObjects_loopValue62 = (java.lang.Object) (value112.apply(loopIndex10));
+/* 2065 */
+            MapObjects_loopIsNull63 = MapObjects_loopValue62 == null;
+/* 2066 */
+/* 2067 */
+/* 2068 */
+            java.lang.String value119 = null;
+/* 2069 */
+            if (!MapObjects_loopIsNull63) {
+/* 2070 */
+              if (MapObjects_loopValue62 instanceof java.lang.String) {
+/* 2071 */
+                value119 = (java.lang.String) MapObjects_loopValue62;
+/* 2072 */
+              } else {
+/* 2073 */
+                throw new RuntimeException(
+                    MapObjects_loopValue62.getClass().getName() + " is not a valid " +
+/* 2074 */                 "external type for schema of string");
+/* 2075 */
+              }
+/* 2076 */
+            }
+/* 2077 */
+            boolean isNull118 = MapObjects_loopIsNull63;
+/* 2078 */
+            final UTF8String
+                value118 =
+                isNull118 ? null : org.apache.spark.unsafe.types.UTF8String.fromString(value119);
+/* 2079 */
+            isNull118 = value118 == null;
+/* 2080 */
+            if (isNull118) {
+/* 2081 */
+              convertedArray10[loopIndex10] = null;
+/* 2082 */
+            } else {
+/* 2083 */
+              convertedArray10[loopIndex10] = value118;
+/* 2084 */
+            }
+/* 2085 */
+/* 2086 */
+            loopIndex10 += 1;
+/* 2087 */
+          }
+/* 2088 */
+/* 2089 */
+          value111 = new org.apache.spark.sql.catalyst.util.GenericArrayData(convertedArray10);
+/* 2090 */
+        }
+/* 2091 */
+/* 2092 */
+        boolean isNull126 = i.isNullAt(0);
+/* 2093 */
+        org.apache.spark.sql.Row
+            value126 =
+            isNull126 ? null : ((org.apache.spark.sql.Row) i.get(0, null));
+/* 2094 */
+/* 2095 */
+        if (isNull126) {
+/* 2096 */
+          throw new RuntimeException(errMsg14);
+/* 2097 */
+        }
+/* 2098 */
+/* 2099 */
+        if (false) {
+/* 2100 */
+          throw new RuntimeException("The input external row cannot be null.");
+/* 2101 */
+        }
+/* 2102 */
+/* 2103 */
+        if (value126.isNullAt(4)) {
+/* 2104 */
+          throw new RuntimeException("The 4th field 'mapOfStringAndStruct' of input row " +
+/* 2105 */           "cannot be null.");
+/* 2106 */
+        }
+/* 2107 */
+/* 2108 */
+        final Object value124 = value126.get(4);
+/* 2109 */
+        scala.collection.Map value123 = null;
+/* 2110 */
+        if (!false) {
+/* 2111 */
+          if (value124 instanceof scala.collection.Map) {
+/* 2112 */
+            value123 = (scala.collection.Map) value124;
+/* 2113 */
+          } else {
+/* 2114 */
+            throw new RuntimeException(value124.getClass().getName() + " is not a valid " +
+/* 2115 */             "external type for schema of map<string,struct<str:string>>");
+/* 2116 */
+          }
+/* 2117 */
+        }
+/* 2118 */
+/* 2119 */
+        boolean isNull122 = false;
+/* 2120 */
+        scala.collection.Iterator value122 = null;
+/* 2121 */
+        if (!isNull122) {
+/* 2122 */
+/* 2123 */
+          Object funcResult18 = null;
+/* 2124 */
+          funcResult18 = value123.valuesIterator();
+/* 2125 */
+          if (funcResult18 == null) {
+/* 2126 */
+            isNull122 = true;
+/* 2127 */
+          } else {
+/* 2128 */
+            value122 = (scala.collection.Iterator) funcResult18;
+/* 2129 */
+          }
+/* 2130 */
+/* 2131 */
+        }
+/* 2132 */
+        isNull122 = value122 == null;
+/* 2133 */
+/* 2134 */
+        boolean isNull121 = isNull122;
+/* 2135 */
+        scala.collection.Seq value121 = null;
+/* 2136 */
+        if (!isNull121) {
+/* 2137 */
+/* 2138 */
+          Object funcResult19 = null;
+/* 2139 */
+          funcResult19 = value122.toSeq();
+/* 2140 */
+          if (funcResult19 == null) {
+/* 2141 */
+            isNull121 = true;
+/* 2142 */
+          } else {
+/* 2143 */
+            value121 = (scala.collection.Seq) funcResult19;
+/* 2144 */
+          }
+/* 2145 */
+/* 2146 */
+        }
+/* 2147 */
+        isNull121 = value121 == null;
+/* 2148 */
+        ArrayData value120 = null;
+/* 2149 */
+/* 2150 */
+        if (!isNull121) {
+/* 2151 */
+/* 2152 */
+          InternalRow[] convertedArray11 = null;
+/* 2153 */
+          int dataLength11 = value121.size();
+/* 2154 */
+          convertedArray11 = new InternalRow[dataLength11];
+/* 2155 */
+/* 2156 */
+          int loopIndex11 = 0;
+/* 2157 */
+          while (loopIndex11 < dataLength11) {
+/* 2158 */
+            MapObjects_loopValue64 = (java.lang.Object) (value121.apply(loopIndex11));
+/* 2159 */
+            MapObjects_loopIsNull65 = MapObjects_loopValue64 == null;
+/* 2160 */
+/* 2161 */
+/* 2162 */
+            org.apache.spark.sql.Row value129 = null;
+/* 2163 */
+            if (!MapObjects_loopIsNull65) {
+/* 2164 */
+              if (MapObjects_loopValue64 instanceof org.apache.spark.sql.Row) {
+/* 2165 */
+                value129 = (org.apache.spark.sql.Row) MapObjects_loopValue64;
+/* 2166 */
+              } else {
+/* 2167 */
+                throw new RuntimeException(
+                    MapObjects_loopValue64.getClass().getName() + " is not a valid " +
+/* 2168 */                 "external type for schema of struct<str:string>");
+/* 2169 */
+              }
+/* 2170 */
+            }
+/* 2171 */
+            boolean isNull127 = false;
+/* 2172 */
+            InternalRow value127 = null;
+/* 2173 */
+            if (!false && MapObjects_loopIsNull65) {
+/* 2174 */
+/* 2175 */
+              final InternalRow value130 = null;
+/* 2176 */
+              isNull127 = true;
+/* 2177 */
+              value127 = value130;
+/* 2178 */
+            } else {
+/* 2179 */
+/* 2180 */
+              boolean isNull131 = false;
+/* 2181 */
+              values = new Object[1];
+/* 2182 */
+              org.apache.spark.sql.Row value134 = null;
+/* 2183 */
+              if (!MapObjects_loopIsNull65) {
+/* 2184 */
+                if (MapObjects_loopValue64 instanceof org.apache.spark.sql.Row) {
+/* 2185 */
+                  value134 = (org.apache.spark.sql.Row) MapObjects_loopValue64;
+/* 2186 */
+                } else {
+/* 2187 */
+                  throw new RuntimeException(
+                      MapObjects_loopValue64.getClass().getName() + " is not a valid " +
+/* 2188 */                   "external type for schema of struct<str:string>");
+/* 2189 */
+                }
+/* 2190 */
+              }
+/* 2191 */
+/* 2192 */
+              boolean isNull133 = MapObjects_loopIsNull65 || false;
+/* 2193 */
+              boolean value133 = false;
+/* 2194 */
+              if (!isNull133) {
+/* 2195 */
+                value133 = value134.isNullAt(0);
+/* 2196 */
+              }
+/* 2197 */
+              boolean isNull132 = false;
+/* 2198 */
+              UTF8String value132 = null;
+/* 2199 */
+              if (!isNull133 && value133) {
+/* 2200 */
+/* 2201 */
+                final UTF8String value136 = null;
+/* 2202 */
+                isNull132 = true;
+/* 2203 */
+                value132 = value136;
+/* 2204 */
+              } else {
+/* 2205 */
+/* 2206 */
+                org.apache.spark.sql.Row value140 = null;
+/* 2207 */
+                if (!MapObjects_loopIsNull65) {
+/* 2208 */
+                  if (MapObjects_loopValue64 instanceof org.apache.spark.sql.Row) {
+/* 2209 */
+                    value140 = (org.apache.spark.sql.Row) MapObjects_loopValue64;
+/* 2210 */
+                  } else {
+/* 2211 */
+                    throw new RuntimeException(
+                        MapObjects_loopValue64.getClass().getName() + " is not a valid " +
+/* 2212 */                     "external type for schema of struct<str:string>");
+/* 2213 */
+                  }
+/* 2214 */
+                }
+/* 2215 */
+/* 2216 */
+                if (MapObjects_loopIsNull65) {
+/* 2217 */
+                  throw new RuntimeException("The input external row cannot be null.");
+/* 2218 */
+                }
+/* 2219 */
+/* 2220 */
+                if (value140.isNullAt(0)) {
+/* 2221 */
+                  throw new RuntimeException("The 0th field 'str' of input row " +
+/* 2222 */                   "cannot be null.");
+/* 2223 */
+                }
+/* 2224 */
+/* 2225 */
+                final Object value139 = value140.get(0);
+/* 2226 */
+                java.lang.String value138 = null;
+/* 2227 */
+                if (!false) {
+/* 2228 */
+                  if (value139 instanceof java.lang.String) {
+/* 2229 */
+                    value138 = (java.lang.String) value139;
+/* 2230 */
+                  } else {
+/* 2231 */
+                    throw new RuntimeException(value139.getClass().getName() + " is not a valid " +
+/* 2232 */                     "external type for schema of string");
+/* 2233 */
+                  }
+/* 2234 */
+                }
+/* 2235 */
+                boolean isNull137 = false;
+/* 2236 */
+                final UTF8String
+                    value137 =
+                    isNull137 ? null
+                              : org.apache.spark.unsafe.types.UTF8String.fromString(value138);
+/* 2237 */
+                isNull137 = value137 == null;
+/* 2238 */
+                isNull132 = isNull137;
+/* 2239 */
+                value132 = value137;
+/* 2240 */
+              }
+/* 2241 */
+              if (isNull132) {
+/* 2242 */
+                values[0] = null;
+/* 2243 */
+              } else {
+/* 2244 */
+                values[0] = value132;
+/* 2245 */
+              }
+/* 2246 */
+              final InternalRow
+                  value131 =
+                  new org.apache.spark.sql.catalyst.expressions.GenericInternalRow(values);
+/* 2247 */
+              this.values = null;
+/* 2248 */
+              isNull127 = isNull131;
+/* 2249 */
+              value127 = value131;
+/* 2250 */
+            }
+/* 2251 */
+            if (isNull127) {
+/* 2252 */
+              convertedArray11[loopIndex11] = null;
+/* 2253 */
+            } else {
+/* 2254 */
+              convertedArray11[loopIndex11] = value127;
+/* 2255 */
+            }
+/* 2256 */
+/* 2257 */
+            loopIndex11 += 1;
+/* 2258 */
+          }
+/* 2259 */
+/* 2260 */
+          value120 = new org.apache.spark.sql.catalyst.util.GenericArrayData(convertedArray11);
+/* 2261 */
+        }
+/* 2262 */
+/* 2263 */
+        final boolean isNull110 = isNull112 || isNull121;
+/* 2264 */
+        final MapData
+            value110 =
+            isNull110 ? null : new org.apache.spark.sql.catalyst.util.ArrayBasedMapData(value111,
+                                                                                        value120);
+/* 2265 */
+        isNull104 = isNull110;
+/* 2266 */
+        value104 = value110;
+/* 2267 */
+      }
+/* 2268 */
+      if (isNull104) {
+/* 2269 */
+        rowWriter.setNullAt(4);
+/* 2270 */
+      } else {
+/* 2271 */       // Remember the current cursor so that we can calculate how many bytes are
+/* 2272 */       // written later.
+/* 2273 */
+        final int tmpCursor8 = holder.cursor;
+/* 2274 */
+/* 2275 */
+        if (value104 instanceof UnsafeMapData) {
+/* 2276 */
+/* 2277 */
+          final int sizeInBytes16 = ((UnsafeMapData) value104).getSizeInBytes();
+/* 2278 */         // grow the global buffer before writing data.
+/* 2279 */
+          holder.grow(sizeInBytes16);
+/* 2280 */
+          ((UnsafeMapData) value104).writeToMemory(holder.buffer, holder.cursor);
+/* 2281 */
+          holder.cursor += sizeInBytes16;
+/* 2282 */
+/* 2283 */
+        } else {
+/* 2284 */
+          final ArrayData keys4 = value104.keyArray();
+/* 2285 */
+          final ArrayData values8 = value104.valueArray();
+/* 2286 */
+/* 2287 */         // preserve 4 bytes to write the key array numBytes later.
+/* 2288 */
+          holder.grow(4);
+/* 2289 */
+          holder.cursor += 4;
+/* 2290 */
+/* 2291 */         // Remember the current cursor so that we can write numBytes of key array later.
+/* 2292 */
+          final int tmpCursor9 = holder.cursor;
+/* 2293 */
+/* 2294 */
+/* 2295 */
+          if (keys4 instanceof UnsafeArrayData) {
+/* 2296 */
+/* 2297 */
+            final int sizeInBytes17 = ((UnsafeArrayData) keys4).getSizeInBytes();
+/* 2298 */           // grow the global buffer before writing data.
+/* 2299 */
+            holder.grow(sizeInBytes17);
+/* 2300 */
+            ((UnsafeArrayData) keys4).writeToMemory(holder.buffer, holder.cursor);
+/* 2301 */
+            holder.cursor += sizeInBytes17;
+/* 2302 */
+/* 2303 */
+          } else {
+/* 2304 */
+            final int numElements12 = keys4.numElements();
+/* 2305 */
+            arrayWriter12.initialize(holder, numElements12, 0);
+/* 2306 */
+/* 2307 */
+            for (int index12 = 0; index12 < numElements12; index12++) {
+/* 2308 */
+              if (keys4.isNullAt(index12)) {
+/* 2309 */
+                arrayWriter12.setNullAt(index12);
+/* 2310 */
+              } else {
+/* 2311 */
+                final UTF8String element12 = keys4.getUTF8String(index12);
+/* 2312 */
+                arrayWriter12.write(index12, element12);
+/* 2313 */
+              }
+/* 2314 */
+            }
+/* 2315 */
+          }
+/* 2316 */
+/* 2317 */         // Write the numBytes of key array into the first 4 bytes.
+/* 2318 */
+          Platform.putInt(holder.buffer, tmpCursor9 - 4, holder.cursor - tmpCursor9);
+/* 2319 */
+/* 2320 */
+/* 2321 */
+          if (values8 instanceof UnsafeArrayData) {
+/* 2322 */
+/* 2323 */
+            final int sizeInBytes19 = ((UnsafeArrayData) values8).getSizeInBytes();
+/* 2324 */           // grow the global buffer before writing data.
+/* 2325 */
+            holder.grow(sizeInBytes19);
+/* 2326 */
+            ((UnsafeArrayData) values8).writeToMemory(holder.buffer, holder.cursor);
+/* 2327 */
+            holder.cursor += sizeInBytes19;
+/* 2328 */
+/* 2329 */
+          } else {
+/* 2330 */
+            final int numElements13 = values8.numElements();
+/* 2331 */
+            arrayWriter13.initialize(holder, numElements13, 0);
+/* 2332 */
+/* 2333 */
+            for (int index13 = 0; index13 < numElements13; index13++) {
+/* 2334 */
+              if (values8.isNullAt(index13)) {
+/* 2335 */
+                arrayWriter13.setNullAt(index13);
+/* 2336 */
+              } else {
+/* 2337 */
+                final InternalRow element13 = values8.getStruct(index13, 1);
+/* 2338 */
+/* 2339 */
+                arrayWriter13.setOffset(index13);
+/* 2340 */
+/* 2341 */
+                if (element13 instanceof UnsafeRow) {
+/* 2342 */
+/* 2343 */
+                  final int sizeInBytes18 = ((UnsafeRow) element13).getSizeInBytes();
+/* 2344 */                 // grow the global buffer before writing data.
+/* 2345 */
+                  holder.grow(sizeInBytes18);
+/* 2346 */
+                  ((UnsafeRow) element13).writeToMemory(holder.buffer, holder.cursor);
+/* 2347 */
+                  holder.cursor += sizeInBytes18;
+/* 2348 */
+/* 2349 */
+                } else {
+/* 2350 */
+                  rowWriter1.reset();
+/* 2351 */
+/* 2352 */
+                  final UTF8String fieldName = element13.getUTF8String(0);
+/* 2353 */
+                  if (element13.isNullAt(0)) {
+/* 2354 */
+                    rowWriter1.setNullAt(0);
+/* 2355 */
+                  } else {
+/* 2356 */
+                    rowWriter1.write(0, fieldName);
+/* 2357 */
+                  }
+/* 2358 */
+                }
+/* 2359 */
+/* 2360 */
+/* 2361 */
+              }
+/* 2362 */
+            }
+/* 2363 */
+          }
+/* 2364 */
+/* 2365 */
+        }
+/* 2366 */
+/* 2367 */
+        rowWriter.setOffsetAndSize(4, tmpCursor8, holder.cursor - tmpCursor8);
+/* 2368 */
+        rowWriter.alignToWords(holder.cursor - tmpCursor8);
+/* 2369 */
+      }
+/* 2370 */
+/* 2371 */
+/* 2372 */
+      boolean isNull144 = i.isNullAt(0);
+/* 2373 */
+      org.apache.spark.sql.Row
+          value144 =
+          isNull144 ? null : ((org.apache.spark.sql.Row) i.get(0, null));
+/* 2374 */
+/* 2375 */
+      if (isNull144) {
+/* 2376 */
+        throw new RuntimeException(errMsg15);
+/* 2377 */
+      }
+/* 2378 */
+/* 2379 */
+      boolean isNull142 = false || false;
+/* 2380 */
+      boolean value142 = false;
+/* 2381 */
+      if (!isNull142) {
+/* 2382 */
+        value142 = value144.isNullAt(5);
+/* 2383 */
+      }
+/* 2384 */
+      boolean isNull141 = false;
+/* 2385 */
+      MapData value141 = null;
+/* 2386 */
+      if (!isNull142 && value142) {
+/* 2387 */
+/* 2388 */
+        final MapData value146 = null;
+/* 2389 */
+        isNull141 = true;
+/* 2390 */
+        value141 = value146;
+/* 2391 */
+      } else {
+/* 2392 */
+/* 2393 */
+        boolean isNull154 = i.isNullAt(0);
+/* 2394 */
+        org.apache.spark.sql.Row
+            value154 =
+            isNull154 ? null : ((org.apache.spark.sql.Row) i.get(0, null));
+/* 2395 */
+/* 2396 */
+        if (isNull154) {
+/* 2397 */
+          throw new RuntimeException(errMsg16);
+/* 2398 */
+        }
+/* 2399 */
+/* 2400 */
+        if (false) {
+/* 2401 */
+          throw new RuntimeException("The input external row cannot be null.");
+/* 2402 */
+        }
+/* 2403 */
+/* 2404 */
+        if (value154.isNullAt(5)) {
+/* 2405 */
+          throw new RuntimeException("The 5th field 'mapOfStructAndString' of input row " +
+/* 2406 */           "cannot be null.");
+/* 2407 */
+        }
+/* 2408 */
+/* 2409 */
+        final Object value152 = value154.get(5);
+/* 2410 */
+        scala.collection.Map value151 = null;
+/* 2411 */
+        if (!false) {
+/* 2412 */
+          if (value152 instanceof scala.collection.Map) {
+/* 2413 */
+            value151 = (scala.collection.Map) value152;
+/* 2414 */
+          } else {
+/* 2415 */
+            throw new RuntimeException(value152.getClass().getName() + " is not a valid " +
+/* 2416 */             "external type for schema of map<struct<str:string>,string>");
+/* 2417 */
+          }
+/* 2418 */
+        }
+/* 2419 */
+/* 2420 */
+        boolean isNull150 = false;
+/* 2421 */
+        scala.collection.Iterator value150 = null;
+/* 2422 */
+        if (!isNull150) {
+/* 2423 */
+/* 2424 */
+          Object funcResult20 = null;
+/* 2425 */
+          funcResult20 = value151.keysIterator();
+/* 2426 */
+          if (funcResult20 == null) {
+/* 2427 */
+            isNull150 = true;
+/* 2428 */
+          } else {
+/* 2429 */
+            value150 = (scala.collection.Iterator) funcResult20;
+/* 2430 */
+          }
+/* 2431 */
+/* 2432 */
+        }
+/* 2433 */
+        isNull150 = value150 == null;
+/* 2434 */
+/* 2435 */
+        boolean isNull149 = isNull150;
+/* 2436 */
+        scala.collection.Seq value149 = null;
+/* 2437 */
+        if (!isNull149) {
+/* 2438 */
+/* 2439 */
+          Object funcResult21 = null;
+/* 2440 */
+          funcResult21 = value150.toSeq();
+/* 2441 */
+          if (funcResult21 == null) {
+/* 2442 */
+            isNull149 = true;
+/* 2443 */
+          } else {
+/* 2444 */
+            value149 = (scala.collection.Seq) funcResult21;
+/* 2445 */
+          }
+/* 2446 */
+/* 2447 */
+        }
+/* 2448 */
+        isNull149 = value149 == null;
+/* 2449 */
+        ArrayData value148 = null;
+/* 2450 */
+/* 2451 */
+        if (!isNull149) {
+/* 2452 */
+/* 2453 */
+          InternalRow[] convertedArray12 = null;
+/* 2454 */
+          int dataLength12 = value149.size();
+/* 2455 */
+          convertedArray12 = new InternalRow[dataLength12];
+/* 2456 */
+/* 2457 */
+          int loopIndex12 = 0;
+/* 2458 */
+          while (loopIndex12 < dataLength12) {
+/* 2459 */
+            MapObjects_loopValue66 = (java.lang.Object) (value149.apply(loopIndex12));
+/* 2460 */
+            MapObjects_loopIsNull67 = MapObjects_loopValue66 == null;
+/* 2461 */
+/* 2462 */
+/* 2463 */
+            org.apache.spark.sql.Row value157 = null;
+/* 2464 */
+            if (!MapObjects_loopIsNull67) {
+/* 2465 */
+              if (MapObjects_loopValue66 instanceof org.apache.spark.sql.Row) {
+/* 2466 */
+                value157 = (org.apache.spark.sql.Row) MapObjects_loopValue66;
+/* 2467 */
+              } else {
+/* 2468 */
+                throw new RuntimeException(
+                    MapObjects_loopValue66.getClass().getName() + " is not a valid " +
+/* 2469 */                 "external type for schema of struct<str:string>");
+/* 2470 */
+              }
+/* 2471 */
+            }
+/* 2472 */
+            boolean isNull155 = false;
+/* 2473 */
+            InternalRow value155 = null;
+/* 2474 */
+            if (!false && MapObjects_loopIsNull67) {
+/* 2475 */
+/* 2476 */
+              final InternalRow value158 = null;
+/* 2477 */
+              isNull155 = true;
+/* 2478 */
+              value155 = value158;
+/* 2479 */
+            } else {
+/* 2480 */
+/* 2481 */
+              boolean isNull159 = false;
+/* 2482 */
+              values1 = new Object[1];
+/* 2483 */
+              org.apache.spark.sql.Row value162 = null;
+/* 2484 */
+              if (!MapObjects_loopIsNull67) {
+/* 2485 */
+                if (MapObjects_loopValue66 instanceof org.apache.spark.sql.Row) {
+/* 2486 */
+                  value162 = (org.apache.spark.sql.Row) MapObjects_loopValue66;
+/* 2487 */
+                } else {
+/* 2488 */
+                  throw new RuntimeException(
+                      MapObjects_loopValue66.getClass().getName() + " is not a valid " +
+/* 2489 */                   "external type for schema of struct<str:string>");
+/* 2490 */
+                }
+/* 2491 */
+              }
+/* 2492 */
+/* 2493 */
+              boolean isNull161 = MapObjects_loopIsNull67 || false;
+/* 2494 */
+              boolean value161 = false;
+/* 2495 */
+              if (!isNull161) {
+/* 2496 */
+                value161 = value162.isNullAt(0);
+/* 2497 */
+              }
+/* 2498 */
+              boolean isNull160 = false;
+/* 2499 */
+              UTF8String value160 = null;
+/* 2500 */
+              if (!isNull161 && value161) {
+/* 2501 */
+/* 2502 */
+                final UTF8String value164 = null;
+/* 2503 */
+                isNull160 = true;
+/* 2504 */
+                value160 = value164;
+/* 2505 */
+              } else {
+/* 2506 */
+/* 2507 */
+                org.apache.spark.sql.Row value168 = null;
+/* 2508 */
+                if (!MapObjects_loopIsNull67) {
+/* 2509 */
+                  if (MapObjects_loopValue66 instanceof org.apache.spark.sql.Row) {
+/* 2510 */
+                    value168 = (org.apache.spark.sql.Row) MapObjects_loopValue66;
+/* 2511 */
+                  } else {
+/* 2512 */
+                    throw new RuntimeException(
+                        MapObjects_loopValue66.getClass().getName() + " is not a valid " +
+/* 2513 */                     "external type for schema of struct<str:string>");
+/* 2514 */
+                  }
+/* 2515 */
+                }
+/* 2516 */
+/* 2517 */
+                if (MapObjects_loopIsNull67) {
+/* 2518 */
+                  throw new RuntimeException("The input external row cannot be null.");
+/* 2519 */
+                }
+/* 2520 */
+/* 2521 */
+                if (value168.isNullAt(0)) {
+/* 2522 */
+                  throw new RuntimeException("The 0th field 'str' of input row " +
+/* 2523 */                   "cannot be null.");
+/* 2524 */
+                }
+/* 2525 */
+/* 2526 */
+                final Object value167 = value168.get(0);
+/* 2527 */
+                java.lang.String value166 = null;
+/* 2528 */
+                if (!false) {
+/* 2529 */
+                  if (value167 instanceof java.lang.String) {
+/* 2530 */
+                    value166 = (java.lang.String) value167;
+/* 2531 */
+                  } else {
+/* 2532 */
+                    throw new RuntimeException(value167.getClass().getName() + " is not a valid " +
+/* 2533 */                     "external type for schema of string");
+/* 2534 */
+                  }
+/* 2535 */
+                }
+/* 2536 */
+                boolean isNull165 = false;
+/* 2537 */
+                final UTF8String
+                    value165 =
+                    isNull165 ? null
+                              : org.apache.spark.unsafe.types.UTF8String.fromString(value166);
+/* 2538 */
+                isNull165 = value165 == null;
+/* 2539 */
+                isNull160 = isNull165;
+/* 2540 */
+                value160 = value165;
+/* 2541 */
+              }
+/* 2542 */
+              if (isNull160) {
+/* 2543 */
+                values1[0] = null;
+/* 2544 */
+              } else {
+/* 2545 */
+                values1[0] = value160;
+/* 2546 */
+              }
+/* 2547 */
+              final InternalRow
+                  value159 =
+                  new org.apache.spark.sql.catalyst.expressions.GenericInternalRow(values1);
+/* 2548 */
+              this.values1 = null;
+/* 2549 */
+              isNull155 = isNull159;
+/* 2550 */
+              value155 = value159;
+/* 2551 */
+            }
+/* 2552 */
+            if (isNull155) {
+/* 2553 */
+              convertedArray12[loopIndex12] = null;
+/* 2554 */
+            } else {
+/* 2555 */
+              convertedArray12[loopIndex12] = value155;
+/* 2556 */
+            }
+/* 2557 */
+/* 2558 */
+            loopIndex12 += 1;
+/* 2559 */
+          }
+/* 2560 */
+/* 2561 */
+          value148 = new org.apache.spark.sql.catalyst.util.GenericArrayData(convertedArray12);
+/* 2562 */
+        }
+/* 2563 */
+/* 2564 */
+        boolean isNull175 = i.isNullAt(0);
+/* 2565 */
+        org.apache.spark.sql.Row
+            value175 =
+            isNull175 ? null : ((org.apache.spark.sql.Row) i.get(0, null));
+/* 2566 */
+/* 2567 */
+        if (isNull175) {
+/* 2568 */
+          throw new RuntimeException(errMsg17);
+/* 2569 */
+        }
+/* 2570 */
+/* 2571 */
+        if (false) {
+/* 2572 */
+          throw new RuntimeException("The input external row cannot be null.");
+/* 2573 */
+        }
+/* 2574 */
+/* 2575 */
+        if (value175.isNullAt(5)) {
+/* 2576 */
+          throw new RuntimeException("The 5th field 'mapOfStructAndString' of input row " +
+/* 2577 */           "cannot be null.");
+/* 2578 */
+        }
+/* 2579 */
+/* 2580 */
+        final Object value173 = value175.get(5);
+/* 2581 */
+        scala.collection.Map value172 = null;
+/* 2582 */
+        if (!false) {
+/* 2583 */
+          if (value173 instanceof scala.collection.Map) {
+/* 2584 */
+            value172 = (scala.collection.Map) value173;
+/* 2585 */
+          } else {
+/* 2586 */
+            throw new RuntimeException(value173.getClass().getName() + " is not a valid " +
+/* 2587 */             "external type for schema of map<struct<str:string>,string>");
+/* 2588 */
+          }
+/* 2589 */
+        }
+/* 2590 */
+/* 2591 */
+        boolean isNull171 = false;
+/* 2592 */
+        scala.collection.Iterator value171 = null;
+/* 2593 */
+        if (!isNull171) {
+/* 2594 */
+/* 2595 */
+          Object funcResult22 = null;
+/* 2596 */
+          funcResult22 = value172.valuesIterator();
+/* 2597 */
+          if (funcResult22 == null) {
+/* 2598 */
+            isNull171 = true;
+/* 2599 */
+          } else {
+/* 2600 */
+            value171 = (scala.collection.Iterator) funcResult22;
+/* 2601 */
+          }
+/* 2602 */
+/* 2603 */
+        }
+/* 2604 */
+        isNull171 = value171 == null;
+/* 2605 */
+/* 2606 */
+        boolean isNull170 = isNull171;
+/* 2607 */
+        scala.collection.Seq value170 = null;
+/* 2608 */
+        if (!isNull170) {
+/* 2609 */
+/* 2610 */
+          Object funcResult23 = null;
+/* 2611 */
+          funcResult23 = value171.toSeq();
+/* 2612 */
+          if (funcResult23 == null) {
+/* 2613 */
+            isNull170 = true;
+/* 2614 */
+          } else {
+/* 2615 */
+            value170 = (scala.collection.Seq) funcResult23;
+/* 2616 */
+          }
+/* 2617 */
+/* 2618 */
+        }
+/* 2619 */
+        isNull170 = value170 == null;
+/* 2620 */
+        ArrayData value169 = null;
+/* 2621 */
+/* 2622 */
+        if (!isNull170) {
+/* 2623 */
+/* 2624 */
+          UTF8String[] convertedArray13 = null;
+/* 2625 */
+          int dataLength13 = value170.size();
+/* 2626 */
+          convertedArray13 = new UTF8String[dataLength13];
+/* 2627 */
+/* 2628 */
+          int loopIndex13 = 0;
+/* 2629 */
+          while (loopIndex13 < dataLength13) {
+/* 2630 */
+            MapObjects_loopValue68 = (java.lang.Object) (value170.apply(loopIndex13));
+/* 2631 */
+            MapObjects_loopIsNull69 = MapObjects_loopValue68 == null;
+/* 2632 */
+/* 2633 */
+/* 2634 */
+            java.lang.String value177 = null;
+/* 2635 */
+            if (!MapObjects_loopIsNull69) {
+/* 2636 */
+              if (MapObjects_loopValue68 instanceof java.lang.String) {
+/* 2637 */
+                value177 = (java.lang.String) MapObjects_loopValue68;
+/* 2638 */
+              } else {
+/* 2639 */
+                throw new RuntimeException(
+                    MapObjects_loopValue68.getClass().getName() + " is not a valid " +
+/* 2640 */                 "external type for schema of string");
+/* 2641 */
+              }
+/* 2642 */
+            }
+/* 2643 */
+            boolean isNull176 = MapObjects_loopIsNull69;
+/* 2644 */
+            final UTF8String
+                value176 =
+                isNull176 ? null : org.apache.spark.unsafe.types.UTF8String.fromString(value177);
+/* 2645 */
+            isNull176 = value176 == null;
+/* 2646 */
+            if (isNull176) {
+/* 2647 */
+              convertedArray13[loopIndex13] = null;
+/* 2648 */
+            } else {
+/* 2649 */
+              convertedArray13[loopIndex13] = value176;
+/* 2650 */
+            }
+/* 2651 */
+/* 2652 */
+            loopIndex13 += 1;
+/* 2653 */
+          }
+/* 2654 */
+/* 2655 */
+          value169 = new org.apache.spark.sql.catalyst.util.GenericArrayData(convertedArray13);
+/* 2656 */
+        }
+/* 2657 */
+/* 2658 */
+        final boolean isNull147 = isNull149 || isNull170;
+/* 2659 */
+        final MapData
+            value147 =
+            isNull147 ? null : new org.apache.spark.sql.catalyst.util.ArrayBasedMapData(value148,
+                                                                                        value169);
+/* 2660 */
+        isNull141 = isNull147;
+/* 2661 */
+        value141 = value147;
+/* 2662 */
+      }
+/* 2663 */
+      if (isNull141) {
+/* 2664 */
+        rowWriter.setNullAt(5);
+/* 2665 */
+      } else {
+/* 2666 */       // Remember the current cursor so that we can calculate how many bytes are
+/* 2667 */       // written later.
+/* 2668 */
+        final int tmpCursor11 = holder.cursor;
+/* 2669 */
+/* 2670 */
+        if (value141 instanceof UnsafeMapData) {
+/* 2671 */
+/* 2672 */
+          final int sizeInBytes20 = ((UnsafeMapData) value141).getSizeInBytes();
+/* 2673 */         // grow the global buffer before writing data.
+/* 2674 */
+          holder.grow(sizeInBytes20);
+/* 2675 */
+          ((UnsafeMapData) value141).writeToMemory(holder.buffer, holder.cursor);
+/* 2676 */
+          holder.cursor += sizeInBytes20;
+/* 2677 */
+/* 2678 */
+        } else {
+/* 2679 */
+          final ArrayData keys5 = value141.keyArray();
+/* 2680 */
+          final ArrayData values9 = value141.valueArray();
+/* 2681 */
+/* 2682 */         // preserve 4 bytes to write the key array numBytes later.
+/* 2683 */
+          holder.grow(4);
+/* 2684 */
+          holder.cursor += 4;
+/* 2685 */
+/* 2686 */         // Remember the current cursor so that we can write numBytes of key array later.
+/* 2687 */
+          final int tmpCursor12 = holder.cursor;
+/* 2688 */
+/* 2689 */
+/* 2690 */
+          if (keys5 instanceof UnsafeArrayData) {
+/* 2691 */
+/* 2692 */
+            final int sizeInBytes22 = ((UnsafeArrayData) keys5).getSizeInBytes();
+/* 2693 */           // grow the global buffer before writing data.
+/* 2694 */
+            holder.grow(sizeInBytes22);
+/* 2695 */
+            ((UnsafeArrayData) keys5).writeToMemory(holder.buffer, holder.cursor);
+/* 2696 */
+            holder.cursor += sizeInBytes22;
+/* 2697 */
+/* 2698 */
+          } else {
+/* 2699 */
+            final int numElements14 = keys5.numElements();
+/* 2700 */
+            arrayWriter14.initialize(holder, numElements14, 0);
+/* 2701 */
+/* 2702 */
+            for (int index14 = 0; index14 < numElements14; index14++) {
+/* 2703 */
+              if (keys5.isNullAt(index14)) {
+/* 2704 */
+                arrayWriter14.setNullAt(index14);
+/* 2705 */
+              } else {
+/* 2706 */
+                final InternalRow element14 = keys5.getStruct(index14, 1);
+/* 2707 */
+/* 2708 */
+                arrayWriter14.setOffset(index14);
+/* 2709 */
+/* 2710 */
+                if (element14 instanceof UnsafeRow) {
+/* 2711 */
+/* 2712 */
+                  final int sizeInBytes21 = ((UnsafeRow) element14).getSizeInBytes();
+/* 2713 */                 // grow the global buffer before writing data.
+/* 2714 */
+                  holder.grow(sizeInBytes21);
+/* 2715 */
+                  ((UnsafeRow) element14).writeToMemory(holder.buffer, holder.cursor);
+/* 2716 */
+                  holder.cursor += sizeInBytes21;
+/* 2717 */
+/* 2718 */
+                } else {
+/* 2719 */
+                  rowWriter2.reset();
+/* 2720 */
+/* 2721 */
+                  final UTF8String fieldName1 = element14.getUTF8String(0);
+/* 2722 */
+                  if (element14.isNullAt(0)) {
+/* 2723 */
+                    rowWriter2.setNullAt(0);
+/* 2724 */
+                  } else {
+/* 2725 */
+                    rowWriter2.write(0, fieldName1);
+/* 2726 */
+                  }
+/* 2727 */
+                }
+/* 2728 */
+/* 2729 */
+/* 2730 */
+              }
+/* 2731 */
+            }
+/* 2732 */
+          }
+/* 2733 */
+/* 2734 */         // Write the numBytes of key array into the first 4 bytes.
+/* 2735 */
+          Platform.putInt(holder.buffer, tmpCursor12 - 4, holder.cursor - tmpCursor12);
+/* 2736 */
+/* 2737 */
+/* 2738 */
+          if (values9 instanceof UnsafeArrayData) {
+/* 2739 */
+/* 2740 */
+            final int sizeInBytes23 = ((UnsafeArrayData) values9).getSizeInBytes();
+/* 2741 */           // grow the global buffer before writing data.
+/* 2742 */
+            holder.grow(sizeInBytes23);
+/* 2743 */
+            ((UnsafeArrayData) values9).writeToMemory(holder.buffer, holder.cursor);
+/* 2744 */
+            holder.cursor += sizeInBytes23;
+/* 2745 */
+/* 2746 */
+          } else {
+/* 2747 */
+            final int numElements15 = values9.numElements();
+/* 2748 */
+            arrayWriter15.initialize(holder, numElements15, 0);
+/* 2749 */
+/* 2750 */
+            for (int index15 = 0; index15 < numElements15; index15++) {
+/* 2751 */
+              if (values9.isNullAt(index15)) {
+/* 2752 */
+                arrayWriter15.setNullAt(index15);
+/* 2753 */
+              } else {
+/* 2754 */
+                final UTF8String element15 = values9.getUTF8String(index15);
+/* 2755 */
+                arrayWriter15.write(index15, element15);
+/* 2756 */
+              }
+/* 2757 */
+            }
+/* 2758 */
+          }
+/* 2759 */
+/* 2760 */
+        }
+/* 2761 */
+/* 2762 */
+        rowWriter.setOffsetAndSize(5, tmpCursor11, holder.cursor - tmpCursor11);
+/* 2763 */
+        rowWriter.alignToWords(holder.cursor - tmpCursor11);
+/* 2764 */
+      }
+/* 2765 */
+/* 2766 */
+    }
+
+    /* 2767 */
+/* 2768 */
+/* 2769 */
+    public SpecificUnsafeProjection(Object[] references) {
+/* 2770 */
+      this.references = references;
+/* 2771 */
+      this.errMsg = (java.lang.String) references[0];
+/* 2772 */
+      this.errMsg1 = (java.lang.String) references[1];
+/* 2773 */
+/* 2774 */
+/* 2775 */
+      this.errMsg2 = (java.lang.String) references[2];
+/* 2776 */
+      this.errMsg3 = (java.lang.String) references[3];
+/* 2777 */
+/* 2778 */
+/* 2779 */
+      this.errMsg4 = (java.lang.String) references[4];
+/* 2780 */
+/* 2781 */
+/* 2782 */
+      this.errMsg5 = (java.lang.String) references[5];
+/* 2783 */
+/* 2784 */
+/* 2785 */
+      this.errMsg6 = (java.lang.String) references[6];
+/* 2786 */
+/* 2787 */
+/* 2788 */
+      this.errMsg7 = (java.lang.String) references[7];
+/* 2789 */
+/* 2790 */
+/* 2791 */
+      this.errMsg8 = (java.lang.String) references[8];
+/* 2792 */
+      this.errMsg9 = (java.lang.String) references[9];
+/* 2793 */
+/* 2794 */
+/* 2795 */
+      this.errMsg10 = (java.lang.String) references[10];
+/* 2796 */
+/* 2797 */
+/* 2798 */
+/* 2799 */
+/* 2800 */
+      this.errMsg11 = (java.lang.String) references[11];
+/* 2801 */
+/* 2802 */
+/* 2803 */
+      this.errMsg12 = (java.lang.String) references[12];
+/* 2804 */
+/* 2805 */
+/* 2806 */
+      this.errMsg13 = (java.lang.String) references[13];
+/* 2807 */
+/* 2808 */
+/* 2809 */
+      this.errMsg14 = (java.lang.String) references[14];
+/* 2810 */
+      this.values = null;
+/* 2811 */
+      this.errMsg15 = (java.lang.String) references[15];
+/* 2812 */
+/* 2813 */
+/* 2814 */
+      this.errMsg16 = (java.lang.String) references[16];
+/* 2815 */
+      this.values1 = null;
+/* 2816 */
+/* 2817 */
+/* 2818 */
+      this.errMsg17 = (java.lang.String) references[17];
+/* 2819 */
+      this.errMsg18 = (java.lang.String) references[18];
+/* 2820 */
+/* 2821 */
+/* 2822 */
+      this.errMsg19 = (java.lang.String) references[19];
+/* 2823 */
+      this.values2 = null;
+/* 2824 */
+/* 2825 */
+/* 2826 */
+      this.errMsg20 = (java.lang.String) references[20];
+/* 2827 */
+      this.values3 = null;
+/* 2828 */
+      result = new UnsafeRow(7);
+/* 2829 */
+      this.holder = new org.apache.spark.sql.catalyst.expressions.codegen.BufferHolder(result, 224);
+/* 2830 */
+      this.rowWriter =
+          new org.apache.spark.sql.catalyst.expressions.codegen.UnsafeRowWriter(holder, 7);
+/* 2831 */
+      this.arrayWriter = new org.apache.spark.sql.catalyst.expressions.codegen.UnsafeArrayWriter();
+/* 2832 */
+      this.arrayWriter1 = new org.apache.spark.sql.catalyst.expressions.codegen.UnsafeArrayWriter();
+/* 2833 */
+      this.arrayWriter2 = new org.apache.spark.sql.catalyst.expressions.codegen.UnsafeArrayWriter();
+/* 2834 */
+      this.arrayWriter3 = new org.apache.spark.sql.catalyst.expressions.codegen.UnsafeArrayWriter();
+/* 2835 */
+      this.arrayWriter4 = new org.apache.spark.sql.catalyst.expressions.codegen.UnsafeArrayWriter();
+/* 2836 */
+      this.arrayWriter5 = new org.apache.spark.sql.catalyst.expressions.codegen.UnsafeArrayWriter();
+/* 2837 */
+      this.arrayWriter6 = new org.apache.spark.sql.catalyst.expressions.codegen.UnsafeArrayWriter();
+/* 2838 */
+      this.arrayWriter7 = new org.apache.spark.sql.catalyst.expressions.codegen.UnsafeArrayWriter();
+/* 2839 */
+      this.arrayWriter8 = new org.apache.spark.sql.catalyst.expressions.codegen.UnsafeArrayWriter();
+/* 2840 */
+      this.arrayWriter9 = new org.apache.spark.sql.catalyst.expressions.codegen.UnsafeArrayWriter();
+/* 2841 */
+      this.arrayWriter10 =
+          new org.apache.spark.sql.catalyst.expressions.codegen.UnsafeArrayWriter();
+/* 2842 */
+      this.arrayWriter11 =
+          new org.apache.spark.sql.catalyst.expressions.codegen.UnsafeArrayWriter();
+/* 2843 */
+      this.arrayWriter12 =
+          new org.apache.spark.sql.catalyst.expressions.codegen.UnsafeArrayWriter();
+/* 2844 */
+      this.arrayWriter13 =
+          new org.apache.spark.sql.catalyst.expressions.codegen.UnsafeArrayWriter();
+/* 2845 */
+      this.rowWriter1 =
+          new org.apache.spark.sql.catalyst.expressions.codegen.UnsafeRowWriter(holder, 1);
+/* 2846 */
+      this.arrayWriter14 =
+          new org.apache.spark.sql.catalyst.expressions.codegen.UnsafeArrayWriter();
+/* 2847 */
+      this.rowWriter2 =
+          new org.apache.spark.sql.catalyst.expressions.codegen.UnsafeRowWriter(holder, 1);
+/* 2848 */
+      this.arrayWriter15 =
+          new org.apache.spark.sql.catalyst.expressions.codegen.UnsafeArrayWriter();
+/* 2849 */
+      this.arrayWriter16 =
+          new org.apache.spark.sql.catalyst.expressions.codegen.UnsafeArrayWriter();
+/* 2850 */
+      this.rowWriter3 =
+          new org.apache.spark.sql.catalyst.expressions.codegen.UnsafeRowWriter(holder, 1);
+/* 2851 */
+      this.arrayWriter17 =
+          new org.apache.spark.sql.catalyst.expressions.codegen.UnsafeArrayWriter();
+/* 2852 */
+      this.rowWriter4 =
+          new org.apache.spark.sql.catalyst.expressions.codegen.UnsafeRowWriter(holder, 1);
+/* 2853 */
+    }
+
+    /* 2854 */
+/* 2855 */   // Scala.Function1 need this
+/* 2856 */
+    public java.lang.Object apply(java.lang.Object row) {
+/* 2857 */
+      return apply((InternalRow) row);
+/* 2858 */
+    }
+
+    /* 2859 */
+/* 2860 */
+    public UnsafeRow apply(InternalRow i) {
+/* 2861 */
+      holder.reset();
+/* 2862 */
+/* 2863 */
+      rowWriter.zeroOutNullBytes();
+/* 2864 */
+      apply_0(i);
+/* 2865 */
+      apply_1(i);
+/* 2866 */
+      result.setTotalSize(holder.totalSize());
+/* 2867 */
+      return result;
+/* 2868 */
+    }
+/* 2869 */
+  }
+}
