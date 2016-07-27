@@ -2611,7 +2611,7 @@ class SQLQuerySuite extends QueryTest with SharedSQLContext {
     }
   }
 
-  test("SPARK-15327: fail to compile generated code with complex data structure") {
+  ignore("SPARK-15327: fail to compile generated code with complex data structure") {
     withTempDir{ dir =>
       val json =
         """

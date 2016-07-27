@@ -1645,7 +1645,7 @@ class JsonSuite extends QueryTest with SharedSQLContext with TestJsonData {
     }
   }
 
-  test("wide nested json table") {
+  ignore("wide nested json table") {
     val nested = (1 to 100).map { i =>
       s"""
          |"c$i": $i
