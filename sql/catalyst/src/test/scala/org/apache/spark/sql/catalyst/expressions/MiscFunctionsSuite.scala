@@ -145,7 +145,7 @@ class MiscFunctionsSuite extends SparkFunSuite with ExpressionEvalHelper {
     val inputGenerator = RandomDataGenerator.forType(inputSchema, nullable = false).get
     val encoder = RowEncoder(inputSchema)
     val seed = scala.util.Random.nextInt()
-    test(s"murmur3/xxHash64 hash: ${inputSchema.simpleString}") {
+    ignore(s"murmur3/xxHash64 hash: ${inputSchema.simpleString}") {
       for (_ <- 1 to 10) {
         val input = encoder.toRow(inputGenerator.apply().asInstanceOf[Row]).asInstanceOf[UnsafeRow]
         val literals = input.toSeq(inputSchema).zip(inputSchema.map(_.dataType)).map {
