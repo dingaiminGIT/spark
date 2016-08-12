@@ -134,10 +134,17 @@ object StatFunctions extends Logging {
      */
     def insert(x: Double): QuantileSummaries = {
       headSampled.append(x)
-      if (headSampled.size >= defaultHeadSize) {
-        this.withHeadBufferInserted
+      val inserted =
+        if (headSampled.size >= defaultHeadSize) {
+          this.withHeadBufferInserted
+        } else {
+          this
+        }
+      // Compress the statistics together when it crosses the threshold
+      if (inserted.sampled.size > compressThreshold) {
+        inserted.compress()
       } else {
-        this
+        inserted
       }
     }
 
@@ -208,7 +215,8 @@ object StatFunctions extends Logging {
     }
 
     /**
-     * Note: this summary must be compressed before being shallow copied.
+     * Returns a shallow copy of this summary.
+     * Note: this summary must be compressed before we shallow-copy it.
      */
     private def shallowCopy: QuantileSummaries = {
       new QuantileSummaries(compressThreshold, relativeError, sampled, count)
