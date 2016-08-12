@@ -206,6 +206,9 @@ object StatFunctions extends Logging {
       new QuantileSummaries(compressThreshold, relativeError, compressed, inserted.count)
     }
 
+    /**
+     * Note: this summary must be compressed before being shallow copied.
+     */
     private def shallowCopy: QuantileSummaries = {
       new QuantileSummaries(compressThreshold, relativeError, sampled, count, headSampled)
     }
