@@ -101,6 +101,10 @@ object KafkaUtils extends Logging {
     ): JavaRDD[ConsumerRecord[K, V]] = {
 
     new JavaRDD(createRDD[K, V](jsc.sc, kafkaParams, offsetRanges, locationStrategy))
+      with HasOffsetRanges {
+      private val hasOffsetRanges = rdd.asInstanceOf[HasOffsetRanges]
+      override def offsetRanges: Array[OffsetRange] = hasOffsetRanges.offsetRanges
+    }
   }
 
   /**
@@ -145,9 +149,19 @@ object KafkaUtils extends Logging {
       locationStrategy: LocationStrategy,
       consumerStrategy: ConsumerStrategy[K, V]
     ): JavaInputDStream[ConsumerRecord[K, V]] = {
-    new JavaInputDStream(
-      createDirectStream[K, V](
-        jssc.ssc, locationStrategy, consumerStrategy))
+    new JavaInputDStream(createDirectStream[K, V](jssc.ssc, locationStrategy, consumerStrategy))
+      with CanCommitOffsets {
+
+      private val canCommitOffsets = inputDStream.asInstanceOf[CanCommitOffsets]
+
+      override def commitAsync(offsetRanges: Array[OffsetRange]): Unit =
+        canCommitOffsets.commitAsync(offsetRanges)
+
+      override def commitAsync(
+          offsetRanges: Array[OffsetRange],
+          callback: OffsetCommitCallback): Unit =
+        canCommitOffsets.commitAsync(offsetRanges, callback)
+    }
   }
 
   /**

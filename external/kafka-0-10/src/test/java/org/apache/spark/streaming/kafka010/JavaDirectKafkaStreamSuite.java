@@ -102,7 +102,7 @@ public class JavaDirectKafkaStreamSuite implements Serializable {
           public JavaRDD<ConsumerRecord<String, String>> call(
             JavaRDD<ConsumerRecord<String, String>> rdd
           ) {
-            OffsetRange[] offsets = ((HasOffsetRanges) rdd.rdd()).offsetRanges();
+            OffsetRange[] offsets = ((HasOffsetRanges) rdd).offsetRanges();
             offsetRanges.set(offsets);
             Assert.assertEquals(topic1, offsets[0].topic());
             return rdd;
@@ -135,7 +135,7 @@ public class JavaDirectKafkaStreamSuite implements Serializable {
           public JavaRDD<ConsumerRecord<String, String>> call(
             JavaRDD<ConsumerRecord<String, String>> rdd
           ) {
-            OffsetRange[] offsets = ((HasOffsetRanges) rdd.rdd()).offsetRanges();
+            OffsetRange[] offsets = ((HasOffsetRanges) rdd).offsetRanges();
             offsetRanges.set(offsets);
             Assert.assertEquals(topic2, offsets[0].topic());
             return rdd;
