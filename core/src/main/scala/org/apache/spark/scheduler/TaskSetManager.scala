@@ -281,12 +281,16 @@ private[spark] class TaskSetManager(
   {
     speculatableTasks.retain(index => !successful(index)) // Remove finished tasks from set
 
+    /*
     def canRunOnHost(index: Int): Boolean = {
       !hasAttemptOnHost(index, host) &&
         !isTaskBlacklistedOnExecOrNode(index, execId, host)
-    }
+    }*/
+    def canRunOnHost(index: Int): Boolean = true
 
     if (!speculatableTasks.isEmpty) {
+      println("speculatableTasks is not empty")
+
       // Check for process-local tasks; note that tasks can be process-local
       // on multiple nodes when we replicate cached blocks, as in Spark Streaming
       for (index <- speculatableTasks if canRunOnHost(index)) {
@@ -344,6 +348,9 @@ private[spark] class TaskSetManager(
         }
       }
     }
+    else {
+      println("speculatableTasks is empty")
+    }
 
     None
   }
@@ -389,9 +396,18 @@ private[spark] class TaskSetManager(
       }
     }
 
+    println("dequeueTask -> dequeueSpeculativeTask")
+
     // find a speculative task if all others tasks have been scheduled
     dequeueSpeculativeTask(execId, host, maxLocality).map {
+      /* Orig:
       case (taskIndex, allowedLocality) => (taskIndex, allowedLocality, true)}
+      */
+      case (taskIndex, allowedLocality) => {
+        println("in case (taskIndex, allowedLocality), returning something")
+        (taskIndex, allowedLocality, true)
+      }
+    }
   }
 
   /**

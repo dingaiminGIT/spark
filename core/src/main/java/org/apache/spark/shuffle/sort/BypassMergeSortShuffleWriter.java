@@ -230,6 +230,7 @@ final class BypassMergeSortShuffleWriter<K, V> extends ShuffleWriter<K, V> {
         }
         return Option.apply(mapStatus);
       } else {
+        /*
         // The map task failed, so delete our output data.
         if (partitionWriters != null) {
           try {
@@ -244,6 +245,7 @@ final class BypassMergeSortShuffleWriter<K, V> extends ShuffleWriter<K, V> {
             partitionWriters = null;
           }
         }
+        */
         return None$.empty();
       }
     }
