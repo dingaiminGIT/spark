@@ -23,17 +23,18 @@ import java.util.ConcurrentModificationException
 
 import scala.language.implicitConversions
 import scala.util.Random
-
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs._
+import org.apache.spark.sql.SparkSession
 import org.scalatest.concurrent.AsyncAssertions._
 import org.scalatest.time.SpanSugar._
-
 import org.apache.spark.{SparkConf, SparkFunSuite}
 import org.apache.spark.sql.execution.streaming.FakeFileSystem._
 import org.apache.spark.sql.execution.streaming.HDFSMetadataLog.{FileContextManager, FileManager, FileSystemManager}
 import org.apache.spark.sql.test.SharedSQLContext
 import org.apache.spark.util.UninterruptibleThread
+
+import scala.reflect.ClassTag
 
 class CompactibleFileStreamLogSuite extends SparkFunSuite with SharedSQLContext {
 
@@ -46,28 +47,33 @@ class CompactibleFileStreamLogSuite extends SparkFunSuite with SharedSQLContext 
   testWithUninterruptibleThread("HDFSMetadataLog: basic") {
     withTempDir { temp =>
       val dir = new File(temp, "dir") // use non-existent directory to test whether log make the dir
-      val metadataLog = new HDFSMetadataLog[String](spark, dir.getAbsolutePath)
-      assert(metadataLog.add(0, "batch0"))
-      assert(metadataLog.getLatest() === Some(0 -> "batch0"))
+      val metadataLog = new FakeCompactibleFileStreamLog("vvv", spark, dir.getAbsolutePath)
+      assert(metadataLog.add(0, Array("batch0")))
+      val x = metadataLog.getLatest();
+      x
+      val y: Tuple2[Int, Int] = Tuple2(1, 2)
+      y.equals(2)
+      assert((1, "b") === (1,"b"))
+      assert(metadataLog.getLatest() === Some(0 -> Array("batch0")))
       assert(metadataLog.get(0) === Some("batch0"))
       assert(metadataLog.getLatest() === Some(0 -> "batch0"))
       assert(metadataLog.get(None, Some(0)) === Array(0 -> "batch0"))
 
-      assert(metadataLog.add(1, "batch1"))
+      assert(metadataLog.add(1, Array("batch1")))
       assert(metadataLog.get(0) === Some("batch0"))
       assert(metadataLog.get(1) === Some("batch1"))
       assert(metadataLog.getLatest() === Some(1 -> "batch1"))
       assert(metadataLog.get(None, Some(1)) === Array(0 -> "batch0", 1 -> "batch1"))
 
       // Adding the same batch does nothing
-      metadataLog.add(1, "batch1-duplicated")
+      metadataLog.add(1, Array("batch1-duplicated"))
       assert(metadataLog.get(0) === Some("batch0"))
       assert(metadataLog.get(1) === Some("batch1"))
       assert(metadataLog.getLatest() === Some(1 -> "batch1"))
       assert(metadataLog.get(None, Some(1)) === Array(0 -> "batch0", 1 -> "batch1"))
     }
   }
-
+/*
   testWithUninterruptibleThread(
     "HDFSMetadataLog: fallback from FileContext to FileSystem", quietly = true) {
     spark.conf.set(
@@ -219,5 +225,24 @@ class CompactibleFileStreamLogSuite extends SparkFunSuite with SharedSQLContext 
     intercept[FileAlreadyExistsException] {
       fm.rename(path2, path3)
     }
-  }
+  }*/
+}
+
+class FakeCompactibleFileStreamLog(
+                                       metadataLogVersion: String,
+                                       sparkSession: SparkSession,
+                                       path: String)
+  extends CompactibleFileStreamLog[String] (metadataLogVersion, sparkSession, path) {
+
+  override protected def fileCleanupDelayMs: Long = 100
+
+  override protected def isDeletingExpiredLog: Boolean = true
+
+  override protected def compactInterval: Int = 3
+
+  override protected def serializeData(t: String): String = t
+
+  override protected def deserializeData(encodedString: String): String = encodedString
+
+  override def compactLogs(logs: Seq[String]): Seq[String] = logs
 }
