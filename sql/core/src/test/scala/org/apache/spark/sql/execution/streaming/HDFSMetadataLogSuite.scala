@@ -62,7 +62,8 @@ class HDFSMetadataLogSuite extends SparkFunSuite with SharedSQLContext {
       val dir = new File(temp, "dir") // use non-existent directory to test whether log make the dir
       val metadataLog = new HDFSMetadataLog[String](spark, dir.getAbsolutePath)
       assert(metadataLog.add(0, "batch0"))
-      assert(metadataLog.getLatest() === Some(0 -> "batch0"))
+      val xxx = Some(0 -> "batch0")
+      assert(metadataLog.getLatest() === xxx)
       assert(metadataLog.get(0) === Some("batch0"))
       assert(metadataLog.getLatest() === Some(0 -> "batch0"))
       assert(metadataLog.get(None, Some(0)) === Array(0 -> "batch0"))
