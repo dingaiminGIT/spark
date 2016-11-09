@@ -144,6 +144,13 @@ class FileStreamSourceSuite extends FileStreamSourceTest {
 
   import testImplicits._
 
+  private val emptyKnownCompactionBatches = Array[Long]()
+  private val knownCompactionBatches = Array[Long](
+    1, 3, // produced with interval = 2
+    5, 8, // produced with interval = 3
+    9, 14 // produced with interval = 5
+  )
+
   override val streamingTimeout = 20.seconds
 
   /** Use `format` and `path` to create FileStreamSource via DataFrameReader */
@@ -907,7 +914,7 @@ class FileStreamSourceSuite extends FileStreamSourceTest {
       val fileSource = (execution invokePrivate _sources()).head.asInstanceOf[FileStreamSource]
       val metadataLog = fileSource invokePrivate _metadataLog()
 
-      if (isCompactionBatch(batchId, 2)) {
+      if (isCompactionBatch(emptyKnownCompactionBatches, batchId, 0, 2)) {
         val path = metadataLog.batchIdToPath(batchId)
 
         // Assert path name should be ended with compact suffix.

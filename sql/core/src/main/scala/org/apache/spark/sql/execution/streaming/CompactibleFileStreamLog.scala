@@ -19,6 +19,7 @@ package org.apache.spark.sql.execution.streaming
 
 import java.io.{InputStream, IOException, OutputStream}
 import java.nio.charset.StandardCharsets.UTF_8
+import java.util
 
 import scala.io.{Source => IOSource}
 import scala.reflect.ClassTag
@@ -73,8 +74,19 @@ abstract class CompactibleFileStreamLog[T: ClassTag](
    */
   def compactLogs(logs: Seq[T]): Seq[T]
 
+  private[streaming] val (knownCompactionBatches: Array[Long], zeroBatch: Long) = {
+    val fileNames = listExistingFiles().filter(isBatchFile).map(_.getName)
+    val knownCompactionBatches =
+      fileNames
+        .filter(isCompactionBatchFromFileName)
+        .map(getBatchIdFromFileName)
+        .sorted
+    val zeroBatch = fileNames.map(getBatchIdFromFileName).sorted.lastOption
+    (knownCompactionBatches, zeroBatch.map(_ + 1).getOrElse(0L))
+  }
+
   override def batchIdToPath(batchId: Long): Path = {
-    if (isCompactionBatch(batchId, compactInterval)) {
+    if (isCompactionBatch(knownCompactionBatches, batchId, zeroBatch, compactInterval)) {
       new Path(metadataPath, s"$batchId$COMPACT_FILE_SUFFIX")
     } else {
       new Path(metadataPath, batchId.toString)
@@ -116,7 +128,7 @@ abstract class CompactibleFileStreamLog[T: ClassTag](
   }
 
   override def add(batchId: Long, logs: Array[T]): Boolean = {
-    if (isCompactionBatch(batchId, compactInterval)) {
+    if (isCompactionBatch(knownCompactionBatches, batchId, zeroBatch, compactInterval)) {
       compact(batchId, logs)
     } else {
       super.add(batchId, logs)
@@ -128,7 +140,8 @@ abstract class CompactibleFileStreamLog[T: ClassTag](
    * corresponding `batchId` file. It will delete expired files as well if enabled.
    */
   private def compact(batchId: Long, logs: Array[T]): Boolean = {
-    val validBatches = getValidBatchesBeforeCompactionBatch(batchId, compactInterval)
+    val validBatches = getValidBatchesBeforeCompactionBatch(
+      knownCompactionBatches, batchId, zeroBatch, compactInterval)
     val allLogs = validBatches.flatMap(batchId => super.get(batchId)).flatten ++ logs
     if (super.add(batchId, compactLogs(allLogs).toArray)) {
       if (isDeletingExpiredLog) {
@@ -153,7 +166,9 @@ abstract class CompactibleFileStreamLog[T: ClassTag](
       if (latestId >= 0) {
         try {
           val logs =
-            getAllValidBatches(latestId, compactInterval).flatMap(id => super.get(id)).flatten
+            getAllValidBatches(knownCompactionBatches, latestId, zeroBatch, compactInterval)
+              .flatMap(id => super.get(id))
+              .flatten
           return compactLogs(logs).toArray
         } catch {
           case e: IOException =>
@@ -161,7 +176,8 @@ abstract class CompactibleFileStreamLog[T: ClassTag](
             // `StreamFileIndex` are reading. However, it only happens when a compaction is
             // deleting old files. If so, let's try the next compaction batch and we should find it.
             // Otherwise, this is a real IO issue and we should throw it.
-            latestId = nextCompactionBatchId(latestId, compactInterval)
+            latestId =
+              nextCompactionBatchId(knownCompactionBatches, latestId, zeroBatch, compactInterval)
             super.get(latestId).getOrElse {
               throw e
             }
@@ -206,14 +222,28 @@ object CompactibleFileStreamLog {
     fileName.stripSuffix(COMPACT_FILE_SUFFIX).toLong
   }
 
+  def isCompactionBatchFromFileName(fileName: String): Boolean = {
+    fileName.endsWith(COMPACT_FILE_SUFFIX)
+  }
+
   /**
    * Returns if this is a compaction batch. FileStreamSinkLog will compact old logs every
    * `compactInterval` commits.
    *
    * E.g., if `compactInterval` is 3, then 2, 5, 8, ... are all compaction batches.
    */
-  def isCompactionBatch(batchId: Long, compactInterval: Int): Boolean = {
-    (batchId + 1) % compactInterval == 0
+  def isCompactionBatch(
+      knownCompactionBatches: Array[Long],
+      batchId: Long,
+      zeroBatch: Long,
+      compactInterval: Int): Boolean = {
+    if (batchId < zeroBatch) {
+      knownCompactionBatches.nonEmpty &&
+        util.Arrays.binarySearch(knownCompactionBatches, batchId) >= 0
+    }
+    else {
+      (batchId - zeroBatch + 1) % compactInterval == 0
+    }
   }
 
   /**
@@ -224,11 +254,23 @@ object CompactibleFileStreamLog {
    * `Seq(2, 3, 4)` (Note: it includes the previous compaction batch 2).
    */
   def getValidBatchesBeforeCompactionBatch(
+      knownCompactionBatches: Array[Long],
       compactionBatchId: Long,
+      zeroBatch: Long,
       compactInterval: Int): Seq[Long] = {
-    assert(isCompactionBatch(compactionBatchId, compactInterval),
+    assert(
+      isCompactionBatch(knownCompactionBatches, compactionBatchId, zeroBatch, compactInterval),
       s"$compactionBatchId is not a compaction batch")
-    (math.max(0, compactionBatchId - compactInterval)) until compactionBatchId
+    assert(compactionBatchId >= zeroBatch, s"start at least with zeroBatch = $zeroBatch!")
+
+    if (compactionBatchId == zeroBatch + compactInterval - 1) {
+      // we have not compacted since zeroBatch
+      knownCompactionBatches.lastOption.getOrElse(0L) until compactionBatchId
+    }
+    else {
+      // we've compacted at least once since zeroBatch
+      (compactionBatchId - compactInterval) until compactionBatchId
+    }
   }
 
   /**
@@ -236,16 +278,52 @@ object CompactibleFileStreamLog {
    * return itself. Otherwise, it will find the previous compaction batch and return all batches
    * between it and `batchId`.
    */
-  def getAllValidBatches(batchId: Long, compactInterval: Long): Seq[Long] = {
+  def getAllValidBatches(
+      knownCompactionBatches: Array[Long],
+      batchId: Long,
+      zeroBatch: Long,
+      compactInterval: Long): Seq[Long] = {
     assert(batchId >= 0)
-    val start = math.max(0, (batchId + 1) / compactInterval * compactInterval - 1)
-    start to batchId
+
+    if (batchId < zeroBatch) {
+      if (knownCompactionBatches.isEmpty) {
+        return (0L to batchId)
+      }
+      else {
+        val compactionBatchIdOpt =
+          knownCompactionBatches.reverse.find(compationBatchId => compationBatchId <= batchId)
+        return (compactionBatchIdOpt.getOrElse(0L) to batchId)
+      }
+    }
+    else { // batchId >= zeroBatch holds
+      val _nextCompactionBatchId =
+        nextCompactionBatchId(knownCompactionBatches, batchId, zeroBatch, compactInterval)
+      assert(_nextCompactionBatchId >= zeroBatch + compactInterval - 1)
+      if (_nextCompactionBatchId == batchId) {
+        return Seq(batchId)
+      }
+      else {
+        if (_nextCompactionBatchId == zeroBatch + compactInterval - 1) {
+          // we have not compacted since zeroBatch
+          return knownCompactionBatches.lastOption.getOrElse(0L) to batchId
+        }
+        else {
+          // we've compacted at least once since zeroBatch
+          return (_nextCompactionBatchId - compactInterval) to batchId
+        }
+      }
+    }
   }
 
   /**
    * Returns the next compaction batch id after `batchId`.
    */
-  def nextCompactionBatchId(batchId: Long, compactInterval: Long): Long = {
-    (batchId + compactInterval + 1) / compactInterval * compactInterval - 1
+  def nextCompactionBatchId(
+      knownCompactionBatches: Array[Long],
+      batchId: Long,
+      zeroBatch: Long,
+      compactInterval: Long): Long = {
+    assert(batchId >= zeroBatch, s"start at least with zeroBatch = $zeroBatch!")
+    (batchId - zeroBatch + compactInterval + 1) / compactInterval * compactInterval + zeroBatch - 1
   }
 }

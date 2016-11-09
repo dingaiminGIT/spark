@@ -210,13 +210,15 @@ class HDFSMetadataLog[T: ClassTag](sparkSession: SparkSession, path: String)
     }
   }
 
+  protected def listExistingFiles(): Array[Path] = {
+    fileManager.list(metadataPath, batchFilesFilter).map(_.getPath)
+  }
+
   override def get(startId: Option[Long], endId: Option[Long]): Array[(Long, T)] = {
-    val files = fileManager.list(metadataPath, batchFilesFilter)
-    val batchIds = files
-      .map(f => pathToBatchId(f.getPath))
+    val batchIds = listExistingFiles().map(p => pathToBatchId(p))
       .filter { batchId =>
         (endId.isEmpty || batchId <= endId.get) && (startId.isEmpty || batchId >= startId.get)
-    }
+      }
     batchIds.sorted.map(batchId => (batchId, get(batchId))).filter(_._2.isDefined).map {
       case (batchId, metadataOption) =>
         (batchId, metadataOption.get)
@@ -224,8 +226,8 @@ class HDFSMetadataLog[T: ClassTag](sparkSession: SparkSession, path: String)
   }
 
   override def getLatest(): Option[(Long, T)] = {
-    val batchIds = fileManager.list(metadataPath, batchFilesFilter)
-      .map(f => pathToBatchId(f.getPath))
+    val batchIds = listExistingFiles()
+      .map(p => pathToBatchId(p))
       .sorted
       .reverse
     for (batchId <- batchIds) {
@@ -241,9 +243,8 @@ class HDFSMetadataLog[T: ClassTag](sparkSession: SparkSession, path: String)
    * Removes all the log entry earlier than thresholdBatchId (exclusive).
    */
   override def purge(thresholdBatchId: Long): Unit = {
-    val batchIds = fileManager.list(metadataPath, batchFilesFilter)
-      .map(f => pathToBatchId(f.getPath))
-
+    val batchIds = listExistingFiles()
+      .map(p => pathToBatchId(p))
     for (batchId <- batchIds if batchId < thresholdBatchId) {
       val path = batchIdToPath(batchId)
       fileManager.delete(path)

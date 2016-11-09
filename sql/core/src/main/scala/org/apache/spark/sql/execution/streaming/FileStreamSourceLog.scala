@@ -74,7 +74,7 @@ class FileStreamSourceLog(
 
   override def add(batchId: Long, logs: Array[FileEntry]): Boolean = {
     if (super.add(batchId, logs)) {
-      if (isCompactionBatch(batchId, compactInterval)) {
+      if (isCompactionBatch(knownCompactionBatches, batchId, zeroBatch, compactInterval)) {
         fileEntryCache.put(batchId, logs)
       }
       true
@@ -88,7 +88,8 @@ class FileStreamSourceLog(
     val endBatchId = getLatest().map(_._1).getOrElse(0L)
 
     val (existedBatches, removedBatches) = (startBatchId to endBatchId).map { id =>
-      if (isCompactionBatch(id, compactInterval) && fileEntryCache.containsKey(id)) {
+      if (isCompactionBatch(knownCompactionBatches, id, zeroBatch, compactInterval)
+        && fileEntryCache.containsKey(id)) {
         (id, Some(fileEntryCache.get(id)))
       } else {
         val logs = super.get(id).map(_.filter(_.batchId == id))
@@ -107,7 +108,8 @@ class FileStreamSourceLog(
       if (latestBatchId < 0) {
         Map.empty[Long, Option[Array[FileEntry]]]
       } else {
-        val latestCompactedBatchId = getAllValidBatches(latestBatchId, compactInterval)(0)
+        val latestCompactedBatchId =
+          getAllValidBatches(knownCompactionBatches, latestBatchId, zeroBatch, compactInterval)(0)
         val allLogs = new mutable.HashMap[Long, mutable.ArrayBuffer[FileEntry]]
 
         super.get(latestCompactedBatchId).foreach { entries =>
