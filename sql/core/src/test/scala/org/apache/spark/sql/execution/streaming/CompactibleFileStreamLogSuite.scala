@@ -21,9 +21,10 @@ import java.io._
 import java.nio.charset.StandardCharsets._
 
 import scala.language.implicitConversions
-import org.apache.spark.sql.SparkSession
+
 import org.apache.spark.{SparkConf, SparkFunSuite}
 import org.apache.spark.sql.execution.streaming.FakeFileSystem._
+import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.test.SharedSQLContext
 
 class CompactibleFileStreamLogSuite extends SparkFunSuite with SharedSQLContext {
@@ -33,8 +34,6 @@ class CompactibleFileStreamLogSuite extends SparkFunSuite with SharedSQLContext 
     new SparkConf().set(s"spark.hadoop.fs.$scheme.impl.disable.cache", "true")
 
   import CompactibleFileStreamLog._
-
-  // private implicit def toOption[A](a: A): Option[A] = Option(a)
 
   test("getBatchIdFromFileName") {
     assert(1234L === getBatchIdFromFileName("1234"))
