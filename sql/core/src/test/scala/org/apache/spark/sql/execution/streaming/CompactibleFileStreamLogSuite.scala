@@ -109,19 +109,19 @@ class CompactibleFileStreamLogSuite extends SparkFunSuite with SharedSQLContext 
       fileCleanupDelayMs = Long.MaxValue,
       compactInterval = 3,
       compactibleLog => {
-      val logs = Array("entry_1", "entry_2", "entry_3")
-      val expected = s"""test_version
-          |entry_1
-          |entry_2
-          |entry_3""".stripMargin
-      val baos = new ByteArrayOutputStream()
-      compactibleLog.serialize(logs, baos)
-      assert(expected === baos.toString(UTF_8.name()))
+        val logs = Array("entry_1", "entry_2", "entry_3")
+        val expected = s"""test_version
+            |entry_1
+            |entry_2
+            |entry_3""".stripMargin
+        val baos = new ByteArrayOutputStream()
+        compactibleLog.serialize(logs, baos)
+        assert(expected === baos.toString(UTF_8.name()))
 
-      baos.reset()
-      compactibleLog.serialize(Array(), baos)
-      assert("test_version" === baos.toString(UTF_8.name()))
-    })
+        baos.reset()
+        compactibleLog.serialize(Array(), baos)
+        assert("test_version" === baos.toString(UTF_8.name()))
+      })
   }
 
   test("deserialize") {
@@ -129,23 +129,24 @@ class CompactibleFileStreamLogSuite extends SparkFunSuite with SharedSQLContext 
       fileCleanupDelayMs = Long.MaxValue,
       compactInterval = 3,
       compactibleLog => {
-      // scalastyle:off
-      val logs = s"""test_version
-          |entry_1
-          |entry_2
-          |entry_3""".stripMargin
-      val expected = Array("entry_1", "entry_2", "entry_3")
-      assert(expected ===
-             compactibleLog.deserialize(new ByteArrayInputStream(logs.getBytes(UTF_8))))
+        val logs = s"""test_version
+            |entry_1
+            |entry_2
+            |entry_3""".stripMargin
+        val expected = Array("entry_1", "entry_2", "entry_3")
+        assert(expected ===
+               compactibleLog.deserialize(new ByteArrayInputStream(logs.getBytes(UTF_8))))
 
-      assert(Nil ===
-             compactibleLog.deserialize(new ByteArrayInputStream("test_version".getBytes(UTF_8))))
-    })
+        assert(Nil ===
+               compactibleLog.deserialize(new ByteArrayInputStream("test_version".getBytes(UTF_8))))
+      })
   }
 
   testWithUninterruptibleThread("compact") {
-    withFakeCompactibleFileStreamLog(fileCleanupDelayMs = Long.MaxValue, compactInterval = 3,
-      (compactibleLog) => {
+    withFakeCompactibleFileStreamLog(
+      fileCleanupDelayMs = Long.MaxValue,
+      compactInterval = 3,
+      compactibleLog => {
         for (batchId <- 0 to 10) {
           compactibleLog.add(batchId, Array("some_path_" + batchId))
           val expectedFiles = (0 to batchId).map { id => "some_path_" + id }
@@ -155,7 +156,7 @@ class CompactibleFileStreamLogSuite extends SparkFunSuite with SharedSQLContext 
             assert(compactibleLog.get(batchId).getOrElse(Nil) === expectedFiles)
           }
         }
-    })
+      })
   }
 
   testWithUninterruptibleThread("delete expired file") {
@@ -163,33 +164,33 @@ class CompactibleFileStreamLogSuite extends SparkFunSuite with SharedSQLContext 
     withFakeCompactibleFileStreamLog(
       fileCleanupDelayMs = 0,
       compactInterval = 3,
-      (compactibleLog) => {
-      val fs = compactibleLog.metadataPath.getFileSystem(spark.sessionState.newHadoopConf())
+      compactibleLog => {
+        val fs = compactibleLog.metadataPath.getFileSystem(spark.sessionState.newHadoopConf())
 
-      def listBatchFiles(): Set[String] = {
-        fs.listStatus(compactibleLog.metadataPath).map(_.getPath.getName).filter { fileName =>
-          try {
-            getBatchIdFromFileName(fileName)
-            true
-          } catch {
-            case _: NumberFormatException => false
-          }
-        }.toSet
-      }
+        def listBatchFiles(): Set[String] = {
+          fs.listStatus(compactibleLog.metadataPath).map(_.getPath.getName).filter { fileName =>
+            try {
+              getBatchIdFromFileName(fileName)
+              true
+            } catch {
+              case _: NumberFormatException => false
+            }
+          }.toSet
+        }
 
-      compactibleLog.add(0, Array("some_path_0"))
-      assert(Set("0") === listBatchFiles())
-      compactibleLog.add(1, Array("some_path_1"))
-      assert(Set("0", "1") === listBatchFiles())
-      compactibleLog.add(2, Array("some_path_2"))
-      assert(Set("2.compact") === listBatchFiles())
-      compactibleLog.add(3, Array("some_path_3"))
-      assert(Set("2.compact", "3") === listBatchFiles())
-      compactibleLog.add(4, Array("some_path_4"))
-      assert(Set("2.compact", "3", "4") === listBatchFiles())
-      compactibleLog.add(5, Array("some_path_5"))
-      assert(Set("5.compact") === listBatchFiles())
-    })
+        compactibleLog.add(0, Array("some_path_0"))
+        assert(Set("0") === listBatchFiles())
+        compactibleLog.add(1, Array("some_path_1"))
+        assert(Set("0", "1") === listBatchFiles())
+        compactibleLog.add(2, Array("some_path_2"))
+        assert(Set("2.compact") === listBatchFiles())
+        compactibleLog.add(3, Array("some_path_3"))
+        assert(Set("2.compact", "3") === listBatchFiles())
+        compactibleLog.add(4, Array("some_path_4"))
+        assert(Set("2.compact", "3", "4") === listBatchFiles())
+        compactibleLog.add(5, Array("some_path_5"))
+        assert(Set("5.compact") === listBatchFiles())
+      })
   }
 
   private def withFakeCompactibleFileStreamLog(
@@ -198,9 +199,11 @@ class CompactibleFileStreamLogSuite extends SparkFunSuite with SharedSQLContext 
     f: FakeCompactibleFileStreamLog => Unit
   ): Unit = {
     withTempDir { file =>
-      val compactibleLog = new FakeCompactibleFileStreamLog(fileCleanupDelayMs,
-        compactInterval, spark, file
-        .getCanonicalPath)
+      val compactibleLog = new FakeCompactibleFileStreamLog(
+        fileCleanupDelayMs,
+        compactInterval,
+        spark,
+        file.getCanonicalPath)
       f(compactibleLog)
     }
   }
