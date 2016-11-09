@@ -46,7 +46,7 @@ class CompactibleFileStreamLogSuite extends SparkFunSuite with SharedSQLContext 
 
   import CompactibleFileStreamLog._
 
-  private implicit def toOption[A](a: A): Option[A] = Option(a)
+  // private implicit def toOption[A](a: A): Option[A] = Option(a)
 
   test("getBatchIdFromFileName") {
     assert(1234L === getBatchIdFromFileName("1234"))
@@ -104,279 +104,92 @@ class CompactibleFileStreamLogSuite extends SparkFunSuite with SharedSQLContext 
   }
 
   test("batchIdToPath") {
-    withSQLConf(SQLConf.FILE_SINK_LOG_COMPACT_INTERVAL.key -> "3") {
-      withFakeCompactibleFileStreamLog { compactibleLog =>
+    withFakeCompactibleFileStreamLog(fileCleanupDelayMs = Long.MaxValue, compactInterval = 3,
+      {compactibleLog =>
         assert("0" === compactibleLog.batchIdToPath(0).getName)
         assert("1" === compactibleLog.batchIdToPath(1).getName)
         assert("2.compact" === compactibleLog.batchIdToPath(2).getName)
         assert("3" === compactibleLog.batchIdToPath(3).getName)
         assert("4" === compactibleLog.batchIdToPath(4).getName)
         assert("5.compact" === compactibleLog.batchIdToPath(5).getName)
-      }
-    }
+      })
   }
 
-
   testWithUninterruptibleThread("compact") {
-    withSQLConf(SQLConf.FILE_SINK_LOG_COMPACT_INTERVAL.key -> "3") {
-      withFakeCompactibleFileStreamLog { compactibleLog =>
+    withFakeCompactibleFileStreamLog(fileCleanupDelayMs = Long.MaxValue, compactInterval = 3,
+      (compactibleLog) => {
         for (batchId <- 0 to 10) {
-          compactibleLog.add(
-            batchId,
-            Array("some_path_"+batchId))
-          val expectedFiles = (0 to batchId).map {
-            id => "some_path" + id
-          }
+          compactibleLog.add(batchId, Array("some_path_" + batchId))
+          val expectedFiles = (0 to batchId).map { id => "some_path_" + id }
           assert(compactibleLog.allFiles() === expectedFiles)
           if (isCompactionBatch(batchId, 3)) {
             // Since batchId is a compaction batch, the batch log file should contain all logs
             assert(compactibleLog.get(batchId).getOrElse(Nil) === expectedFiles)
           }
         }
-      }
-    }
+    })
   }
-  /*
-          testWithUninterruptibleThread("delete expired file") {
-            // Set FILE_SINK_LOG_CLEANUP_DELAY to 0 so that we can detect the deleting behaviour
-            // deterministically
-            withSQLConf(
-              SQLConf.FILE_SINK_LOG_COMPACT_INTERVAL.key -> "3",
-              SQLConf.FILE_SINK_LOG_CLEANUP_DELAY.key -> "0") {
-              withFileStreamSinkLog { sinkLog =>
-                val fs = sinkLog.metadataPath.getFileSystem(spark.sessionState.newHadoopConf())
 
-                def listBatchFiles(): Set[String] = {
-                  fs.listStatus(sinkLog.metadataPath).map(_.getPath.getName).filter { fileName =>
-                    try {
-                      getBatchIdFromFileName(fileName)
-                      true
-                    } catch {
-                      case _: NumberFormatException => false
-                    }
-                  }.toSet
-                }
+  testWithUninterruptibleThread("delete expired file") {
+    // Set FILE_SINK_LOG_CLEANUP_DELAY to 0 so that we can detect the deleting behaviour
+    // deterministically
+    withFakeCompactibleFileStreamLog(fileCleanupDelayMs = 0, compactInterval = 3,
+      (compactibleLog) => {
+      val fs = compactibleLog.metadataPath.getFileSystem(spark.sessionState.newHadoopConf())
 
-                sinkLog.add(0, Array(newFakeSinkFileStatus("/a/b/0", FileStreamSinkLog.ADD_ACTION)))
-                assert(Set("0") === listBatchFiles())
-                sinkLog.add(1, Array(newFakeSinkFileStatus("/a/b/1", FileStreamSinkLog.ADD_ACTION)))
-                assert(Set("0", "1") === listBatchFiles())
-                sinkLog.add(2, Array(newFakeSinkFileStatus("/a/b/2", FileStreamSinkLog.ADD_ACTION)))
-                assert(Set("2.compact") === listBatchFiles())
-                sinkLog.add(3, Array(newFakeSinkFileStatus("/a/b/3", FileStreamSinkLog.ADD_ACTION)))
-                assert(Set("2.compact", "3") === listBatchFiles())
-                sinkLog.add(4, Array(newFakeSinkFileStatus("/a/b/4", FileStreamSinkLog.ADD_ACTION)))
-                assert(Set("2.compact", "3", "4") === listBatchFiles())
-                sinkLog.add(5, Array(newFakeSinkFileStatus("/a/b/5", FileStreamSinkLog.ADD_ACTION)))
-                assert(Set("5.compact") === listBatchFiles())
-              }
-            }
+      def listBatchFiles(): Set[String] = {
+        fs.listStatus(compactibleLog.metadataPath).map(_.getPath.getName).filter { fileName =>
+          try {
+            getBatchIdFromFileName(fileName)
+            true
+          } catch {
+            case _: NumberFormatException => false
           }
-
-
-          testWithUninterruptibleThread("HDFSMetadataLog: basic") {
-            withTempDir { temp =>
-              val dir = new File(temp, "dir") // use non-existent directory to test whether log make the dir
-              val metadataLog = new FakeCompactibleFileStreamLog("vvv", spark, dir.getAbsolutePath)
-              assert(metadataLog.add(0, Array("batch0")))
-              val x = metadataLog.getLatest();
-              x
-              val y: Tuple2[Int, Int] = Tuple2(1, 2)
-              y.equals(2)
-              assert((1, "b") === (1,"b"))
-              assert(metadataLog.getLatest() === Some(0 -> Array("batch0")))
-              assert(metadataLog.get(0) === Some("batch0"))
-              assert(metadataLog.getLatest() === Some(0 -> "batch0"))
-              assert(metadataLog.get(None, Some(0)) === Array(0 -> "batch0"))
-
-              assert(metadataLog.add(1, Array("batch1")))
-              assert(metadataLog.get(0) === Some("batch0"))
-              assert(metadataLog.get(1) === Some("batch1"))
-              assert(metadataLog.getLatest() === Some(1 -> "batch1"))
-              assert(metadataLog.get(None, Some(1)) === Array(0 -> "batch0", 1 -> "batch1"))
-
-              // Adding the same batch does nothing
-              metadataLog.add(1, Array("batch1-duplicated"))
-              assert(metadataLog.get(0) === Some("batch0"))
-              assert(metadataLog.get(1) === Some("batch1"))
-              assert(metadataLog.getLatest() === Some(1 -> "batch1"))
-              assert(metadataLog.get(None, Some(1)) === Array(0 -> "batch0", 1 -> "batch1"))
-            }
-          }
-          */
-/*
-  testWithUninterruptibleThread(
-    "HDFSMetadataLog: fallback from FileContext to FileSystem", quietly = true) {
-    spark.conf.set(
-      s"fs.$scheme.impl",
-      classOf[FakeFileSystem].getName)
-    withTempDir { temp =>
-      val metadataLog = new HDFSMetadataLog[String](spark, s"$scheme://$temp")
-      assert(metadataLog.add(0, "batch0"))
-      assert(metadataLog.getLatest() === Some(0 -> "batch0"))
-      assert(metadataLog.get(0) === Some("batch0"))
-      assert(metadataLog.get(None, Some(0)) === Array(0 -> "batch0"))
-
-
-      val metadataLog2 = new HDFSMetadataLog[String](spark, s"$scheme://$temp")
-      assert(metadataLog2.get(0) === Some("batch0"))
-      assert(metadataLog2.getLatest() === Some(0 -> "batch0"))
-      assert(metadataLog2.get(None, Some(0)) === Array(0 -> "batch0"))
-
-    }
-  }
-
-  testWithUninterruptibleThread("HDFSMetadataLog: purge") {
-    withTempDir { temp =>
-      val metadataLog = new HDFSMetadataLog[String](spark, temp.getAbsolutePath)
-      assert(metadataLog.add(0, "batch0"))
-      assert(metadataLog.add(1, "batch1"))
-      assert(metadataLog.add(2, "batch2"))
-      assert(metadataLog.get(0).isDefined)
-      assert(metadataLog.get(1).isDefined)
-      assert(metadataLog.get(2).isDefined)
-      assert(metadataLog.getLatest().get._1 == 2)
-
-      metadataLog.purge(2)
-      assert(metadataLog.get(0).isEmpty)
-      assert(metadataLog.get(1).isEmpty)
-      assert(metadataLog.get(2).isDefined)
-      assert(metadataLog.getLatest().get._1 == 2)
-
-      // There should be exactly one file, called "2", in the metadata directory.
-      // This check also tests for regressions of SPARK-17475
-      val allFiles = new File(metadataLog.metadataPath.toString).listFiles().toSeq
-      assert(allFiles.size == 1)
-      assert(allFiles(0).getName() == "2")
-    }
-  }
-
-  testWithUninterruptibleThread("HDFSMetadataLog: restart") {
-    withTempDir { temp =>
-      val metadataLog = new HDFSMetadataLog[String](spark, temp.getAbsolutePath)
-      assert(metadataLog.add(0, "batch0"))
-      assert(metadataLog.add(1, "batch1"))
-      assert(metadataLog.get(0) === Some("batch0"))
-      assert(metadataLog.get(1) === Some("batch1"))
-      assert(metadataLog.getLatest() === Some(1 -> "batch1"))
-      assert(metadataLog.get(None, Some(1)) === Array(0 -> "batch0", 1 -> "batch1"))
-
-      val metadataLog2 = new HDFSMetadataLog[String](spark, temp.getAbsolutePath)
-      assert(metadataLog2.get(0) === Some("batch0"))
-      assert(metadataLog2.get(1) === Some("batch1"))
-      assert(metadataLog2.getLatest() === Some(1 -> "batch1"))
-      assert(metadataLog2.get(None, Some(1)) === Array(0 -> "batch0", 1 -> "batch1"))
-    }
-  }
-
-  test("HDFSMetadataLog: metadata directory collision") {
-    withTempDir { temp =>
-      val waiter = new Waiter
-      val maxBatchId = 100
-      for (id <- 0 until 10) {
-        new UninterruptibleThread(s"HDFSMetadataLog: metadata directory collision - thread $id") {
-          override def run(): Unit = waiter {
-            val metadataLog =
-              new HDFSMetadataLog[String](spark, temp.getAbsolutePath)
-            try {
-              var nextBatchId = metadataLog.getLatest().map(_._1).getOrElse(-1L)
-              nextBatchId += 1
-              while (nextBatchId <= maxBatchId) {
-                metadataLog.add(nextBatchId, nextBatchId.toString)
-                nextBatchId += 1
-              }
-            } catch {
-              case e: ConcurrentModificationException =>
-              // This is expected since there are multiple writers
-            } finally {
-              waiter.dismiss()
-            }
-          }
-        }.start()
+        }.toSet
       }
 
-      waiter.await(timeout(10.seconds), dismissals(10))
-      val metadataLog = new HDFSMetadataLog[String](spark, temp.getAbsolutePath)
-      assert(metadataLog.getLatest() === Some(maxBatchId -> maxBatchId.toString))
-      assert(
-        metadataLog.get(None, Some(maxBatchId)) === (0 to maxBatchId).map(i => (i, i.toString)))
-    }
+      compactibleLog.add(0, Array("some_path_0"))
+      assert(Set("0") === listBatchFiles())
+      compactibleLog.add(1, Array("some_path_1"))
+      assert(Set("0", "1") === listBatchFiles())
+      compactibleLog.add(2, Array("some_path_2"))
+      assert(Set("2.compact") === listBatchFiles())
+      compactibleLog.add(3, Array("some_path_3"))
+      assert(Set("2.compact", "3") === listBatchFiles())
+      compactibleLog.add(4, Array("some_path_4"))
+      assert(Set("2.compact", "3", "4") === listBatchFiles())
+      compactibleLog.add(5, Array("some_path_5"))
+      assert(Set("5.compact") === listBatchFiles())
+    })
   }
 
-  /** Basic test case for [[FileManager]] implementation. */
-  private def testFileManager(basePath: Path, fm: FileManager): Unit = {
-    // Mkdirs
-    val dir = new Path(s"$basePath/dir/subdir/subsubdir")
-    assert(!fm.exists(dir))
-    fm.mkdirs(dir)
-    assert(fm.exists(dir))
-    fm.mkdirs(dir)
-
-    // List
-    val acceptAllFilter = new PathFilter {
-      override def accept(path: Path): Boolean = true
-    }
-    val rejectAllFilter = new PathFilter {
-      override def accept(path: Path): Boolean = false
-    }
-    assert(fm.list(basePath, acceptAllFilter).exists(_.getPath.getName == "dir"))
-    assert(fm.list(basePath, rejectAllFilter).length === 0)
-
-    // Create
-    val path = new Path(s"$dir/file")
-    assert(!fm.exists(path))
-    fm.create(path).close()
-    assert(fm.exists(path))
-    intercept[IOException] {
-      fm.create(path)
-    }
-
-    // Open and delete
-    val f1 = fm.open(path)
-    fm.delete(path)
-    assert(!fm.exists(path))
-    intercept[IOException] {
-      fm.open(path)
-    }
-    fm.delete(path)  // should not throw exception
-    f1.close()
-
-    // Rename
-    val path1 = new Path(s"$dir/file1")
-    val path2 = new Path(s"$dir/file2")
-    fm.create(path1).close()
-    assert(fm.exists(path1))
-    fm.rename(path1, path2)
-    intercept[FileNotFoundException] {
-      fm.rename(path1, path2)
-    }
-    val path3 = new Path(s"$dir/file3")
-    fm.create(path3).close()
-    assert(fm.exists(path3))
-    intercept[FileAlreadyExistsException] {
-      fm.rename(path2, path3)
-    }
-  }*/
-
-  private def withFakeCompactibleFileStreamLog(f: FakeCompactibleFileStreamLog => Unit): Unit = {
+  private def withFakeCompactibleFileStreamLog(
+    fileCleanupDelayMs: Long,
+    compactInterval: Int,
+    f: FakeCompactibleFileStreamLog => Unit
+  ): Unit = {
     withTempDir { file =>
-      val sinkLog = new FakeCompactibleFileStreamLog("vvv", spark, file.getCanonicalPath)
-      f(sinkLog)
+      val compactibleLog = new FakeCompactibleFileStreamLog("vvv",fileCleanupDelayMs,
+        compactInterval, spark, file
+        .getCanonicalPath)
+      f(compactibleLog)
     }
   }
 }
 
 class FakeCompactibleFileStreamLog(
                                        metadataLogVersion: String,
+  _fileCleanupDelayMs:Long,
+  _compactInterval: Int,
                                        sparkSession: SparkSession,
                                        path: String)
   extends CompactibleFileStreamLog[String] (metadataLogVersion, sparkSession, path) {
 
-  override protected def fileCleanupDelayMs: Long = 100
+  override protected def fileCleanupDelayMs: Long = _fileCleanupDelayMs
 
   override protected def isDeletingExpiredLog: Boolean = true
 
-  override protected def compactInterval: Int = 3
+  override protected def compactInterval: Int = _compactInterval
 
   override protected def serializeData(t: String): String = t
 
