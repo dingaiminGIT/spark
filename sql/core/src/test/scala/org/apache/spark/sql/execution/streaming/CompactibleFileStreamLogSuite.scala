@@ -135,10 +135,10 @@ class CompactibleFileStreamLogSuite extends SparkFunSuite with SharedSQLContext 
             |entry_3""".stripMargin
         val expected = Array("entry_1", "entry_2", "entry_3")
         assert(expected ===
-               compactibleLog.deserialize(new ByteArrayInputStream(logs.getBytes(UTF_8))))
+          compactibleLog.deserialize(new ByteArrayInputStream(logs.getBytes(UTF_8))))
 
         assert(Nil ===
-               compactibleLog.deserialize(new ByteArrayInputStream("test_version".getBytes(UTF_8))))
+          compactibleLog.deserialize(new ByteArrayInputStream("test_version".getBytes(UTF_8))))
       })
   }
 
@@ -210,11 +210,11 @@ class CompactibleFileStreamLogSuite extends SparkFunSuite with SharedSQLContext 
 }
 
 class FakeCompactibleFileStreamLog(
-    _fileCleanupDelayMs:Long,
+    _fileCleanupDelayMs: Long,
     _compactInterval: Int,
     sparkSession: SparkSession,
     path: String)
-  extends CompactibleFileStreamLog[String] ("test_version", sparkSession, path) {
+  extends CompactibleFileStreamLog[String]("test_version", sparkSession, path) {
 
   override protected def fileCleanupDelayMs: Long = _fileCleanupDelayMs
 
