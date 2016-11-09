@@ -18,25 +18,13 @@
 package org.apache.spark.sql.execution.streaming
 
 import java.io._
-import java.net.URI
 import java.nio.charset.StandardCharsets._
-import java.util.ConcurrentModificationException
 
 import scala.language.implicitConversions
-import scala.util.Random
-import org.apache.hadoop.conf.Configuration
-import org.apache.hadoop.fs._
 import org.apache.spark.sql.SparkSession
-import org.scalatest.concurrent.AsyncAssertions._
-import org.scalatest.time.SpanSugar._
 import org.apache.spark.{SparkConf, SparkFunSuite}
 import org.apache.spark.sql.execution.streaming.FakeFileSystem._
-import org.apache.spark.sql.execution.streaming.HDFSMetadataLog.{FileContextManager, FileManager, FileSystemManager}
-import org.apache.spark.sql.internal.SQLConf
 import org.apache.spark.sql.test.SharedSQLContext
-import org.apache.spark.util.UninterruptibleThread
-
-import scala.reflect.ClassTag
 
 class CompactibleFileStreamLogSuite extends SparkFunSuite with SharedSQLContext {
 
