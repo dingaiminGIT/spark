@@ -131,9 +131,10 @@ class CompactibleFileStreamLogSuite extends SparkFunSuite with SharedSQLContext 
   }
 
   testWithUninterruptibleThread("delete expired file") {
-    // Set FILE_SINK_LOG_CLEANUP_DELAY to 0 so that we can detect the deleting behaviour
-    // deterministically
-    withFakeCompactibleFileStreamLog(fileCleanupDelayMs = 0, compactInterval = 3,
+    // Set `fileCleanupDelayMs` to 0 so that we can detect the deleting behaviour deterministically
+    withFakeCompactibleFileStreamLog(
+      fileCleanupDelayMs = 0,
+      compactInterval = 3,
       (compactibleLog) => {
       val fs = compactibleLog.metadataPath.getFileSystem(spark.sessionState.newHadoopConf())
 
@@ -169,7 +170,7 @@ class CompactibleFileStreamLogSuite extends SparkFunSuite with SharedSQLContext 
     f: FakeCompactibleFileStreamLog => Unit
   ): Unit = {
     withTempDir { file =>
-      val compactibleLog = new FakeCompactibleFileStreamLog("vvv",fileCleanupDelayMs,
+      val compactibleLog = new FakeCompactibleFileStreamLog("test_version",fileCleanupDelayMs,
         compactInterval, spark, file
         .getCanonicalPath)
       f(compactibleLog)
@@ -178,11 +179,11 @@ class CompactibleFileStreamLogSuite extends SparkFunSuite with SharedSQLContext 
 }
 
 class FakeCompactibleFileStreamLog(
-                                       metadataLogVersion: String,
-  _fileCleanupDelayMs:Long,
-  _compactInterval: Int,
-                                       sparkSession: SparkSession,
-                                       path: String)
+    metadataLogVersion: String,
+    _fileCleanupDelayMs:Long,
+    _compactInterval: Int,
+    sparkSession: SparkSession,
+    path: String)
   extends CompactibleFileStreamLog[String] (metadataLogVersion, sparkSession, path) {
 
   override protected def fileCleanupDelayMs: Long = _fileCleanupDelayMs
