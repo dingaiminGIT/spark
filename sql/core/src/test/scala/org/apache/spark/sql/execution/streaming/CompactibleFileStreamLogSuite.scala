@@ -44,6 +44,8 @@ class CompactibleFileStreamLogSuite extends SparkFunSuite with SharedSQLContext 
   override protected val sparkConf =
     new SparkConf().set(s"spark.hadoop.fs.$scheme.impl.disable.cache", "true")
 
+  import CompactibleFileStreamLog._
+
   private implicit def toOption[A](a: A): Option[A] = Option(a)
 
   test("getBatchIdFromFileName") {
@@ -101,6 +103,7 @@ class CompactibleFileStreamLogSuite extends SparkFunSuite with SharedSQLContext 
     assert(Seq(8) === getAllValidBatches(8, compactInterval = 3))
   }
 
+/*
   test("compactLogs") {
     withFileStreamSinkLog { sinkLog =>
       val logs = Seq(
@@ -300,6 +303,7 @@ class CompactibleFileStreamLogSuite extends SparkFunSuite with SharedSQLContext 
       assert(metadataLog.get(None, Some(1)) === Array(0 -> "batch0", 1 -> "batch1"))
     }
   }
+  */
 /*
   testWithUninterruptibleThread(
     "HDFSMetadataLog: fallback from FileContext to FileSystem", quietly = true) {
