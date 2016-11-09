@@ -104,8 +104,10 @@ class CompactibleFileStreamLogSuite extends SparkFunSuite with SharedSQLContext 
   }
 
   test("batchIdToPath") {
-    withFakeCompactibleFileStreamLog(fileCleanupDelayMs = Long.MaxValue, compactInterval = 3,
-      {compactibleLog =>
+    withFakeCompactibleFileStreamLog(
+      fileCleanupDelayMs = Long.MaxValue,
+      compactInterval = 3,
+      compactibleLog => {
         assert("0" === compactibleLog.batchIdToPath(0).getName)
         assert("1" === compactibleLog.batchIdToPath(1).getName)
         assert("2.compact" === compactibleLog.batchIdToPath(2).getName)
@@ -115,6 +117,66 @@ class CompactibleFileStreamLogSuite extends SparkFunSuite with SharedSQLContext 
       })
   }
 
+  test("serialize") {
+    withFakeCompactibleFileStreamLog(
+      fileCleanupDelayMs = Long.MaxValue,
+      compactInterval = 3,
+      compactibleLog => {
+      val logs = Array("entry_1", "entry_2", "entry_3")
+      val expected = s"""test_version
+          |entry_1
+          |entry_2
+          |entry_3""".stripMargin
+      val baos = new ByteArrayOutputStream()
+      compactibleLog.serialize(logs, baos)
+      assert(expected === baos.toString(UTF_8.name()))
+      baos.reset()
+      compactibleLog.serialize(Array(), baos)
+      assert("test_version" === baos.toString(UTF_8.name()))
+    })
+  }
+/*
+  test("deserialize") {
+    withFileStreamSinkLog { sinkLog =>
+      // scalastyle:off
+      val logs = s"""$VERSION
+          |{"path":"/a/b/x","size":100,"isDir":false,"modificationTime":1000,"blockReplication":1,"blockSize":10000,"action":"add"}
+          |{"path":"/a/b/y","size":200,"isDir":false,"modificationTime":2000,"blockReplication":2,"blockSize":20000,"action":"delete"}
+          |{"path":"/a/b/z","size":300,"isDir":false,"modificationTime":3000,"blockReplication":3,"blockSize":30000,"action":"add"}""".stripMargin
+      // scalastyle:on
+
+      val expected = Seq(
+        SinkFileStatus(
+          path = "/a/b/x",
+          size = 100L,
+          isDir = false,
+          modificationTime = 1000L,
+          blockReplication = 1,
+          blockSize = 10000L,
+          action = FileStreamSinkLog.ADD_ACTION),
+        SinkFileStatus(
+          path = "/a/b/y",
+          size = 200L,
+          isDir = false,
+          modificationTime = 2000L,
+          blockReplication = 2,
+          blockSize = 20000L,
+          action = FileStreamSinkLog.DELETE_ACTION),
+        SinkFileStatus(
+          path = "/a/b/z",
+          size = 300L,
+          isDir = false,
+          modificationTime = 3000L,
+          blockReplication = 3,
+          blockSize = 30000L,
+          action = FileStreamSinkLog.ADD_ACTION))
+
+      assert(expected === sinkLog.deserialize(new ByteArrayInputStream(logs.getBytes(UTF_8))))
+
+      assert(Nil === sinkLog.deserialize(new ByteArrayInputStream(VERSION.getBytes(UTF_8))))
+    }
+  }
+*/
   testWithUninterruptibleThread("compact") {
     withFakeCompactibleFileStreamLog(fileCleanupDelayMs = Long.MaxValue, compactInterval = 3,
       (compactibleLog) => {
@@ -170,7 +232,7 @@ class CompactibleFileStreamLogSuite extends SparkFunSuite with SharedSQLContext 
     f: FakeCompactibleFileStreamLog => Unit
   ): Unit = {
     withTempDir { file =>
-      val compactibleLog = new FakeCompactibleFileStreamLog("test_version",fileCleanupDelayMs,
+      val compactibleLog = new FakeCompactibleFileStreamLog(fileCleanupDelayMs,
         compactInterval, spark, file
         .getCanonicalPath)
       f(compactibleLog)
@@ -179,12 +241,11 @@ class CompactibleFileStreamLogSuite extends SparkFunSuite with SharedSQLContext 
 }
 
 class FakeCompactibleFileStreamLog(
-    metadataLogVersion: String,
     _fileCleanupDelayMs:Long,
     _compactInterval: Int,
     sparkSession: SparkSession,
     path: String)
-  extends CompactibleFileStreamLog[String] (metadataLogVersion, sparkSession, path) {
+  extends CompactibleFileStreamLog[String] ("test_version", sparkSession, path) {
 
   override protected def fileCleanupDelayMs: Long = _fileCleanupDelayMs
 
