@@ -341,11 +341,12 @@ class CompactibleFileStreamLogSuite extends SparkFunSuite with SharedSQLContext 
         assert("11.compact" === compactibleLog.batchIdToPath(11).getName)
       })
   }
-  /*
+
     test("serialize") {
       withFakeCompactibleFileStreamLog(
         fileCleanupDelayMs = Long.MaxValue,
         compactInterval = 3,
+        existingFiles = Seq[String](),
         compactibleLog => {
           val logs = Array("entry_1", "entry_2", "entry_3")
           val expected = s"""test_version
@@ -366,6 +367,7 @@ class CompactibleFileStreamLogSuite extends SparkFunSuite with SharedSQLContext 
       withFakeCompactibleFileStreamLog(
         fileCleanupDelayMs = Long.MaxValue,
         compactInterval = 3,
+        existingFiles = Seq[String](),
         compactibleLog => {
           val logs = s"""test_version
               |entry_1
@@ -384,6 +386,7 @@ class CompactibleFileStreamLogSuite extends SparkFunSuite with SharedSQLContext 
       withFakeCompactibleFileStreamLog(
         fileCleanupDelayMs = Long.MaxValue,
         compactInterval = 3,
+        existingFiles = Seq[String](),
         compactibleLog => {
           for (batchId <- 0 to 10) {
             compactibleLog.add(batchId, Array("some_path_" + batchId))
@@ -402,6 +405,7 @@ class CompactibleFileStreamLogSuite extends SparkFunSuite with SharedSQLContext 
       withFakeCompactibleFileStreamLog(
         fileCleanupDelayMs = 0,
         compactInterval = 3,
+        existingFiles = Seq[String](),
         compactibleLog => {
           val fs = compactibleLog.metadataPath.getFileSystem(spark.sessionState.newHadoopConf())
 
@@ -430,7 +434,7 @@ class CompactibleFileStreamLogSuite extends SparkFunSuite with SharedSQLContext 
           assert(Set("5.compact") === listBatchFiles())
         })
     }
-  */
+
   private def withFakeCompactibleFileStreamLog(
     fileCleanupDelayMs: Long,
     compactInterval: Int,
