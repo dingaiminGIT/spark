@@ -893,7 +893,7 @@ object CodeGenerator extends Logging {
     // Cannot be under package codegen, or fail with java.lang.InstantiationException
 
     val packageName = "org.apache.spark.sql.catalyst.expressions"
-    val className = "GeneratedClass"
+    val className = "GeneratedClass" + System.currentTimeMillis()
     val imports = Array(
       classOf[Platform].getName,
       classOf[InternalRow].getName,
@@ -930,7 +930,7 @@ object CodeGenerator extends Logging {
     })
 
     try {
-      evaluator.cook("generated.java", formattedStr)
+      evaluator.cook(formattedStr)
       recordCompilationStats(evaluator)
     } catch {
       case e: Exception =>
