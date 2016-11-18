@@ -878,7 +878,7 @@ object CodeGenerator extends Logging {
    * Compile the Java source code into a Java class, using Janino.
    */
   private[this] def doCompile(code: CodeAndComment): GeneratedClass = {
-    val evaluator = new ClassBodyEvaluator()
+    val evaluator = new SimpleCompiler()
 
     // A special classloader used to wrap the actual parent classloader of
     // [[org.codehaus.janino.ClassBodyEvaluator]] (see CodeGenerator.doCompile). This classloader
@@ -891,8 +891,10 @@ object CodeGenerator extends Logging {
     val parentClassLoader = new ParentClassLoader(Utils.getContextOrSparkClassLoader)
     evaluator.setParentClassLoader(parentClassLoader)
     // Cannot be under package codegen, or fail with java.lang.InstantiationException
-    evaluator.setClassName("org.apache.spark.sql.catalyst.expressions.GeneratedClass")
-    evaluator.setDefaultImports(Array(
+
+    val packageName = "org.apache.spark.sql.catalyst.expressions"
+    val className = "GeneratedClass"
+    val imports = Array(
       classOf[Platform].getName,
       classOf[InternalRow].getName,
       classOf[UnsafeRow].getName,
@@ -904,10 +906,22 @@ object CodeGenerator extends Logging {
       classOf[MapData].getName,
       classOf[UnsafeMapData].getName,
       classOf[Expression].getName
-    ))
-    evaluator.setExtendedClass(classOf[GeneratedClass])
+    ).map {clazz => s"import ${clazz};\n"}.mkString("")
 
     lazy val formatted = CodeFormatter.format(code)
+
+    val formattedStr =
+      s"""
+        | package ${packageName};
+        | ${imports}
+        |
+        | public class ${className} extends ${classOf[GeneratedClass].getName} {
+        |   ${formatted}
+        | }
+      """.stripMargin
+
+    // comment this out when necessary !!!
+    println(formattedStr)
 
     logDebug({
       // Only add extra debugging info to byte code when we are going to print the source code.
@@ -916,7 +930,7 @@ object CodeGenerator extends Logging {
     })
 
     try {
-      evaluator.cook("generated.java", code.body)
+      evaluator.cook("generated.java", formattedStr)
       recordCompilationStats(evaluator)
     } catch {
       case e: Exception =>
@@ -924,13 +938,14 @@ object CodeGenerator extends Logging {
         logError(msg, e)
         throw new Exception(msg, e)
     }
-    evaluator.getClazz().newInstance().asInstanceOf[GeneratedClass]
+    evaluator.getClassLoader.loadClass(s"${packageName}.${className}").newInstance()
+      .asInstanceOf[GeneratedClass]
   }
 
   /**
    * Records the generated class and method bytecode sizes by inspecting janino private fields.
    */
-  private def recordCompilationStats(evaluator: ClassBodyEvaluator): Unit = {
+  private def recordCompilationStats(evaluator: SimpleCompiler): Unit = {
     // First retrieve the generated classes.
     val classes = {
       val resultField = classOf[SimpleCompiler].getDeclaredField("result")
